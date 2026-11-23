@@ -1,0 +1,6 @@
+# Cached API responses and proxied images.
+/cache/*
+!/cache/.gitignore
+
+# Optional local config overrides (never commit secrets).
+/lib/config.local.php

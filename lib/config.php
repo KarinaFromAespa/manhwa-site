@@ -1,0 +1,17 @@
+<?php
+// Site configuration. Values come from environment variables; nothing
+// secret is hardcoded here. A local config.local.php (git-ignored) may
+// override these on the server if env vars are not available.
+
+$SITE_NAME = getenv('CX_SITE_NAME') ?: 'Comix';
+$SERVICE_URL = getenv('CX_SERVICE_URL') ?: '';
+$SERVICE_TOKEN = getenv('CX_SERVICE_TOKEN') ?: '';
+$CACHE_DIR = getenv('CX_CACHE_DIR') ?: __DIR__ . '/../cache';
+$CACHE_TTL = (int) (getenv('CX_CACHE_TTL') ?: 900); // seconds, default 15 min
+$COMIX_BASE = 'https://comix.to';
+$COMIX_API = $COMIX_BASE . '/api/v1';
+
+$localOverride = __DIR__ . '/config.local.php';
+if (is_file($localOverride)) {
+    require $localOverride;
+}
