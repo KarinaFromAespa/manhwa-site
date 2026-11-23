@@ -1,0 +1,825 @@
+#!/usr/bin/env python3
+"""Hourly catalog scraper for manhwafreedev (stdlib only).
+
+Reads the source set from docs/manhwa-sources.json, scrapes the
+Madara latest list of each source, fetches title pages for titles
+that are new or changed since the last run, fetches chapter pages
+for new chapters only, and writes the catalog the site reads:
+data/catalog.json (index) + data/titles/<id>.json (per-title detail)
+exactly per data/catalog-schema.md. Per-source chapter lists are
+written as scraped; the site merges chapters across sources at read
+time (lib/catalog.php) — this scraper never merges.
+
+Efficiency: the list items carry the two latest chapters with dates,
+so a title whose latest chapter is unchanged costs zero requests
+(the stored copy is carried forward). New/changed titles cost one
+title-page fetch plus chapter-page fetches for new chapters only.
+Imageless chapters are backfilled a few per run with leftover
+budget. The whole run is capped (wall clock + request count) and
+stops gracefully, still writing a valid partial catalog.
+
+State lives in scraper/state.json: per-source reliability history
+(30-day success rate), per-title last-seen chapter info, and a
+(source, slug) -> canonical-id map so ids stay stable across runs.
+"""
+import argparse
+import hashlib
+import json
+import sys
+import time
+from pathlib import Path
+from urllib.parse import urlparse
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from madara import MadaraSite
+from normalize import (
+    canonical_title_slug,
+    is_adult,
+    normalize_number,
+    normalize_status,
+    parse_date,
+    slugify,
+)
+
+ROOT = Path(__file__).resolve().parent.parent
+
+# --- V1 source set ---
+# Only confirmed, free, no-login, English, Madara-theme sources.
+# comix is excluded (its API needs a signature no server can
+# compute); login-required sources are deferred (need sessions);
+# non-Madara themes have no adapter yet.
+V1_FILTER = {
+    "confidence": "confirmed",
+    "access": "free",
+    "lang": "en",
+    "theme": "madara",
+}
+# Proven unreachable from datacenter IPs (Cloudflare challenge).
+# Revisit if a residential fetcher (PC bridge) exists.
+V1_EXCLUDE = {
+    "dragontea": "Cloudflare-challenged from datacenter IPs (2026-11-23)",
+}
+
+# --- Budgets (private repo: 2,000 Actions min/month, 720 runs) ---
+LIST_PAGES = 2            # /manga/ pages per source per run
+REQUEST_TIMEOUT = 10      # seconds per request
+REQUEST_DELAY = 0.5       # seconds between requests to the same host
+MAX_SECONDS = 100         # wall-clock cap for the whole run
+MAX_REQUESTS = 150        # request cap for the whole run
+MAX_TITLE_PAGES_PER_SOURCE = 30
+MAX_CHAPTER_PAGES_PER_SOURCE = 40
+NEW_CHAPTER_IMAGES_PER_TITLE = 5   # newest new chapters imaged first
+BACKFILL_PER_SOURCE = 20           # imageless chapters backfilled/run
+
+STATE_DAYS = 30           # reliability window
+
+
+# --- Registry ids (same scheme as tools/build-sources-registry.py) ---
+
+def registry_ids(items):
+    seen = {}
+    out = {}
+    for item in items:
+        base = slugify(item["name"])
+        n = seen.get(base, 0) + 1
+        seen[base] = n
+        source_id = base if n == 1 else f"{base}-{n}"
+        out[source_id] = item
+    return out
+
+
+def load_v1_sources(root, only=None):
+    data = json.loads((root / "docs" / "manhwa-sources.json").read_text())
+    by_id = registry_ids(data)
+    chosen = []
+    for source_id, item in by_id.items():
+        if only is not None:
+            if source_id in only:
+                chosen.append((source_id, item))
+            continue
+        if source_id == "comix":
+            continue
+        if source_id in V1_EXCLUDE:
+            continue
+        if all(item.get(k, "") == v for k, v in V1_FILTER.items()):
+            chosen.append((source_id, item))
+    return chosen
+
+
+# --- Small JSON helpers ---
+
+def load_json(path, default):
+    try:
+        return json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return default
+
+
+def write_json_atomic(path, data):
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(
+        json.dumps(data, ensure_ascii=False, indent=1) + "\n",
+        encoding="utf-8",
+    )
+    tmp.replace(path)
+
+
+def write_json_if_changed(path, data):
+    text = json.dumps(data, ensure_ascii=False, indent=1) + "\n"
+    path = Path(path)
+    try:
+        if path.read_text(encoding="utf-8") == text:
+            return False
+    except OSError:
+        pass
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(text, encoding="utf-8")
+    tmp.replace(path)
+    return True
+
+
+def chapter_hash(chapters):
+    blob = "\n".join(
+        f"{c.get('number', '')}|{c.get('id', '')}" for c in chapters
+    )
+    return hashlib.sha1(blob.encode("utf-8")).hexdigest()[:12]
+
+
+# --- State ---
+
+def load_state(path):
+    state = load_json(path, None)
+    if not isinstance(state, dict) or "sources" not in state:
+        return {"version": 1, "sources": {}, "titles": {}, "map": {}}
+    state.setdefault("titles", {})
+    state.setdefault("map", {})
+    return state
+
+
+def prune_attempts(state, source_id, now):
+    entry = state["sources"].setdefault(source_id, {})
+    cutoff = now - STATE_DAYS * 86400
+    attempts = [
+        [ts, ok] for ts, ok in entry.get("attempts", [])
+        if ts >= cutoff
+    ]
+    entry["attempts"] = attempts[-720:]
+    return entry
+
+
+def record_attempt(state, source_id, ok, now):
+    entry = prune_attempts(state, source_id, now)
+    entry["attempts"].append([now, bool(ok)])
+    entry["last_run"] = now
+    if ok:
+        entry["last_ok"] = now
+        entry["consecutive_failures"] = 0
+    else:
+        entry["consecutive_failures"] = entry.get("consecutive_failures", 0) + 1
+
+
+def reliability(state, source_id):
+    entry = state["sources"].get(source_id, {})
+    attempts = entry.get("attempts", [])
+    if not attempts:
+        return None
+    good = sum(1 for _, ok in attempts if ok)
+    return round(good / len(attempts), 3)
+
+
+class Budget:
+    """Run-wide caps. When exceeded, the run stops gracefully and
+    still writes a valid (partial) catalog."""
+
+    def __init__(self, max_seconds, max_requests):
+        self.started = time.monotonic()
+        self.max_seconds = max_seconds
+        self.max_requests = max_requests
+        self.requests = 0
+        self.stopped = False
+        # Per-source fair share: a segment caps what the current
+        # source may spend, so the first source cannot starve the
+        # rest. begin_segment() (re)sets it; left() enforces both
+        # the global cap and the segment cap.
+        self.seg_deadline = None
+        self.seg_request_cap = None
+
+    def begin_segment(self, seconds, requests):
+        self.seg_deadline = time.monotonic() + max(0.0, seconds)
+        self.seg_request_cap = self.requests + max(0, requests)
+
+    def remaining(self):
+        secs = self.max_seconds - (time.monotonic() - self.started)
+        reqs = self.max_requests - self.requests
+        return max(0.0, secs), max(0, reqs)
+
+    def left(self):
+        return self.global_left() and self._segment_left()
+
+    def global_left(self):
+        """Global caps only — used by the runner before starting a
+        source, when the previous source's segment is stale."""
+        return (
+            not self.stopped
+            and time.monotonic() - self.started < self.max_seconds
+            and self.requests < self.max_requests
+        )
+
+    def _segment_left(self):
+        if (
+            self.seg_deadline is not None
+            and time.monotonic() >= self.seg_deadline
+        ):
+            return False
+        if (
+            self.seg_request_cap is not None
+            and self.requests >= self.seg_request_cap
+        ):
+            return False
+        return True
+
+    def note_request(self):
+        self.requests += 1
+
+
+class Runner:
+    def __init__(self, root, args):
+        self.root = Path(root)
+        self.args = args
+        self.now = int(time.time())
+        self.budget = Budget(args.max_seconds, args.max_requests)
+        self.state = load_state(self.root / "scraper" / "state.json")
+        self.overrides = load_json(
+            self.root / "scraper" / "overrides.json", {"aliases": {}}
+        )
+        self.aliases = self.overrides.get("aliases", {})
+        self.stats = {
+            "sources_ok": [], "sources_failed": {},
+            "titles_seen": 0, "titles_new": 0, "titles_updated": 0,
+            "titles_unchanged": 0, "chapters_new": 0,
+            "chapter_pages": 0, "title_pages": 0, "requests": 0,
+            "images": 0, "backfilled": 0,
+        }
+        self.image_hosts = set()
+        # Working catalog: index entries carried forward + updated.
+        self.index_entries = {}
+        self.title_files = {}   # cid -> full title dict (loaded lazily)
+        self.touched = set()    # cids whose title file must be written
+        self.slug_authors = {}  # canonical slug -> set of author slugs
+        self.registry_adult = {}  # source id -> registry adult flag
+        self._load_previous_catalog()
+
+    # --- Previous catalog (base for the merge) ---
+
+    def _load_previous_catalog(self):
+        index = load_json(self.root / "data" / "catalog.json", None)
+        if not isinstance(index, dict):
+            return
+        for entry in index.get("titles", []) or []:
+            if not isinstance(entry, dict) or "id" not in entry:
+                continue
+            cid = entry["id"]
+            title_file = self.root / "data" / "titles" / f"{cid}.json"
+            if not title_file.is_file():
+                # Detail file lost: drop the title so it re-scrapes.
+                self._drop_title(cid)
+                continue
+            self.index_entries[cid] = entry
+
+    def _drop_title(self, cid):
+        self.index_entries.pop(cid, None)
+        self.title_files.pop(cid, None)
+        self.state["titles"].pop(cid, None)
+        for key in [k for k, v in self.state.get("map", {}).items()
+                    if v == cid]:
+            del self.state["map"][key]
+
+    def prev_title(self, cid):
+        if cid in self.title_files:
+            return self.title_files[cid]
+        data = load_json(self.root / "data" / "titles" / f"{cid}.json", None)
+        if isinstance(data, dict) and data.get("id") == cid:
+            self.title_files[cid] = data
+            return data
+        return None
+
+    # --- Canonical ids ---
+
+    def resolve_id(self, title, author=""):
+        slug = canonical_title_slug(title)
+        author_slug = slugify(author) if author else ""
+        alias = self.aliases.get(f"{slug}|{author_slug}") or self.aliases.get(slug)
+        if alias:
+            return alias
+        if not author_slug:
+            return slug
+        authors = self.slug_authors.setdefault(slug, set())
+        if not authors:
+            authors.add(author_slug)
+            return slug
+        if author_slug in authors:
+            return slug
+        authors.add(author_slug)
+        return f"{slug}-{author_slug}"
+
+    def _note_site_requests(self, site, before):
+        """Count what a site call actually spent. A title-page fetch
+        can pull extra chapters-API pages, so count the site's own
+        counter rather than assuming one request. At least one."""
+        spent = site.requests - before
+        for _ in range(max(1, spent)):
+            self.budget.note_request()
+
+    # --- Per-source run ---
+
+    def run_source(self, source_id, item):
+        site = MadaraSite(
+            source_id, item["site"].rstrip("/"), delay=REQUEST_DELAY
+        )
+        items = []
+        list_ok = False
+        for page in range(1, self.args.list_pages + 1):
+            if not self.budget.left():
+                break
+            before = site.requests
+            ok, page_items, kind, message = site.list_page(page)
+            self._note_site_requests(site, before)
+            if not ok:
+                if page == 1:
+                    record_attempt(self.state, source_id, False, self.now)
+                    self.stats["sources_failed"][source_id] = (
+                        f"{kind}: {message}"
+                    )
+                    return
+                break  # page 2+ failed; keep page 1's items
+            list_ok = True
+            seen = {it["slug"] for it in items}
+            items.extend(it for it in page_items if it["slug"] not in seen)
+            if len(page_items) == 0:
+                break
+        if not list_ok:
+            record_attempt(self.state, source_id, False, self.now)
+            self.stats["sources_failed"][source_id] = "empty list"
+            return
+        record_attempt(self.state, source_id, True, self.now)
+        self.stats["sources_ok"].append(source_id)
+        for list_item in items:
+            if not self.budget.left():
+                # Segment end is not global exhaustion: the next
+                # source still gets its own share.
+                if not self.budget.global_left():
+                    self.budget.stopped = True
+                break
+            self.stats["titles_seen"] += 1
+            self.process_title(site, source_id, item, list_item)
+        # Backfill imageless chapters with leftover budget.
+        self.backfill(site, source_id, item)
+
+    def process_title(self, site, source_id, source_item, list_item):
+        """Returns "unchanged", "title_page", "title_page+chapters",
+        or "failed". Change detection uses only the list item, so an
+        unchanged title costs zero requests."""
+        key = f"{source_id}|{list_item['slug']}"
+        cid = self.state.get("map", {}).get(key)
+        latest = list_item.get("latest") or []
+        latest_num = latest[0].get("number", "") if latest else ""
+        latest_date = (
+            parse_date(latest[0].get("date", "")) if latest else ""
+        )
+        if cid:
+            entry = self.state.get("titles", {}).get(cid, {}).get(
+                "sources", {}
+            ).get(source_id)
+            if entry and not entry.get("no_chapters"):
+                if (
+                    entry.get("last_chapter") == latest_num
+                    and entry.get("last_chapter_date") == latest_date
+                ):
+                    self.stats["titles_unchanged"] += 1
+                    return "unchanged"
+        if not self.budget.left():
+            return "failed"
+        self.stats["title_pages"] += 1
+        before = site.requests
+        ok, data, kind, message = site.detail(list_item["slug"])
+        self._note_site_requests(site, before)
+        if not ok:
+            return "failed"
+        if cid is None:
+            cid = self.resolve_id(data["title"], data.get("author", ""))
+            self.state.setdefault("map", {})[key] = cid
+            self.stats["titles_new"] += 1
+        else:
+            self.stats["titles_updated"] += 1
+        return self.update_title(
+            site, source_id, source_item, cid, data, list_item
+        )
+
+    def update_title(self, site, source_id, source_item, cid, data, list_item):
+        now = self.now
+        prev = self.prev_title(cid) or {}
+        prev_sources = {
+            s.get("source"): s
+            for s in prev.get("sources", []) or []
+            if isinstance(s, dict) and s.get("source")
+        }
+        old_entry = prev_sources.get(source_id)
+        old_by_id = {}
+        if old_entry:
+            for ch in old_entry.get("chapters", []) or []:
+                if ch.get("id"):
+                    old_by_id[ch["id"]] = ch
+        chapters = []
+        fetched_images = False
+        new_numbers = []
+        for ch in data.get("chapters", []) or []:
+            num = normalize_number(str(ch.get("number", "")))
+            if not num:
+                continue
+            record = {
+                "number": num,
+                "title": str(ch.get("title", "")),
+                "id": str(ch.get("id", "")),
+                "date": parse_date(str(ch.get("date", ""))),
+                "images": [],
+                "scraped_at": now,
+            }
+            if record["id"] in old_by_id:
+                old = old_by_id[record["id"]]
+                record["images"] = list(old.get("images", []) or [])
+                record["scraped_at"] = int(old.get("scraped_at", now))
+            else:
+                new_numbers.append(num)
+            chapters.append(record)
+        # New chapters, newest first, up to the per-title cap.
+        new_numbers.sort(key=_chapter_sort_key, reverse=True)
+        for num in new_numbers[:NEW_CHAPTER_IMAGES_PER_TITLE]:
+            if not self.budget.left():
+                break
+            record = next(c for c in chapters if c["number"] == num)
+            if not record.get("id"):
+                continue
+            before = site.requests
+            self.stats["chapter_pages"] += 1
+            ok, images, _, _ = site.chapter_images(record["id"])
+            self._note_site_requests(site, before)
+            if ok and images:
+                record["images"] = images
+                fetched_images = True
+                self.stats["images"] += len(images)
+                for url in images:
+                    self.note_image_host(url, source_item["site"])
+            self.stats["chapters_new"] += 1
+        if data.get("cover"):
+            self.note_image_host(data["cover"], source_item["site"])
+        if list_item.get("cover"):
+            self.note_image_host(list_item["cover"], source_item["site"])
+        # Union with previously stored chapters the new list no
+        # longer shows (Madara lists can be truncated); new wins.
+        # Deduped by chapter URL, not number: one source can list
+        # two parts under the same number, and the site shows those
+        # as separate "(alt)" rows.
+        by_id = {c["id"]: c for c in chapters if c.get("id")}
+        if old_entry:
+            for old in old_entry.get("chapters", []) or []:
+                if old.get("id") and old["id"] not in by_id:
+                    by_id[old["id"]] = {
+                        "number": normalize_number(str(old.get("number", ""))),
+                        "title": str(old.get("title", "")),
+                        "id": str(old.get("id", "")),
+                        "date": str(old.get("date", "")),
+                        "images": list(old.get("images", []) or []),
+                        "scraped_at": int(old.get("scraped_at", now)),
+                    }
+        chapters = sorted(
+            by_id.values(), key=lambda c: _chapter_sort_key(c["number"]),
+            reverse=True,
+        )
+        source_entry = {
+            "source": source_id,
+            "lang": source_item.get("lang", "en"),
+            "scraped_at": now,
+            "reliability": reliability(self.state, source_id),
+            "quality": None,
+            "chapters": chapters,
+        }
+        no_chapters = not data.get("chapters")
+        # Merge metadata: the fresh fetch wins when it has a value,
+        # otherwise keep what was stored. Hollow copies (a source
+        # entry with no chapters, e.g. from before the chapters API
+        # fallback existed) are dropped — but a title always keeps
+        # at least one source entry, so a title whose only source
+        # yielded no chapters stays attributed to it.
+        sources = {
+            sid: entry for sid, entry in prev_sources.items()
+            if entry.get("chapters")
+        }
+        if source_entry["chapters"] or not sources:
+            sources[source_id] = source_entry
+        title = self.merge_title(cid, prev, data, sources)
+        self.title_files[cid] = title
+        self.touched.add(cid)
+        # The index is built from index_entries, so a new title must
+        # land here too (write_outputs rebuilds the entry from the
+        # title file, but only iterates cids present in this map).
+        self.index_entries[cid] = {
+            "id": cid,
+            "title": title["title"],
+            "cover": title.get("cover", ""),
+            "status": title.get("status", ""),
+            "genres": list(title.get("genres", [])),
+            "updated": max(
+                (int(s.get("scraped_at", 0)) for s in title["sources"]),
+                default=0,
+            ),
+            "copies": len(title["sources"]),
+            "adult": bool(title.get("adult", False)),
+        }
+        # State: last-seen chapter info + imageless list.
+        latest = data.get("chapters") or []
+        entry_state = {
+            "slug": list_item["slug"],
+            "last_chapter": latest[0].get("number", "") if latest else "",
+            "last_chapter_date": (
+                parse_date(latest[0].get("date", "")) if latest else ""
+            ),
+            "chapter_count": len(chapters),
+            "chapter_hash": chapter_hash(chapters),
+            "last_seen": now,
+            "imageless": sorted(
+                (c["number"] for c in chapters if not c.get("images")),
+                key=_chapter_sort_key,
+            ),
+            "no_chapters": bool(no_chapters),
+            "author": data.get("author", ""),
+        }
+        self.state.setdefault("titles", {}).setdefault(cid, {}).setdefault(
+            "sources", {}
+        )[source_id] = entry_state
+        return "title_page+chapters" if fetched_images else "title_page"
+
+    def merge_title(self, cid, prev, data, sources):
+        title = prev.get("title") if prev else ""
+        cover = prev.get("cover", "") if prev else ""
+        synopsis = prev.get("synopsis", "") if prev else ""
+        status = prev.get("status", "") if prev else ""
+        genres = list(prev.get("genres", [])) if prev else []
+        alt_titles = list(prev.get("alt_titles", [])) if prev else []
+        if data.get("title"):
+            title = data["title"]
+        if data.get("cover"):
+            cover = data["cover"]
+        if data.get("synopsis"):
+            synopsis = data["synopsis"]
+        if data.get("status"):
+            status = normalize_status(data["status"])
+        if data.get("genres"):
+            genres = data["genres"][:10]
+        if data.get("alt_titles"):
+            alt_titles = list(dict.fromkeys(
+                [a for a in data["alt_titles"] if a != title]
+            ))[:10]
+        flags = [self.registry_adult.get(sid, False) for sid in sources]
+        return {
+            "id": cid,
+            "title": title,
+            "alt_titles": alt_titles,
+            "cover": cover,
+            "synopsis": synopsis,
+            "status": status,
+            "genres": genres,
+            "adult": is_adult(genres, flags),
+            "sources": [sources[k] for k in sorted(sources)],
+        }
+
+    def note_image_host(self, url, source_site):
+        try:
+            host = urlparse(url).hostname or ""
+        except ValueError:
+            return
+        if not host:
+            return
+        source_host = urlparse(source_site).hostname or ""
+        if host == source_host or (
+            source_host and host.endswith("." + source_host)
+        ):
+            return
+        self.image_hosts.add(host.lower())
+
+    def backfill(self, site, source_id, source_item):
+        """Fetch images for imageless chapters, oldest first, with
+        leftover budget. Skips sources whose state has no imageless
+        chapters."""
+        if not self.budget.left():
+            return
+        done = 0
+        candidates = []
+        for cid, title_state in self.state.get("titles", {}).items():
+            entry = title_state.get("sources", {}).get(source_id)
+            if not entry or not entry.get("imageless"):
+                continue
+            title = self.prev_title(cid)
+            if not title:
+                continue
+            for src in title.get("sources", []) or []:
+                if src.get("source") != source_id:
+                    continue
+                for ch in src.get("chapters", []) or []:
+                    if ch.get("number") in entry["imageless"] and ch.get("id"):
+                        candidates.append((cid, ch))
+        candidates.sort(key=lambda c: _chapter_sort_key(c[1]["number"]))
+        for cid, ch in candidates:
+            if done >= BACKFILL_PER_SOURCE or not self.budget.left():
+                break
+            before = site.requests
+            self.stats["chapter_pages"] += 1
+            ok, images, _, _ = site.chapter_images(ch["id"])
+            self._note_site_requests(site, before)
+            done += 1
+            if not ok or not images:
+                continue
+            ch["images"] = images
+            ch["scraped_at"] = self.now
+            self.stats["images"] += len(images)
+            self.stats["backfilled"] += 1
+            for url in images:
+                self.note_image_host(url, source_item["site"])
+            entry = self.state["titles"][cid]["sources"][source_id]
+            entry["imageless"] = [
+                n for n in entry["imageless"] if n != ch["number"]
+            ]
+            self.touched.add(cid)
+
+    def run(self):
+        sources = load_v1_sources(self.root, self.args.sources)
+        self.registry_adult = {
+            sid: bool(item.get("adult", False)) for sid, item in sources
+        }
+        print(f"sources: {', '.join(sid for sid, _ in sources) or '(none)'}")
+        for i, (source_id, item) in enumerate(sources):
+            if not self.budget.global_left():
+                self.budget.stopped = True
+                print(f"[{source_id}] budget exhausted, stopping")
+                break
+            # Fair share of what is left, split over the sources
+            # still to run (recomputed each time, so a source that
+            # finishes early leaves its share to the rest).
+            secs, reqs = self.budget.remaining()
+            left = len(sources) - i
+            self.budget.begin_segment(secs / left, reqs // left)
+            print(f"[{source_id}] {item['site']} ...")
+            self.run_source(source_id, item)
+        self.write_outputs()
+        summary = {
+            "sources_ok": self.stats["sources_ok"],
+            "sources_failed": self.stats["sources_failed"],
+            "titles_seen": self.stats["titles_seen"],
+            "titles_new": self.stats["titles_new"],
+            "titles_updated": self.stats["titles_updated"],
+            "titles_unchanged": self.stats["titles_unchanged"],
+            "titles_total": len(self.index_entries),
+            "chapters_total": sum(
+                len(s.get("chapters", []) or [])
+                for t in self.title_files.values()
+                for s in t.get("sources", []) or []
+            ) + self._carried_chapter_count(),
+            "chapter_pages": self.stats["chapter_pages"],
+            "title_pages": self.stats["title_pages"],
+            "images": self.stats["images"],
+            "backfilled": self.stats["backfilled"],
+            "requests": self.budget.requests,
+            "seconds": round(time.monotonic() - self.budget.started, 1),
+            "stopped_early": self.budget.stopped,
+        }
+        print("SUMMARY " + json.dumps(summary))
+        return 0
+
+    def _carried_chapter_count(self):
+        """Chapters in title files that were not touched this run
+        (their files were carried forward untouched)."""
+        total = 0
+        for cid in self.index_entries:
+            if cid in self.title_files:
+                continue
+            data = self.prev_title(cid)
+            if not data:
+                continue
+            for src in data.get("sources", []) or []:
+                total += len(src.get("chapters", []) or [])
+        return total
+
+    # --- Output writing ---
+
+    def write_outputs(self):
+        if self.args.dry_run:
+            print("dry run: not writing outputs")
+            return
+        titles = []
+        for cid, entry in self.index_entries.items():
+            if cid in self.touched:
+                title = self.title_files[cid]
+                updated = max(
+                    (int(s.get("scraped_at", 0)) for s in title["sources"]),
+                    default=0,
+                )
+                titles.append({
+                    "id": cid,
+                    "title": title["title"],
+                    "cover": title.get("cover", ""),
+                    "status": title.get("status", ""),
+                    "genres": list(title.get("genres", [])),
+                    "updated": updated,
+                    "copies": len(title["sources"]),
+                    "adult": bool(title.get("adult", False)),
+                })
+            else:
+                titles.append({
+                    "id": entry["id"],
+                    "title": entry["title"],
+                    "cover": entry.get("cover", ""),
+                    "status": entry.get("status", ""),
+                    "genres": list(entry.get("genres", [])),
+                    "updated": int(entry.get("updated") or 0),
+                    "copies": int(entry.get("copies") or 0),
+                    "adult": bool(entry.get("adult", False)),
+                })
+        titles.sort(key=lambda t: (-t["updated"], t["title"].lower()))
+        catalog = {
+            "version": 1,
+            "generated_at": self.now,
+            "titles": titles,
+        }
+        if write_json_if_changed(self.root / "data" / "catalog.json", catalog):
+            print("wrote data/catalog.json "
+                  f"({len(titles)} titles)")
+        written = 0
+        for cid in sorted(self.touched):
+            title = self.title_files[cid]
+            if write_json_if_changed(
+                self.root / "data" / "titles" / f"{cid}.json", title
+            ):
+                written += 1
+        print(f"wrote {written} title files")
+        hosts_path = self.root / "data" / "image-hosts.json"
+        existing = load_json(hosts_path, {"hosts": []})
+        hosts = sorted(set(existing.get("hosts", [])) | self.image_hosts)
+        if write_json_if_changed(hosts_path, {"hosts": hosts}):
+            print(f"wrote data/image-hosts.json ({len(hosts)} hosts)")
+        write_json_atomic(self.root / "scraper" / "state.json", self.state)
+        print("wrote scraper/state.json")
+
+
+def _chapter_sort_key(number):
+    try:
+        return (0, float(number))
+    except (TypeError, ValueError):
+        return (1, 0.0)
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(
+        description="Hourly catalog scraper for manhwafreedev."
+    )
+    parser.add_argument(
+        "--root", default=str(ROOT),
+        help="repo root (default: parent of the scraper dir)",
+    )
+    parser.add_argument(
+        "--sources", default=None,
+        help="comma-separated source ids to scrape (default: v1 set)",
+    )
+    parser.add_argument(
+        "--max-seconds", type=int, default=MAX_SECONDS,
+        help=f"wall-clock cap for the run (default {MAX_SECONDS})",
+    )
+    parser.add_argument(
+        "--max-requests", type=int, default=MAX_REQUESTS,
+        help=f"request cap for the run (default {MAX_REQUESTS})",
+    )
+    parser.add_argument(
+        "--list-pages", type=int, default=LIST_PAGES,
+        help=f"/manga/ pages per source (default {LIST_PAGES})",
+    )
+    parser.add_argument(
+        "--dry-run", action="store_true",
+        help="scrape but do not write any output files",
+    )
+    args = parser.parse_args(argv)
+    args.sources = (
+        [s.strip() for s in args.sources.split(",") if s.strip()]
+        if args.sources else None
+    )
+    try:
+        return Runner(args.root, args).run()
+    except KeyboardInterrupt:
+        print("interrupted")
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+

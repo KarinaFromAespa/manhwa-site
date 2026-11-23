@@ -1,0 +1,42 @@
+# Hourly catalog scraper for manhwafreedev.
+#
+# Runs the stdlib-only Python scraper and commits ONLY its outputs
+# back to main: data/catalog.json, data/titles/*.json,
+# data/image-hosts.json and scraper/state.json. Never docs/, lib/,
+# or the registry. The live site is synced from the repo separately
+# (FTP); this workflow does not deploy.
+name: Scrape catalog
+
+on:
+  schedule:
+    - cron: "0 * * * *"  # hourly
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: scrape-catalog
+  cancel-in-progress: false
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run scraper
+        run: python3 scraper/scrape.py
+
+      - name: Commit catalog outputs
+        run: |
+          git config user.name "manhwafreedev-scraper"
+          git config user.email "scraper@manhwafreedev.local"
+          git add data/catalog.json data/image-hosts.json scraper/state.json
+          git add data/titles 2>/dev/null || true
+          git diff --cached --quiet || git commit -m "Scrape catalog $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          git push
