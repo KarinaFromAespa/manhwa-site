@@ -1,0 +1,2002 @@
+[
+  {
+    "name": "Lunar Manga",
+    "lang": "all",
+    "site": "https://lunarx.to",
+    "theme": "",
+    "notes": "likely; login needed; chapters unlock with free ad points",
+    "access": "login",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Manhwa-raw",
+    "lang": "all",
+    "site": "https://manhwa-raw.com",
+    "theme": "madara",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "Manhwa18.cc",
+    "lang": "all",
+    "site": "https://manhwa18.cc",
+    "theme": "yiimadara",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "ManhwaClub.net",
+    "lang": "all",
+    "site": "https://manhwaclub.net",
+    "theme": "madara",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "SayManhwa",
+    "lang": "all",
+    "site": "https://saymanhwa.net",
+    "theme": "",
+    "notes": "likely; same group as New Manhwa",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Taddy INK (Webtoons)",
+    "lang": "all",
+    "site": "https://taddy.org",
+    "theme": "",
+    "notes": "likely; access unknown — verify",
+    "access": "login",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "ToonLook",
+    "lang": "all",
+    "site": "https://toonlook.com",
+    "theme": "",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "ToonSpace",
+    "lang": "all",
+    "site": "https://toon.space",
+    "theme": "",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "Arab Toons",
+    "lang": "ar",
+    "site": "https://arabtoons.net",
+    "theme": "",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "ArabManhwa",
+    "lang": "ar",
+    "site": "https://arabmanhwa.com",
+    "theme": "",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "AriaToon",
+    "lang": "ar",
+    "site": "https://ariatoon.com",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Empire Webtoon",
+    "lang": "ar",
+    "site": "https://webtoonempire-bl.com",
+    "theme": "madara",
+    "notes": "likely; adult; BL",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "Murim",
+    "lang": "ar",
+    "site": "https://murim-manga.blogspot.com",
+    "theme": "zeistmanga",
+    "notes": "likely; murim manhwa",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Paradise BL",
+    "lang": "ar",
+    "site": "https://paradise-bl.com",
+    "theme": "madara",
+    "notes": "likely; adult; BL",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "Peach BL",
+    "lang": "ar",
+    "site": "https://peach-bl.com",
+    "theme": "",
+    "notes": "likely; BL",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Akaza Scans",
+    "lang": "en",
+    "site": "https://akazascans.org",
+    "theme": "mangathemesia",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Aqua Manga",
+    "lang": "en",
+    "site": "https://aquareader.org",
+    "theme": "madara",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Asmodeus Scans",
+    "lang": "en",
+    "site": "https://asmotoon.com",
+    "theme": "keyoapp",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Asura Scans",
+    "lang": "en",
+    "site": "https://asurascans.com",
+    "theme": "",
+    "notes": "confirmed; some chapters are premium/locked — free chapters available",
+    "access": "free",
+    "adult": false,
+    "confidence": "confirmed"
+  },
+  {
+    "name": "Aunt Manhwa",
+    "lang": "en",
+    "site": "https://auntmanhwa.com",
+    "theme": "madara",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "Baetoon",
+    "lang": "en",
+    "site": "https://baetoon.com",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Comic Asura",
+    "lang": "en",
+    "site": "https://comicasura.net",
+    "theme": "mangathemesia",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Comix",
+    "lang": "en",
+    "site": "https://comix.to",
+    "theme": "",
+    "notes": "confirmed; the site this list is for; also: https://comix.ws",
+    "access": "free",
+    "adult": false,
+    "confidence": "confirmed"
+  },
+  {
+    "name": "Comizy",
+    "lang": "en",
+    "site": "https://comizy.io",
+    "theme": "mangak",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Dashtoon",
+    "lang": "en",
+    "site": "https://dashtoon.com",
+    "theme": "",
+    "notes": "likely; official platform; access unknown — verify",
+    "access": "login",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "DesireScans",
+    "lang": "en",
+    "site": "https://desirescans.com",
+    "theme": "",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "DragonTea",
+    "lang": "en",
+    "site": "https://dragontea.ink",
+    "theme": "madara",
+    "notes": "confirmed",
+    "access": "free",
+    "adult": false,
+    "confidence": "confirmed"
+  },
+  {
+    "name": "Elf Toon",
+    "lang": "en",
+    "site": "https://elftoon.net",
+    "theme": "vinetheme",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "EZmanga",
+    "lang": "en",
+    "site": "https://ezmanga.org",
+    "theme": "ezmanhwa",
+    "notes": "likely; ezmanhwa theme",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Flame Comics",
+    "lang": "en",
+    "site": "https://flamecomics.xyz",
+    "theme": "",
+    "notes": "confirmed; Flame Scans",
+    "access": "free",
+    "adult": false,
+    "confidence": "confirmed"
+  },
+  {
+    "name": "Genz Toons",
+    "lang": "en",
+    "site": "https://genztoons.org",
+    "theme": "keyoapp",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "GingeRTooN",
+    "lang": "en",
+    "site": "https://gingertoon.com",
+    "theme": "madara",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "Hive Scans",
+    "lang": "en",
+    "site": "https://hivetoons.org",
+    "theme": "iken",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Kaizen Scan",
+    "lang": "en",
+    "site": "https://kaizenscan.com",
+    "theme": "keyoapp",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "Komix",
+    "lang": "en",
+    "site": "https://komix.to",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "LGBToon",
+    "lang": "en",
+    "site": "https://lgbtoon.com",
+    "theme": "",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "Lua Scans",
+    "lang": "en",
+    "site": "https://luacomic.org",
+    "theme": "heancms",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Luna Toons",
+    "lang": "en",
+    "site": "https://lunatoons.net",
+    "theme": "keyoapp",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "LustToon",
+    "lang": "en",
+    "site": "https://lustoon.com",
+    "theme": "",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "LuxManga",
+    "lang": "en",
+    "site": "https://luxmanga.net",
+    "theme": "",
+    "notes": "likely; some chapters cost coins",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Magus Manga",
+    "lang": "en",
+    "site": "https://magustoon.org",
+    "theme": "iken",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Manhwa Comics",
+    "lang": "en",
+    "site": "https://manhwacomics.com",
+    "theme": "madara",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "Manhwa Reads",
+    "lang": "en",
+    "site": "https://manhwareads.com",
+    "theme": "madara",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Manhwa Toon",
+    "lang": "en",
+    "site": "https://www.manhwatoon.me",
+    "theme": "madara",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Manhwa18",
+    "lang": "en",
+    "site": "https://manhwa18.com",
+    "theme": "",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "Manhwa18.net",
+    "lang": "en",
+    "site": "https://manhwa18.net",
+    "theme": "",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "Manhwa18.today",
+    "lang": "en",
+    "site": "https://www.manhwa18.today",
+    "theme": "madara",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "Manhwa18Dash",
+    "lang": "en",
+    "site": "https://manhwa18dash.com",
+    "theme": "",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "Manhwa18TX",
+    "lang": "en",
+    "site": "https://manhwa18tx.com",
+    "theme": "yiimanga",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "Manhwa210",
+    "lang": "en",
+    "site": "https://manhwa210.com",
+    "theme": "",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "Manhwa68",
+    "lang": "en",
+    "site": "https://manhwa68.com",
+    "theme": "madara",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "ManhwaBuddy",
+    "lang": "en",
+    "site": "https://manhwabuddy.com",
+    "theme": "yiimanga",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "Manhwaddict",
+    "lang": "en",
+    "site": "https://manhwaddict.com",
+    "theme": "yiimanga",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "ManhwaDen",
+    "lang": "en",
+    "site": "https://www.manhwaden.com",
+    "theme": "madara",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "ManhwaGalaxy",
+    "lang": "en",
+    "site": "https://manhwagalaxy.com",
+    "theme": "yiimanga",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "ManhwaH",
+    "lang": "en",
+    "site": "https://manhwah.com",
+    "theme": "",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "ManhwaHub.to",
+    "lang": "en",
+    "site": "https://manhwahub.to",
+    "theme": "madara",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "Manhwalike",
+    "lang": "en",
+    "site": "https://manhwalike.com",
+    "theme": "",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "ManhwaManhua",
+    "lang": "en",
+    "site": "https://manhwamanhua.com",
+    "theme": "madara",
+    "notes": "likely; adult; also hosts manhua",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "ManhwaNex",
+    "lang": "en",
+    "site": "https://manhwanex.com",
+    "theme": "madara",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "ManhwaOnline",
+    "lang": "en",
+    "site": "https://manhwaonline.org",
+    "theme": "yiimanga",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "ManhwaRead",
+    "lang": "en",
+    "site": "https://manhwaread.com",
+    "theme": "",
+    "notes": "likely; also: https://manhwaread.org",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Manhwatop",
+    "lang": "en",
+    "site": "https://manhwatop.com",
+    "theme": "madara",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "ManhwaUS",
+    "lang": "en",
+    "site": "https://manhwaus.net",
+    "theme": "yiimadara",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "ManhwaZ",
+    "lang": "en",
+    "site": "https://manhwaz.cc",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "ManhwaZone",
+    "lang": "en",
+    "site": "https://manhwazone.com",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "MeiToon",
+    "lang": "en",
+    "site": "https://meitoon.org",
+    "theme": "keyoapp",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "MurimScan",
+    "lang": "en",
+    "site": "https://www.murimscans.site",
+    "theme": "zeistmanga",
+    "notes": "likely; murim manhwa",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Myth Toons",
+    "lang": "en",
+    "site": "https://mythtoons.org",
+    "theme": "",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "New Manhwa",
+    "lang": "en",
+    "site": "https://saymanhwa.com",
+    "theme": "",
+    "notes": "likely; same group as SayManhwa",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Nuvia Toon",
+    "lang": "en",
+    "site": "https://nuviatoon.org",
+    "theme": "",
+    "notes": "likely; some chapters cost coins to unlock",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Omega Scans",
+    "lang": "en",
+    "site": "https://omegascans.org",
+    "theme": "heancms",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "Orion Scans",
+    "lang": "en",
+    "site": "https://orion-scans.com",
+    "theme": "iken",
+    "notes": "confirmed",
+    "access": "free",
+    "adult": false,
+    "confidence": "confirmed"
+  },
+  {
+    "name": "Pornhwa.me",
+    "lang": "en",
+    "site": "https://pornhwa.me",
+    "theme": "",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "Pornhwa18",
+    "lang": "en",
+    "site": "https://pornhwa18.com",
+    "theme": "",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "PornhwaDB Reader",
+    "lang": "en",
+    "site": "https://pornhwareader.com",
+    "theme": "",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "Pornhwaz",
+    "lang": "en",
+    "site": "https://www.pornhwaz.com",
+    "theme": "madara",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "Qi Scans",
+    "lang": "en",
+    "site": "https://qimanga.com",
+    "theme": "ezmanhwa",
+    "notes": "likely; ezmanhwa theme",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Rackus",
+    "lang": "en",
+    "site": "https://rackusreads.com",
+    "theme": "mangathemesia",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Raven Scans",
+    "lang": "en",
+    "site": "https://ravenscans.org",
+    "theme": "mangathemesia",
+    "notes": "confirmed",
+    "access": "free",
+    "adult": false,
+    "confidence": "confirmed"
+  },
+  {
+    "name": "Read Solo Leveling Manga Manhwa Online",
+    "lang": "en",
+    "site": "https://ww4.readsololeveling.org",
+    "theme": "mangacatalog",
+    "notes": "likely; single title (Solo Leveling)",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Read The Beginning After The End Manga Online",
+    "lang": "en",
+    "site": "https://w22.thebeginningaftertheendmanga.com",
+    "theme": "solomanga",
+    "notes": "likely; single title (The Beginning After The End)",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "S2Manga",
+    "lang": "en",
+    "site": "https://s2read.com",
+    "theme": "madara",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Siren Scans",
+    "lang": "en",
+    "site": "https://sirenscans.com",
+    "theme": "keyoapp",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Temple Scan",
+    "lang": "en",
+    "site": "https://templetoons.com",
+    "theme": "",
+    "notes": "confirmed; adult; some chapters are premium/locked",
+    "access": "free",
+    "adult": true,
+    "confidence": "confirmed"
+  },
+  {
+    "name": "The Girl from Random Chatting Manga Online",
+    "lang": "en",
+    "site": "https://thegirlfromrandomchatting.com",
+    "theme": "",
+    "notes": "likely; single title (The Girl from Random Chatting)",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Thunder Scans",
+    "lang": "en",
+    "site": "https://en-thunderscans.com",
+    "theme": "mangathemesia",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "TimelessToons",
+    "lang": "en",
+    "site": "https://timelesstoons.org",
+    "theme": "keyoapp",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Toon Hub",
+    "lang": "en",
+    "site": "https://toon-hub.com",
+    "theme": "",
+    "notes": "likely; some episodes need VIP membership or coins",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "ToonGod",
+    "lang": "en",
+    "site": "https://www.toongod.org",
+    "theme": "madara",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "ToonGrab",
+    "lang": "en",
+    "site": "https://toongrab.com",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Toonily",
+    "lang": "en",
+    "site": "https://toonily.com",
+    "theme": "madara",
+    "notes": "likely; login required to read; freemium, some chapters may need subscription — verify",
+    "access": "login",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Toonizy",
+    "lang": "en",
+    "site": "https://toonizy.com",
+    "theme": "madara",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Toonkotsu",
+    "lang": "en",
+    "site": "https://toonkotsu.com",
+    "theme": "",
+    "notes": "likely; chapters need unlocking on the site",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "ToonTop",
+    "lang": "en",
+    "site": "https://toontop.io",
+    "theme": "mangak",
+    "notes": "likely; adult; Toonily mirror/alternate; login required to read",
+    "access": "login",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "Toonz/Toonx",
+    "lang": "en",
+    "site": "https://toonz.to",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "TopManhua.fan",
+    "lang": "en",
+    "site": "https://www.topmanhua.fan",
+    "theme": "madara",
+    "notes": "likely; name says manhua but site is manhwa-focused — verify",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "TopManhua.net",
+    "lang": "en",
+    "site": "https://topmanhua.net",
+    "theme": "madara",
+    "notes": "likely; name says manhua but site is manhwa-focused — verify",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Tower Of God Manga Online",
+    "lang": "en",
+    "site": "https://w85.thetowerofgod.com",
+    "theme": "mangacatalog",
+    "notes": "likely; single title (Tower of God)",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Violet Scans",
+    "lang": "en",
+    "site": "https://violetmanga.com",
+    "theme": "mangathemesia",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Vortex Scans",
+    "lang": "en",
+    "site": "https://vortexscans.org",
+    "theme": "iken",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "WebtoonClub",
+    "lang": "en",
+    "site": "https://webtoonclub.com",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "WebtoonLib",
+    "lang": "en",
+    "site": "https://webtoonlib.to",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "WebtoonScan",
+    "lang": "en",
+    "site": "https://webtoonscan.org",
+    "theme": "madara",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "WebtoonXYZ",
+    "lang": "en",
+    "site": "https://www.webtoon.xyz",
+    "theme": "madara",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Wildtoon",
+    "lang": "en",
+    "site": "https://wildtoon.com",
+    "theme": "mangathemesia",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "Zinmanga",
+    "lang": "en",
+    "site": "https://mangazin.org",
+    "theme": "madara",
+    "notes": "confirmed; same group as Zinmanga.net",
+    "access": "free",
+    "adult": false,
+    "confidence": "confirmed"
+  },
+  {
+    "name": "Zinmanga.net",
+    "lang": "en",
+    "site": "https://www.zinmanga.net",
+    "theme": "madara",
+    "notes": "confirmed; same group as Zinmanga",
+    "access": "free",
+    "adult": false,
+    "confidence": "confirmed"
+  },
+  {
+    "name": "AKAYA",
+    "lang": "es",
+    "site": "https://akaya.io",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Catharsis World",
+    "lang": "es",
+    "site": "https://newcatharsis.dig-it.info",
+    "theme": "catharsis",
+    "notes": "likely; some chapters require login on the site",
+    "access": "login",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Catoons",
+    "lang": "es",
+    "site": "https://cattoons.org",
+    "theme": "",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "Emperor Scan",
+    "lang": "es",
+    "site": "https://imperiomanhwa.com",
+    "theme": "imperiomanhwa",
+    "notes": "confirmed",
+    "access": "free",
+    "adult": false,
+    "confidence": "confirmed"
+  },
+  {
+    "name": "LeerManhwas",
+    "lang": "es",
+    "site": "https://leermanhwas.com",
+    "theme": "yiimanga",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "Manhwa-Latino",
+    "lang": "es",
+    "site": "https://manhwa-latino.com",
+    "theme": "madara",
+    "notes": "likely; also: https://manhwa-es.com",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "ManhwaOnline",
+    "lang": "es",
+    "site": "https://manhwa-online.com",
+    "theme": "",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "ManhwaShot",
+    "lang": "es",
+    "site": "https://manhwashot.lat",
+    "theme": "",
+    "notes": "likely; some chapters require login",
+    "access": "login",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "ManhwaWeb",
+    "lang": "es",
+    "site": "https://manhwaweb.com",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Mundo Manhwa",
+    "lang": "es",
+    "site": "https://mundomanhwa.com",
+    "theme": "madara",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "RichtoScan",
+    "lang": "es",
+    "site": "https://r1.richtoon.top",
+    "theme": "madara",
+    "notes": "likely; premium chapters exist (excluded by the extension)",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Submanhwa",
+    "lang": "es",
+    "site": "https://submanhwa.com",
+    "theme": "",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "Taurus Fansub",
+    "lang": "es",
+    "site": "https://lectortaurus.com",
+    "theme": "madara",
+    "notes": "likely; paid chapters exist (filterable)",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "TmoManhwa",
+    "lang": "es",
+    "site": "https://tmomanhwa.com",
+    "theme": "yiimanga",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "Toon-es",
+    "lang": "es",
+    "site": "https://toon-es.com",
+    "theme": "madara",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "Traducciones Moonlight",
+    "lang": "es",
+    "site": "https://traduccionesmoonlight.com",
+    "theme": "moonlighttl",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Ver Manhwas",
+    "lang": "es",
+    "site": "https://vermanhwa.com",
+    "theme": "madara",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "Banchan Scan",
+    "lang": "fr",
+    "site": "https://banchanscan.fr",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Toon FR",
+    "lang": "fr",
+    "site": "https://toonfr.com",
+    "theme": "madara",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "CosmicScans",
+    "lang": "id",
+    "site": "https://04.cosmicscans.to",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Holotoon",
+    "lang": "id",
+    "site": "https://holodek.run",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Manhwa Indo",
+    "lang": "id",
+    "site": "https://www.manhwaindo.my",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Manhwa List",
+    "lang": "id",
+    "site": "https://m1.manhwalist.my.id",
+    "theme": "mangathemesia",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "ManhwaDesu",
+    "lang": "id",
+    "site": "https://manhwadesu.rest",
+    "theme": "mangathemesia",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "ManhwaLand.mom",
+    "lang": "id",
+    "site": "https://02.manhwaland.land",
+    "theme": "mangathemesia",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "Soul Scans",
+    "lang": "id",
+    "site": "https://v1.soulscans.asia",
+    "theme": "loneseal",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Tooncubus",
+    "lang": "id",
+    "site": "https://www.tooncubus.top",
+    "theme": "zeistmanga",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "VoraToon",
+    "lang": "id",
+    "site": "https://voratoon.co",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Phoenix Scans",
+    "lang": "it",
+    "site": "https://www.phoenixscans.com",
+    "theme": "pizzareader",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "11toon",
+    "lang": "ko",
+    "site": "https://www.11toon.com",
+    "theme": "",
+    "notes": "confirmed",
+    "access": "free",
+    "adult": false,
+    "confidence": "confirmed"
+  },
+  {
+    "name": "BlackToon",
+    "lang": "ko",
+    "site": "https://blacktoon426.com",
+    "theme": "",
+    "notes": "confirmed; KR: 블랙툰",
+    "access": "free",
+    "adult": false,
+    "confidence": "confirmed"
+  },
+  {
+    "name": "Cookmana",
+    "lang": "ko",
+    "site": "https://cookmana12.com",
+    "theme": "",
+    "notes": "confirmed; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "confirmed"
+  },
+  {
+    "name": "DDToon",
+    "lang": "ko",
+    "site": "https://ddtoon33.com",
+    "theme": "",
+    "notes": "confirmed; KR: 뚜툰",
+    "access": "free",
+    "adult": false,
+    "confidence": "confirmed"
+  },
+  {
+    "name": "GoodToon",
+    "lang": "ko",
+    "site": "https://www.goodtoon010.com",
+    "theme": "madara",
+    "notes": "confirmed",
+    "access": "free",
+    "adult": false,
+    "confidence": "confirmed"
+  },
+  {
+    "name": "Jjaptoon",
+    "lang": "ko",
+    "site": "https://www.jjaptoon008.com",
+    "theme": "",
+    "notes": "confirmed; KR: 짭툰",
+    "access": "free",
+    "adult": false,
+    "confidence": "confirmed"
+  },
+  {
+    "name": "Manga24",
+    "lang": "ko",
+    "site": "https://ko.manga24.net",
+    "theme": "madara",
+    "notes": "confirmed; adult; KR: 망가24",
+    "access": "free",
+    "adult": true,
+    "confidence": "confirmed"
+  },
+  {
+    "name": "NameeToon",
+    "lang": "ko",
+    "site": "https://namee134.asia",
+    "theme": "",
+    "notes": "confirmed; KR: 나미툰",
+    "access": "free",
+    "adult": false,
+    "confidence": "confirmed"
+  },
+  {
+    "name": "Newtoki (SBXH)",
+    "lang": "ko",
+    "site": "https://sbxh9.com",
+    "theme": "",
+    "notes": "confirmed; Newtoki mirror",
+    "access": "free",
+    "adult": false,
+    "confidence": "confirmed"
+  },
+  {
+    "name": "NewXToon",
+    "lang": "ko",
+    "site": "https://newxtoon5.com",
+    "theme": "",
+    "notes": "confirmed",
+    "access": "free",
+    "adult": false,
+    "confidence": "confirmed"
+  },
+  {
+    "name": "RawDEX",
+    "lang": "ko",
+    "site": "https://rawdex.net",
+    "theme": "",
+    "notes": "confirmed; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "confirmed"
+  },
+  {
+    "name": "Toonkor",
+    "lang": "ko",
+    "site": "https://toonkor0.org",
+    "theme": "",
+    "notes": "confirmed",
+    "access": "free",
+    "adult": false,
+    "confidence": "confirmed"
+  },
+  {
+    "name": "Wolf.com",
+    "lang": "ko",
+    "site": "https://wfwf541.com",
+    "theme": "",
+    "notes": "confirmed; KR: 늑대닷컴 - 웹툰",
+    "access": "free",
+    "adult": false,
+    "confidence": "confirmed"
+  },
+  {
+    "name": "Astratoons",
+    "lang": "pt-BR",
+    "site": "https://new.astratoons.com",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Azuretoons",
+    "lang": "pt-BR",
+    "site": "https://azuretoons.com",
+    "theme": "",
+    "notes": "likely; requires login (auto-login with stored credentials)",
+    "access": "login",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Bladetoons",
+    "lang": "pt-BR",
+    "site": "https://bladetoons.com",
+    "theme": "mangotheme",
+    "notes": "likely; requires login (code: requiresLogin)",
+    "access": "login",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Blitz Toons",
+    "lang": "pt-BR",
+    "site": "https://blitztoons.com",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Capitoons",
+    "lang": "pt-BR",
+    "site": "https://capitoons.com",
+    "theme": "mangawork",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Cerise Scan",
+    "lang": "pt-BR",
+    "site": "https://loverstoon.net",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Ego Toons",
+    "lang": "pt-BR",
+    "site": "https://egotoons.com",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Funktoon",
+    "lang": "pt-BR",
+    "site": "https://funktoon.com",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Hipertoon",
+    "lang": "pt-BR",
+    "site": "https://hipertoon.com",
+    "theme": "hiper",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Hunters Scans",
+    "lang": "pt-BR",
+    "site": "https://readhunters.xyz",
+    "theme": "madara",
+    "notes": "likely; requires login via WebView",
+    "access": "login",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "KivaraToons",
+    "lang": "pt-BR",
+    "site": "https://kivaratoons.com",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Lycan Toons",
+    "lang": "pt-BR",
+    "site": "https://lycantoons.com",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Mango Toons",
+    "lang": "pt-BR",
+    "site": "https://mangotoons.com",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Manhastro",
+    "lang": "pt-BR",
+    "site": "https://manhastro.net",
+    "theme": "",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "Mediocre Toons",
+    "lang": "pt-BR",
+    "site": "https://laranjatoons.com",
+    "theme": "",
+    "notes": "likely; requires login (email/password in extension prefs)",
+    "access": "login",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Nexus Toons",
+    "lang": "pt-BR",
+    "site": "https://nexustoons.com",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Point Zero Toons",
+    "lang": "pt-BR",
+    "site": "https://kitsuneyako.com",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Risentoons",
+    "lang": "pt-BR",
+    "site": "https://risentoons.xyz",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Tia Manhwa",
+    "lang": "pt-BR",
+    "site": "https://tiamanhwa.com",
+    "theme": "madara",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "ToonBr",
+    "lang": "pt-BR",
+    "site": "https://beta.toonbr.com",
+    "theme": "",
+    "notes": "likely; requires login (email/password in extension prefs)",
+    "access": "login",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "ToonLivre",
+    "lang": "pt-BR",
+    "site": "https://toonlivre.net",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Vegitoons",
+    "lang": "pt-BR",
+    "site": "https://vegitoons.black",
+    "theme": "greenshit",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "ManhwaBreakup",
+    "lang": "th",
+    "site": "https://www.manhwabreakup.com",
+    "theme": "madara",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "ReadToon",
+    "lang": "th",
+    "site": "https://readtoon.com",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "ReaperTrans",
+    "lang": "th",
+    "site": "https://reapertrans.com",
+    "theme": "mangathemesia",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "ToonHunter",
+    "lang": "th",
+    "site": "https://toonhunter.com",
+    "theme": "mangathemesia",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "Toonjai",
+    "lang": "th",
+    "site": "https://toonjai.com",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "WhyToon",
+    "lang": "th",
+    "site": "https://whytoon.com",
+    "theme": "",
+    "notes": "likely; some chapters are premium",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "AeroToon",
+    "lang": "tr",
+    "site": "https://aerotoon.vercel.app",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "AfterToon",
+    "lang": "tr",
+    "site": "https://aftertoon.com",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Gaiatoon",
+    "lang": "tr",
+    "site": "https://gaiatoon.com",
+    "theme": "mangathemesia",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Kairatoon",
+    "lang": "tr",
+    "site": "https://kairatoon.net",
+    "theme": "",
+    "notes": "likely; some content is premium",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Koreli Manga",
+    "lang": "tr",
+    "site": "https://korelimanga.com",
+    "theme": "initmanga",
+    "notes": "likely; Korean (Koreli) manga",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Koreli Scans",
+    "lang": "tr",
+    "site": "https://www.nabicix.com",
+    "theme": "mangathemesia",
+    "notes": "likely; Korean (Koreli) scans",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Luna Scans",
+    "lang": "tr",
+    "site": "https://tuhafscans.com",
+    "theme": "madara",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "Merlin Scans",
+    "lang": "tr",
+    "site": "https://merlintoon.net",
+    "theme": "initmanga",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "OkuToon",
+    "lang": "tr",
+    "site": "https://okutoon.net",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Opiatoon",
+    "lang": "tr",
+    "site": "https://opiatoon.shop",
+    "theme": "madara",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "Seitoon",
+    "lang": "tr",
+    "site": "https://seitoon.com.tr",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "SummerToon",
+    "lang": "tr",
+    "site": "https://summertoons.org",
+    "theme": "mangathemesia",
+    "notes": "likely; some chapters paywalled",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "TonizuToon",
+    "lang": "tr",
+    "site": "https://tonizu.top",
+    "theme": "madara",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Toontaku",
+    "lang": "tr",
+    "site": "https://toontaku.com",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Webtoon Hatti",
+    "lang": "tr",
+    "site": "https://webtoonhatti.club",
+    "theme": "madara",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Webtoonia",
+    "lang": "tr",
+    "site": "https://webtoonia.fun",
+    "theme": "madara",
+    "notes": "likely; adult; some content requires login",
+    "access": "login",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "WebtoonOku",
+    "lang": "tr",
+    "site": "https://webtoonoku.org",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "Xiaoaitoon",
+    "lang": "tr",
+    "site": "https://xiaoaitoon.org.tr",
+    "theme": "",
+    "notes": "likely; adult; some chapters locked unless logged in",
+    "access": "login",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "Zenith Scans",
+    "lang": "tr",
+    "site": "https://zenithscans.com",
+    "theme": "mangathemesia",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "KhoManhwa",
+    "lang": "vi",
+    "site": "https://khomanhwa.com",
+    "theme": "",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  },
+  {
+    "name": "LoppyToon",
+    "lang": "vi",
+    "site": "https://loppytoonn.com",
+    "theme": "",
+    "notes": "likely",
+    "access": "free",
+    "adult": false,
+    "confidence": "likely"
+  },
+  {
+    "name": "VietManhwa",
+    "lang": "vi",
+    "site": "https://vietmanhwa.org",
+    "theme": "",
+    "notes": "likely; adult",
+    "access": "free",
+    "adult": true,
+    "confidence": "likely"
+  }
+]
