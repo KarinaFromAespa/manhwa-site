@@ -13,6 +13,12 @@ $IMG_CACHE_TTL = 604800; // seconds, 7 days for proxied images
 $COMIX_BASE = 'https://comix.to';
 $COMIX_API = $COMIX_BASE . '/api/v1';
 
+// HTML-escape helper used by all rendered pages.
+function h(string $s): string
+{
+    return htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
+}
+
 $localOverride = __DIR__ . '/config.local.php';
 if (is_file($localOverride)) {
     require $localOverride;
