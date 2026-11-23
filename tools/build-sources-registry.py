@@ -5,7 +5,7 @@ docs/manhwa-sources.json.
 Run from the repo root:  python3 tools/build-sources-registry.py
 
 The registry is server-side only: it is never rendered to visitors.
-Each entry keeps id, name, lang, site, host, theme, access, adult,
+Each entry keeps id, name, lang, site, host, theme, kind, access, adult,
 confidence, plus reliability and quality (null until measured — the
 scraper fills those in; see docs/architecture.md section 6).
 """
@@ -59,6 +59,7 @@ def main() -> int:
             "site": site,
             "host": urlparse(site).netloc,
             "theme": item.get("theme", ""),
+            "kind": item.get("kind", "manhwa"),
             "access": item.get("access", "free"),
             "adult": bool(item.get("adult", False)),
             "confidence": item.get("confidence", ""),
