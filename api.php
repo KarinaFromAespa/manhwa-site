@@ -3,36 +3,39 @@
 // GET api.php?action=list&limit=24&page=1&q=...
 // GET api.php?action=detail&slug=...
 // GET api.php?action=chapters&slug=...
-// GET api.php?action=chapter&slug=...&chapter=...
+// GET api.php?action=chapter&slug=...&chapter=...&copy=0
 // Response: {"ok": true, "data": ...} or
 // {"ok": false, "error": {"kind": ..., "message": ...}}.
-// The service token is never included in any response.
-require_once __DIR__ . '/lib/comix.php';
+// The service token is never included in any response, and no
+// response ever names a source site.
+require_once __DIR__ . '/lib/client.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-$client = new ComixClient();
+$client = new SiteClient();
 $action = $_GET['action'] ?? '';
 $slug = $_GET['slug'] ?? '';
+$chapterId = $_GET['chapter'] ?? '';
+$copy = max(0, (int) ($_GET['copy'] ?? 0));
+$valid = SiteClient::validSlug($slug) && ($chapterId === '' || SiteClient::validSlug($chapterId));
 
 switch ($action) {
     case 'list':
-        $res = $client->listManga(
+        $res = $client->listTitles(
             (int) ($_GET['limit'] ?? 24),
             (int) ($_GET['page'] ?? 1),
             trim($_GET['q'] ?? '')
         );
         break;
     case 'detail':
-        $res = ComixClient::validSlug($slug) ? $client->getManga($slug) : ['ok' => false, 'error' => ['kind' => 'bad_request', 'message' => 'Invalid slug.']];
+        $res = SiteClient::validSlug($slug) ? $client->getTitle($slug) : ['ok' => false, 'error' => ['kind' => 'bad_request', 'message' => 'Invalid slug.']];
         break;
     case 'chapters':
-        $res = ComixClient::validSlug($slug) ? $client->getChapters($slug) : ['ok' => false, 'error' => ['kind' => 'bad_request', 'message' => 'Invalid slug.']];
+        $res = SiteClient::validSlug($slug) ? $client->getChapters($slug) : ['ok' => false, 'error' => ['kind' => 'bad_request', 'message' => 'Invalid slug.']];
         break;
     case 'chapter':
-        $chapterId = $_GET['chapter'] ?? '';
-        $res = (ComixClient::validSlug($slug) && ComixClient::validSlug($chapterId))
-            ? $client->getChapter($slug, $chapterId)
+        $res = $valid
+            ? $client->getChapter($slug, $chapterId, $copy)
             : ['ok' => false, 'error' => ['kind' => 'bad_request', 'message' => 'Invalid slug or chapter.']];
         break;
     default:

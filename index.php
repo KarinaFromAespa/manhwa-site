@@ -1,12 +1,12 @@
 <?php
-require_once __DIR__ . '/lib/comix.php';
+require_once __DIR__ . '/lib/client.php';
 require_once __DIR__ . '/lib/layout.php';
 
-$client = new ComixClient();
+$client = new SiteClient();
 $q = trim($_GET['q'] ?? '');
 $page = max(1, (int) ($_GET['page'] ?? 1));
 
-$res = $client->listManga(24, $page, $q);
+$res = $client->listTitles(24, $page, $q);
 
 pageHead($q !== '' ? 'Search: ' . $q : 'Browse');
 if ($q !== '') {
@@ -26,17 +26,25 @@ if (!$res['ok']) {
         foreach ($items as $m) {
             $cover = $m['cover'] !== '' ? 'img.php?u=' . rawurlencode($m['cover']) : 'assets/no-cover.svg';
             echo '<a class="card" href="manga.php?slug=' . rawurlencode($m['slug']) . '">'
-                . '<img loading="lazy" src="' . h($cover) . '" alt="">'
+                . '<img loading="lazy" referrerpolicy="no-referrer" src="' . h($cover) . '" alt="">'
                 . '<span class="card-title">' . h($m['title']) . '</span>'
-                . ($m['status'] !== '' ? '<span class="card-status">' . h($m['status']) . '</span>' : '')
-                . '</a>';
+                . ($m['status'] !== '' ? '<span class="card-status">' . h($m['status']) . '</span>' : '');
+            $updated = isset($m['updated']) ? Catalog::relativeTime($m['updated']) : '';
+            if ($updated !== '') {
+                echo '<span class="card-updated">Updated ' . h($updated) . '</span>';
+            }
+            echo '</a>';
         }
         echo '</div>';
+        $total = $res['total'] ?? null;
+        $hasMore = $total === null ? true : $total > $page * 24;
         echo '<div class="pager">';
         if ($page > 1) {
             echo '<a href="index.php?page=' . ($page - 1) . ($q !== '' ? '&amp;q=' . rawurlencode($q) : '') . '">&larr; Previous</a>';
         }
-        echo '<a href="index.php?page=' . ($page + 1) . ($q !== '' ? '&amp;q=' . rawurlencode($q) : '') . '">Next &rarr;</a>';
+        if ($hasMore) {
+            echo '<a href="index.php?page=' . ($page + 1) . ($q !== '' ? '&amp;q=' . rawurlencode($q) : '') . '">Next &rarr;</a>';
+        }
         echo '</div>';
     }
 }

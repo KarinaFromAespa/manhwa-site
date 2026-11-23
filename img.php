@@ -1,15 +1,62 @@
 <?php
-// Image proxy. Only static.comix.to is allowed; anything else is rejected
-// so this cannot be abused as an open proxy. Proxied images are cached
-// on disk to avoid re-downloading them on every page view.
+// Image proxy. Only hosts on the allowlist are fetched, so this cannot
+// be abused as an open proxy. Allowed hosts: every registered source's
+// site host (including its subdomains, where image CDNs usually live),
+// plus the image hosts in data/image-hosts.json (image CDNs on
+// unrelated domains, which the scraper records). Proxied images are
+// cached on disk for 7 days.
 require_once __DIR__ . '/lib/config.php';
+
+function imageHostsAllowed(): array
+{
+    static $hosts = null;
+    if ($hosts !== null) {
+        return $hosts;
+    }
+    $hosts = [];
+    $regFile = __DIR__ . '/lib/sources.php';
+    if (is_file($regFile)) {
+        $list = require $regFile;
+        if (is_array($list)) {
+            foreach ($list as $s) {
+                if (!empty($s['host'])) {
+                    $hosts[] = strtolower((string) $s['host']);
+                }
+            }
+        }
+    }
+    $extraFile = __DIR__ . '/data/image-hosts.json';
+    if (is_file($extraFile)) {
+        $extra = json_decode((string) @file_get_contents($extraFile), true);
+        if (is_array($extra['hosts'] ?? null)) {
+            foreach ($extra['hosts'] as $h) {
+                $hosts[] = strtolower((string) $h);
+            }
+        }
+    }
+    $hosts = array_values(array_unique(array_filter($hosts)));
+    return $hosts;
+}
 
 $url = $_GET['u'] ?? '';
 $parts = parse_url($url);
+$host = strtolower((string) ($parts['host'] ?? ''));
+$allowed = imageHostsAllowed();
+$hostOk = in_array($host, $allowed, true);
+if (!$hostOk) {
+    // A source's own subdomains (its image CDNs) are allowed too.
+    foreach ($allowed as $base) {
+        if (str_ends_with($host, '.' . $base)) {
+            $hostOk = true;
+            break;
+        }
+    }
+}
 if (
     $url === '' || $parts === false
     || ($parts['scheme'] ?? '') !== 'https'
-    || ($parts['host'] ?? '') !== 'static.comix.to'
+    || $host === ''
+    || !$hostOk
     || !isset($parts['path'])
 ) {
     http_response_code(400);
@@ -23,7 +70,7 @@ $cacheFile = $CACHE_DIR . '/img_' . $key;
 $metaFile = $cacheFile . '.meta';
 
 // Serve from cache when fresh.
-if (is_file($cacheFile) && is_file($metaFile) && filemtime($cacheFile) > time() - $CACHE_TTL) {
+if (is_file($cacheFile) && is_file($metaFile) && filemtime($cacheFile) > time() - $IMG_CACHE_TTL) {
     $mime = trim((string) @file_get_contents($metaFile));
     if ($mime !== '') {
         header('Content-Type: ' . $mime);

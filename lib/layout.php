@@ -1,5 +1,6 @@
 <?php
-// Shared page chrome. No logic here, just markup.
+// Shared page chrome. No logic here, just markup. Nothing rendered
+// here names a source site.
 function pageHead(string $title): void
 {
     global $SITE_NAME;
@@ -20,15 +21,15 @@ function pageHead(string $title): void
 function pageFoot(): void
 {
     echo '</main><footer class="site-footer"><div class="wrap">'
-        . 'Content is fetched live from comix.to. This site stores no comics itself.'
+        . 'This site stores no comics itself.'
         . '</div></footer></body></html>';
 }
 
 // Error box used everywhere a fetch fails. Never render a failed fetch
-// as an empty list.
+// as an empty list. Messages are generic and never name a source.
 function errorBox(array $error): void
 {
-    echo '<div class="error-box"><strong>Could not load data from comix.to.</strong>'
+    echo '<div class="error-box"><strong>Could not load data.</strong>'
         . '<p>' . h($error['message'] ?? 'Unknown error.') . '</p>'
         . '<p class="error-kind">Error: ' . h($error['kind'] ?? 'unknown')
         . ' &middot; <a href="status.php">Check the status page</a></p></div>';

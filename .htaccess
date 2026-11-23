@@ -1,7 +1,7 @@
-# Block web access to code and cached files. The site only serves
-# the top-level PHP pages and assets/. (In .htaccess the pattern is
-# matched without a leading slash.)
-RedirectMatch 403 ^(lib|cache)/.*$
+# Block web access to code, data, tooling and docs. The site only
+# serves the top-level PHP pages and assets/. (In .htaccess the
+# pattern is matched without a leading slash.)
+RedirectMatch 403 ^(lib|cache|data|tools|docs)/.*$
 
 # Keep directory listings off.
 Options -Indexes
