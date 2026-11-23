@@ -246,7 +246,7 @@ class MadaraAdapter extends BaseAdapter
         if ($xp === null) {
             return [];
         }
-        $nodes = $xp->query("//div[contains(@class,'reading-content')]//img");
+        $nodes = $xp->query("//div[contains(concat(' ', normalize-space(@class), ' '), ' reading-content ')]//img");
         if ($nodes === false || $nodes->length === 0) {
             $nodes = $xp->query("//div[contains(@class,'page-break')]//img");
         }
