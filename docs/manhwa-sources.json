@@ -30,7 +30,7 @@
     "notes": "likely; manhwa; adult; adult",
     "access": "free",
     "adult": true,
-    "confidence": "likely"
+    "confidence": "confirmed"
   },
   {
     "name": "Aqua Manga",
@@ -338,7 +338,7 @@
     "notes": "likely; manhwa; adult",
     "access": "free",
     "adult": true,
-    "confidence": "likely"
+    "confidence": "confirmed"
   },
   {
     "name": "Goda",
@@ -932,7 +932,7 @@
     "notes": "likely; manhua",
     "access": "free",
     "adult": false,
-    "confidence": "likely"
+    "confidence": "confirmed"
   },
   {
     "name": "Manhua Zonghe",
@@ -954,7 +954,7 @@
     "notes": "likely; manhua",
     "access": "free",
     "adult": false,
-    "confidence": "likely"
+    "confidence": "confirmed"
   },
   {
     "name": "Manhuanext",
@@ -965,7 +965,7 @@
     "notes": "likely; manhua; premium chapters exist (hidden by default)",
     "access": "free",
     "adult": false,
-    "confidence": "likely"
+    "confidence": "confirmed"
   },
   {
     "name": "ManhuaPlus.top",
@@ -1020,7 +1020,7 @@
     "notes": "likely; manhwa",
     "access": "free",
     "adult": false,
-    "confidence": "likely"
+    "confidence": "confirmed"
   },
   {
     "name": "Manhwa Toon",
@@ -1031,7 +1031,7 @@
     "notes": "likely; manhwa",
     "access": "free",
     "adult": false,
-    "confidence": "likely"
+    "confidence": "confirmed"
   },
   {
     "name": "Manhwa18",
@@ -1141,7 +1141,7 @@
     "notes": "likely; manhwa; adult",
     "access": "free",
     "adult": true,
-    "confidence": "likely"
+    "confidence": "confirmed"
   },
   {
     "name": "ManhwaGalaxy",
@@ -1207,7 +1207,7 @@
     "notes": "likely; manhwa",
     "access": "free",
     "adult": false,
-    "confidence": "likely"
+    "confidence": "confirmed"
   },
   {
     "name": "ManhwaOnline",
@@ -1471,7 +1471,7 @@
     "notes": "likely; manhwa; adult",
     "access": "free",
     "adult": true,
-    "confidence": "likely"
+    "confidence": "confirmed"
   },
   {
     "name": "Qi Scans",
@@ -1592,7 +1592,7 @@
     "notes": "likely; mixed",
     "access": "free",
     "adult": false,
-    "confidence": "likely"
+    "confidence": "confirmed"
   },
   {
     "name": "Sana Scans",
@@ -1768,7 +1768,7 @@
     "notes": "likely; manhwa",
     "access": "free",
     "adult": false,
-    "confidence": "likely"
+    "confidence": "confirmed"
   },
   {
     "name": "Toonkotsu",
@@ -1812,7 +1812,7 @@
     "notes": "likely; manhua",
     "access": "free",
     "adult": false,
-    "confidence": "likely"
+    "confidence": "confirmed"
   },
   {
     "name": "TopManhua.fan",
@@ -1823,7 +1823,7 @@
     "notes": "likely; mixed; name says manhua but site is manhwa-focused — verify",
     "access": "free",
     "adult": false,
-    "confidence": "likely"
+    "confidence": "confirmed"
   },
   {
     "name": "TopManhua.net",
@@ -1834,7 +1834,7 @@
     "notes": "likely; manhua; name says manhua but site is manhwa-focused — verify",
     "access": "free",
     "adult": false,
-    "confidence": "likely"
+    "confidence": "confirmed"
   },
   {
     "name": "Tower Of God Manga Online",

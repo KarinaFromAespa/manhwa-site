@@ -107,6 +107,151 @@ class Catalog
         return $entry;
     }
 
+    // --- Scanlators (one entry per source carrying the title) ---
+
+    // Ranked scanlator list for a title: name (from the registry),
+    // chapter count, freshness, reliability, quality, language.
+    // Ranked by availability (has chapters) → freshness → reliability
+    // → quality → language, so the first entry is the default pick.
+    // Names are shown in the scanlator dropdown only — never in the
+    // footer or error messages.
+    public static function scanlators(string $id): array
+    {
+        $title = self::title($id);
+        if ($title === null) {
+            return [];
+        }
+        $registry = self::registryById();
+        $out = [];
+        foreach ($title['_sources'] as $src) {
+            if (!is_array($src) || empty($src['source'])) {
+                continue;
+            }
+            $sid = (string) $src['source'];
+            $chapters = is_array($src['chapters'] ?? null) ? $src['chapters'] : [];
+            $reg = $registry[$sid] ?? [];
+            $out[] = [
+                'source' => $sid,
+                'name' => (string) ($reg['name'] ?? $sid),
+                'chapters' => count($chapters),
+                'scraped_at' => (int) ($src['scraped_at'] ?? 0),
+                'reliability' => isset($src['reliability']) ? (float) $src['reliability'] : (isset($reg['reliability']) ? (float) $reg['reliability'] : null),
+                'quality' => (string) ($src['quality'] ?? $reg['quality'] ?? ''),
+                'lang' => (string) ($src['lang'] ?? $reg['lang'] ?? ''),
+            ];
+        }
+        $qualityRank = ['high' => 3, 'standard' => 2, 'low' => 1];
+        $langRank = ['en' => 0, 'all' => 1];
+        usort($out, function ($a, $b) use ($qualityRank, $langRank) {
+            $ha = $a['chapters'] > 0 ? 1 : 0;
+            $hb = $b['chapters'] > 0 ? 1 : 0;
+            if ($ha !== $hb) {
+                return $hb <=> $ha;
+            }
+            if ($a['scraped_at'] !== $b['scraped_at']) {
+                return $b['scraped_at'] <=> $a['scraped_at'];
+            }
+            $ra = $a['reliability'] ?? 0.5;
+            $rb = $b['reliability'] ?? 0.5;
+            if ($ra !== $rb) {
+                return $rb <=> $ra;
+            }
+            $qa = $qualityRank[strtolower($a['quality'])] ?? 2;
+            $qb = $qualityRank[strtolower($b['quality'])] ?? 2;
+            if ($qa !== $qb) {
+                return $qb <=> $qa;
+            }
+            $la = $langRank[strtolower($a['lang'])] ?? 2;
+            $lb = $langRank[strtolower($b['lang'])] ?? 2;
+            if ($la !== $lb) {
+                return $la <=> $lb;
+            }
+            return strcmp($a['name'], $b['name']);
+        });
+        return $out;
+    }
+
+    // One source's chapter list, keyed like the merged rows
+    // (number, or number-altN when one source lists two parts under
+    // the same number). Newest first.
+    public static function sourceChapters(string $id, string $sourceId): array
+    {
+        $title = self::title($id);
+        if ($title === null) {
+            return [];
+        }
+        $flat = [];
+        foreach ($title['_sources'] as $src) {
+            if (!is_array($src) || (string) ($src['source'] ?? '') !== $sourceId) {
+                continue;
+            }
+            foreach ($src['chapters'] ?? [] as $ch) {
+                if (!is_array($ch)) {
+                    continue;
+                }
+                $number = self::normalizeNumber((string) ($ch['number'] ?? ''));
+                if ($number === '') {
+                    continue;
+                }
+                $flat[] = [
+                    'number' => $number,
+                    'title' => (string) ($ch['title'] ?? ''),
+                    'id' => (string) ($ch['id'] ?? ''),
+                    'date' => (string) ($ch['date'] ?? ''),
+                    'images' => is_array($ch['images'] ?? null) ? array_values(array_filter(array_map('strval', $ch['images']))) : [],
+                ];
+            }
+        }
+        // Subgroup by chapter title: same number, different content
+        // is a genuinely different chapter, not a duplicate.
+        $groups = [];
+        foreach ($flat as $c) {
+            $groups[$c['number']][] = $c;
+        }
+        $rows = [];
+        foreach ($groups as $number => $copies) {
+            $subs = [];
+            foreach ($copies as $c) {
+                $subs[self::normalizeTitle($c['title'])][] = $c;
+            }
+            uasort($subs, fn($a, $b) => count($b) <=> count($a));
+            $altIndex = 0;
+            foreach ($subs as $sub) {
+                $top = $sub[0];
+                $rows[] = [
+                    'key' => $altIndex > 0 ? $number . '-alt' . $altIndex : (string) $number,
+                    'number' => (string) $number,
+                    'title' => $top['title'],
+                    'date' => $top['date'],
+                    'alt' => $altIndex > 0,
+                    'id' => $top['id'],
+                    'images' => $top['images'],
+                ];
+                $altIndex++;
+            }
+        }
+        usort($rows, function ($a, $b) {
+            $na = is_numeric($a['number']) ? (float) $a['number'] : -1;
+            $nb = is_numeric($b['number']) ? (float) $b['number'] : -1;
+            if ($na !== $nb) {
+                return $nb <=> $na;
+            }
+            return strcmp($a['key'], $b['key']);
+        });
+        return $rows;
+    }
+
+    // One chapter of one source, by its key. Null when absent.
+    public static function sourceChapter(string $id, string $sourceId, string $key): ?array
+    {
+        foreach (self::sourceChapters($id, $sourceId) as $row) {
+            if ($row['key'] === $key) {
+                return $row;
+            }
+        }
+        return null;
+    }
+
     // --- Merged chapters ---
 
     // One row per chapter number (union across sources), each with its
@@ -145,6 +290,7 @@ class Catalog
                     'id' => (string) ($ch['id'] ?? ''),
                     'date' => (string) ($ch['date'] ?? ''),
                     'images' => $images,
+                    'source' => (string) ($src['source'] ?? ''),
                     'scraped_at' => (int) ($ch['scraped_at'] ?? $sourceScraped),
                     'reliability' => isset($src['reliability']) ? (float) $src['reliability'] : (isset($reg['reliability']) ? (float) $reg['reliability'] : null),
                     'quality' => (string) ($src['quality'] ?? $reg['quality'] ?? ''),
@@ -180,6 +326,8 @@ class Catalog
                             'label' => 'Copy ' . ($i + 1),
                             'images' => $c['images'],
                             'updated' => $c['scraped_at'],
+                            'source' => $c['source'],
+                            'id' => $c['id'],
                         ],
                         $ranked,
                         array_keys($ranked)
@@ -219,6 +367,17 @@ class Catalog
                 'number' => $row['number'],
                 'title' => $row['title'],
                 'alt' => $row['alt'],
+                // Ranked copies with their source + chapter path, so
+                // the client can fetch a chapter live when the
+                // catalog has no images for it. Never rendered.
+                'copy_list' => array_map(
+                    fn($c) => [
+                        'source' => $c['source'],
+                        'id' => $c['id'],
+                        'images' => $c['images'],
+                    ],
+                    $copies
+                ),
             ]];
         }
         return ['ok' => false, 'error' => ['kind' => 'not_found', 'message' => 'Chapter not found.']];

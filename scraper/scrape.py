@@ -1,30 +1,48 @@
 #!/usr/bin/env python3
 """Hourly catalog scraper for manhwafreedev (stdlib only).
 
+Links-only model: the scraper collects title metadata (title, cover
+link, synopsis, status, genres) and the chapter list (number, title,
+link, id, date) — it never fetches chapter pages and never stores
+image data, only links. Chapter images are resolved live by the
+reader (lib/client.php) from the chapter link via the source
+adapter, using the file cache so repeat opens are fast; a chapter
+that happens to already carry image URLs in the catalog uses those
+first. The same applies to covers: the site proxies them through
+img.php (which sends a mapped Referer when a CDN needs one) and the
+browser falls back to loading them directly.
+
 Reads the source set from docs/manhwa-sources.json, scrapes the
 Madara latest list of each source, fetches title pages for titles
-that are new or changed since the last run, fetches chapter pages
-for new chapters only, and writes the catalog the site reads:
-data/catalog.json (index) + data/titles/<id>.json (per-title detail)
-exactly per data/catalog-schema.md. Per-source chapter lists are
-written as scraped; the site merges chapters across sources at read
-time (lib/catalog.php) — this scraper never merges.
+that are new or changed since the last run, and writes the catalog
+the site reads: data/catalog.json (index) + data/titles/<id>.json
+(per-title detail) exactly per data/catalog-schema.md. Per-source
+chapter lists are written as scraped; the site merges chapters
+across sources at read time (lib/catalog.php) — this scraper never
+merges.
+
+Seed mode (--seed): crawls each source's whole /manga/ directory
+(paginated, newest-first) instead of only the latest-updates
+window, so the catalog reaches hundreds of titles instead of only
+the recently-updated ones. A per-source cursor in state.json
+remembers the next page, so a seed run resumes where the last one
+stopped and a finished pass starts over.
 
 Efficiency: the list items carry the two latest chapters with dates,
 so a title whose latest chapter is unchanged costs zero requests
 (the stored copy is carried forward). New/changed titles cost one
-title-page fetch plus chapter-page fetches for new chapters only.
-Imageless chapters are backfilled a few per run with leftover
-budget. The whole run is capped (wall clock + request count) and
-stops gracefully, still writing a valid partial catalog.
+title-page fetch. The whole run is capped (wall clock + request
+count) and stops gracefully, still writing a valid partial catalog.
 
 State lives in scraper/state.json: per-source reliability history
-(30-day success rate), per-title last-seen chapter info, and a
-(source, slug) -> canonical-id map so ids stay stable across runs.
+(30-day success rate), per-title last-seen chapter info, a
+(source, slug) -> canonical-id map so ids stay stable across runs,
+and the seed cursor per source.
 """
 import argparse
 import hashlib
 import json
+import re
 import sys
 import time
 from pathlib import Path
@@ -55,22 +73,28 @@ V1_FILTER = {
     "lang": "en",
     "theme": "madara",
 }
-# Proven unreachable from datacenter IPs (Cloudflare challenge).
-# Revisit if a residential fetcher (PC bridge) exists.
+# Proven unreachable from datacenter IPs (Cloudflare challenge or
+# plain 403). Revisit if a residential fetcher (PC bridge) exists.
 V1_EXCLUDE = {
     "dragontea": "Cloudflare-challenged from datacenter IPs (2026-11-23)",
+    "manhuaus": "Cloudflare-challenged from datacenter IPs (2026-11-24)",
+    "aqua-manga": "HTTP 403 from datacenter IPs (2026-11-24)",
+    "manhua-zonghe": "HTTP 403 from datacenter IPs (2026-11-24)",
+    "manhwa68": "HTTP 403 from datacenter IPs (2026-11-24)",
+    "toongod": "HTTP 403 from datacenter IPs (2026-11-24)",
+    "gingertoon": "/manga/ archive empty — 'There is no Manga yet' (2026-11-24)",
+    "manhwa-toon": "/manga/ archive has no parseable list items (2026-11-24)",
 }
 
 # --- Budgets (private repo: 2,000 Actions min/month, 720 runs) ---
 LIST_PAGES = 2            # /manga/ pages per source per run
+SEED_PAGES = 30           # /manga/ pages per source per seed run
 REQUEST_TIMEOUT = 10      # seconds per request
 REQUEST_DELAY = 0.5       # seconds between requests to the same host
 MAX_SECONDS = 100         # wall-clock cap for the whole run
 MAX_REQUESTS = 150        # request cap for the whole run
 MAX_TITLE_PAGES_PER_SOURCE = 30
-MAX_CHAPTER_PAGES_PER_SOURCE = 40
-NEW_CHAPTER_IMAGES_PER_TITLE = 5   # newest new chapters imaged first
-BACKFILL_PER_SOURCE = 20           # imageless chapters backfilled/run
+HOLLOW_RETRY_PER_SOURCE = 10  # 0-chapter titles retried per run
 
 STATE_DAYS = 30           # reliability window
 
@@ -257,14 +281,28 @@ class Runner:
             self.root / "scraper" / "overrides.json", {"aliases": {}}
         )
         self.aliases = self.overrides.get("aliases", {})
+        # Per-source fetch patterns (data/source-patterns.json):
+        # which mechanism supplies the chapter list and the images,
+        # seeded from the keiyoushi extension for each source and
+        # updated as runs verify them. The choice is stable across
+        # runs — a recorded mode is tried first, and only replaced
+        # when it stops working.
+        self.patterns = load_json(
+            self.root / "data" / "source-patterns.json", {}
+        )
+        if not isinstance(self.patterns, dict):
+            self.patterns = {}
+        self.patterns.setdefault("version", 1)
+        self.patterns.setdefault("sources", {})
+        self.patterns_dirty = False
         self.stats = {
             "sources_ok": [], "sources_failed": {},
             "titles_seen": 0, "titles_new": 0, "titles_updated": 0,
             "titles_unchanged": 0, "chapters_new": 0,
-            "chapter_pages": 0, "title_pages": 0, "requests": 0,
-            "images": 0, "backfilled": 0,
+            "title_pages": 0, "requests": 0,
         }
         self.image_hosts = set()
+        self.image_referers = {}  # image host -> [origins to try]
         # Working catalog: index entries carried forward + updated.
         self.index_entries = {}
         self.title_files = {}   # cid -> full title dict (loaded lazily)
@@ -340,44 +378,102 @@ class Runner:
         site = MadaraSite(
             source_id, item["site"].rstrip("/"), delay=REQUEST_DELAY
         )
+        # Seed mode crawls the whole /manga/ directory from the
+        # stored cursor; hourly mode only reads the latest window.
+        seed = bool(getattr(self.args, "seed", False))
+        if seed:
+            start = int(
+                (self.state.get("sources", {}).get(source_id, {}) or {})
+                .get("seed_page", 1) or 1
+            )
+            pages = range(start, start + self.args.seed_pages)
+        else:
+            pages = range(1, self.args.list_pages + 1)
         items = []
         list_ok = False
-        for page in range(1, self.args.list_pages + 1):
+        seed_exhausted = False
+        next_page = None
+        first_page = True
+        for page in pages:
             if not self.budget.left():
+                next_page = page
                 break
             before = site.requests
             ok, page_items, kind, message = site.list_page(page)
             self._note_site_requests(site, before)
             if not ok:
-                if page == 1:
+                if first_page:
                     record_attempt(self.state, source_id, False, self.now)
                     self.stats["sources_failed"][source_id] = (
                         f"{kind}: {message}"
                     )
                     return
-                break  # page 2+ failed; keep page 1's items
+                next_page = page
+                break  # later page failed; keep earlier items
+            first_page = False
             list_ok = True
             seen = {it["slug"] for it in items}
-            items.extend(it for it in page_items if it["slug"] not in seen)
+            for it in page_items:
+                if it["slug"] not in seen:
+                    # Page tag: the seed cursor resumes at the first
+                    # page with unprocessed items, so a run that
+                    # stops mid-list never drops titles.
+                    it["_page"] = page
+                    items.append(it)
             if len(page_items) == 0:
+                seed_exhausted = True
+                next_page = None
                 break
+            next_page = page + 1
         if not list_ok:
             record_attempt(self.state, source_id, False, self.now)
             self.stats["sources_failed"][source_id] = "empty list"
             return
         record_attempt(self.state, source_id, True, self.now)
         self.stats["sources_ok"].append(source_id)
+        seen_slugs = set()
+        seed_resume_page = None
         for list_item in items:
             if not self.budget.left():
+                # Resume at the first page with unprocessed items.
+                seed_resume_page = list_item.get("_page")
                 # Segment end is not global exhaustion: the next
                 # source still gets its own share.
                 if not self.budget.global_left():
                     self.budget.stopped = True
                 break
             self.stats["titles_seen"] += 1
+            seen_slugs.add(list_item["slug"])
             self.process_title(site, source_id, item, list_item)
-        # Backfill imageless chapters with leftover budget.
-        self.backfill(site, source_id, item)
+        # Retry hollow titles (0 chapters) that did not surface in
+        # the list window: their chapter lists may exist now (e.g.
+        # the chapters API fallback was added after they were first
+        # seen). Bounded per source, budget permitting.
+        if self.budget.left():
+            hollow = []
+            for tstate in self.state.get("titles", {}).values():
+                entry = (tstate.get("sources", {}) or {}).get(source_id)
+                if entry and entry.get("no_chapters") and entry.get("slug"):
+                    if entry["slug"] not in seen_slugs:
+                        hollow.append(entry["slug"])
+            for slug in hollow[:HOLLOW_RETRY_PER_SOURCE]:
+                if not self.budget.left():
+                    break
+                self.process_title(site, source_id, item, {
+                    "slug": slug, "title": "", "cover": "",
+                    "latest": [],
+                })
+        # Seed cursor: resume where this run stopped; a finished
+        # pass (empty directory page) restarts from page 1.
+        if seed:
+            entry = self.state["sources"].setdefault(source_id, {})
+            if seed_exhausted:
+                entry["seed_page"] = 1
+                entry["seed_completed_at"] = self.now
+            elif seed_resume_page is not None:
+                entry["seed_page"] = seed_resume_page
+            elif next_page is not None:
+                entry["seed_page"] = next_page
 
     def process_title(self, site, source_id, source_item, list_item):
         """Returns "unchanged", "title_page", "title_page+chapters",
@@ -405,10 +501,14 @@ class Runner:
             return "failed"
         self.stats["title_pages"] += 1
         before = site.requests
-        ok, data, kind, message = site.detail(list_item["slug"])
+        mode = (self.patterns.get("sources", {}) or {}).get(
+            source_id, {}
+        ).get("chapters", "")
+        ok, data, kind, message = site.detail(list_item["slug"], mode)
         self._note_site_requests(site, before)
         if not ok:
             return "failed"
+        self._record_pattern(site, source_id, source_item, data)
         if cid is None:
             cid = self.resolve_id(data["title"], data.get("author", ""))
             self.state.setdefault("map", {})[key] = cid
@@ -434,7 +534,6 @@ class Runner:
                 if ch.get("id"):
                     old_by_id[ch["id"]] = ch
         chapters = []
-        fetched_images = False
         new_numbers = []
         for ch in data.get("chapters", []) or []:
             num = normalize_number(str(ch.get("number", "")))
@@ -455,25 +554,38 @@ class Runner:
             else:
                 new_numbers.append(num)
             chapters.append(record)
-        # New chapters, newest first, up to the per-title cap.
-        new_numbers.sort(key=_chapter_sort_key, reverse=True)
-        for num in new_numbers[:NEW_CHAPTER_IMAGES_PER_TITLE]:
-            if not self.budget.left():
-                break
-            record = next(c for c in chapters if c["number"] == num)
-            if not record.get("id"):
-                continue
-            before = site.requests
-            self.stats["chapter_pages"] += 1
-            ok, images, _, _ = site.chapter_images(record["id"])
-            self._note_site_requests(site, before)
-            if ok and images:
-                record["images"] = images
-                fetched_images = True
-                self.stats["images"] += len(images)
-                for url in images:
-                    self.note_image_host(url, source_item["site"])
-            self.stats["chapters_new"] += 1
+        # Links-only: new chapters are listed with no images — the
+        # reader resolves images live from the chapter link. Any
+        # images already stored (from earlier runs) are carried
+        # forward above and used first.
+        self.stats["chapters_new"] += len(new_numbers)
+        if not chapters:
+            # No server-rendered chapter list (many Madara sites
+            # load it via AJAX): seed from the list item's latest
+            # chapters, so the title is not hollow. Those are real
+            # chapter links the reader can open, and they accumulate
+            # across runs as new chapters appear. The title still
+            # counts as no_chapters, so the title page is retried.
+            for ch in list_item.get("latest", []) or []:
+                num = normalize_number(str(ch.get("number", "")))
+                if not num or not ch.get("id"):
+                    continue
+                record = {
+                    "number": num,
+                    "title": str(ch.get("title", "")),
+                    "id": str(ch.get("id", "")),
+                    "date": parse_date(str(ch.get("date", ""))),
+                    "images": [],
+                    "scraped_at": now,
+                }
+                if record["id"] in old_by_id:
+                    old = old_by_id[record["id"]]
+                    record["images"] = list(old.get("images", []) or [])
+                    record["scraped_at"] = int(old.get("scraped_at", now))
+                else:
+                    new_numbers.append(num)
+                chapters.append(record)
+            self.stats["chapters_new"] += len(chapters)
         if data.get("cover"):
             self.note_image_host(data["cover"], source_item["site"])
         if list_item.get("cover"):
@@ -539,7 +651,7 @@ class Runner:
             "copies": len(title["sources"]),
             "adult": bool(title.get("adult", False)),
         }
-        # State: last-seen chapter info + imageless list.
+        # State: last-seen chapter info.
         latest = data.get("chapters") or []
         entry_state = {
             "slug": list_item["slug"],
@@ -550,17 +662,13 @@ class Runner:
             "chapter_count": len(chapters),
             "chapter_hash": chapter_hash(chapters),
             "last_seen": now,
-            "imageless": sorted(
-                (c["number"] for c in chapters if not c.get("images")),
-                key=_chapter_sort_key,
-            ),
             "no_chapters": bool(no_chapters),
             "author": data.get("author", ""),
         }
         self.state.setdefault("titles", {}).setdefault(cid, {}).setdefault(
             "sources", {}
         )[source_id] = entry_state
-        return "title_page+chapters" if fetched_images else "title_page"
+        return "title_page"
 
     def merge_title(self, cid, prev, data, sources):
         title = prev.get("title") if prev else ""
@@ -596,6 +704,44 @@ class Runner:
             "sources": [sources[k] for k in sorted(sources)],
         }
 
+    def _record_pattern(self, site, source_id, source_item, data):
+        """Update the per-source fetch pattern from what this
+        detail() actually used: the chapter mode that supplied the
+        list, the chapters API URL when one was used, and the image
+        hosts seen (covers). A recorded mode is only replaced when
+        a run proves a different one works."""
+        entry = self.patterns["sources"].setdefault(source_id, {})
+        mode = getattr(site, "last_chapter_mode", "")
+        if mode and entry.get("chapters") != mode:
+            entry["chapters"] = mode
+            entry["detected_at"] = self.now
+            self.patterns_dirty = True
+        api_url = getattr(site, "last_chapters_api", "")
+        if api_url:
+            template = re.sub(
+                r"(/api/comics/)[^/]+(/chapters.*)",
+                r"\1{slug}\2", api_url,
+            )
+            if entry.get("chapters_api") != template:
+                entry["chapters_api"] = template
+                self.patterns_dirty = True
+        for url in (data.get("cover") or "",):
+            if not url:
+                continue
+            try:
+                host = urlparse(url).hostname or ""
+            except ValueError:
+                host = ""
+            if host:
+                hosts = entry.setdefault("image_hosts", [])
+                if host not in hosts:
+                    hosts.append(host)
+                    self.patterns_dirty = True
+        if "theme" not in entry:
+            entry["theme"] = source_item.get("theme", "")
+        if "extension" not in entry:
+            entry["extension"] = ""
+
     def note_image_host(self, url, source_site):
         try:
             host = urlparse(url).hostname or ""
@@ -609,50 +755,13 @@ class Runner:
         ):
             return
         self.image_hosts.add(host.lower())
-
-    def backfill(self, site, source_id, source_item):
-        """Fetch images for imageless chapters, oldest first, with
-        leftover budget. Skips sources whose state has no imageless
-        chapters."""
-        if not self.budget.left():
-            return
-        done = 0
-        candidates = []
-        for cid, title_state in self.state.get("titles", {}).items():
-            entry = title_state.get("sources", {}).get(source_id)
-            if not entry or not entry.get("imageless"):
-                continue
-            title = self.prev_title(cid)
-            if not title:
-                continue
-            for src in title.get("sources", []) or []:
-                if src.get("source") != source_id:
-                    continue
-                for ch in src.get("chapters", []) or []:
-                    if ch.get("number") in entry["imageless"] and ch.get("id"):
-                        candidates.append((cid, ch))
-        candidates.sort(key=lambda c: _chapter_sort_key(c[1]["number"]))
-        for cid, ch in candidates:
-            if done >= BACKFILL_PER_SOURCE or not self.budget.left():
-                break
-            before = site.requests
-            self.stats["chapter_pages"] += 1
-            ok, images, _, _ = site.chapter_images(ch["id"])
-            self._note_site_requests(site, before)
-            done += 1
-            if not ok or not images:
-                continue
-            ch["images"] = images
-            ch["scraped_at"] = self.now
-            self.stats["images"] += len(images)
-            self.stats["backfilled"] += 1
-            for url in images:
-                self.note_image_host(url, source_item["site"])
-            entry = self.state["titles"][cid]["sources"][source_id]
-            entry["imageless"] = [
-                n for n in entry["imageless"] if n != ch["number"]
-            ]
-            self.touched.add(cid)
+        # Referer candidates for this CDN: origins of sources whose
+        # pages link images on it. img.php tries them in order when
+        # the host hotlink-protects (403 without the right Referer).
+        origin = source_site.rstrip("/") + "/"
+        known = self.image_referers.setdefault(host.lower(), [])
+        if origin not in known:
+            known.append(origin)
 
     def run(self):
         sources = load_v1_sources(self.root, self.args.sources)
@@ -687,10 +796,7 @@ class Runner:
                 for t in self.title_files.values()
                 for s in t.get("sources", []) or []
             ) + self._carried_chapter_count(),
-            "chapter_pages": self.stats["chapter_pages"],
             "title_pages": self.stats["title_pages"],
-            "images": self.stats["images"],
-            "backfilled": self.stats["backfilled"],
             "requests": self.budget.requests,
             "seconds": round(time.monotonic() - self.budget.started, 1),
             "stopped_early": self.budget.stopped,
@@ -769,6 +875,34 @@ class Runner:
         hosts = sorted(set(existing.get("hosts", [])) | self.image_hosts)
         if write_json_if_changed(hosts_path, {"hosts": hosts}):
             print(f"wrote data/image-hosts.json ({len(hosts)} hosts)")
+        # Referer map: host -> [origins]. Existing entries keep
+        # their order (first tried); new origins append.
+        referers_path = self.root / "data" / "image-referers.json"
+        existing_ref = load_json(referers_path, {})
+        if not isinstance(existing_ref, dict):
+            existing_ref = {}
+        merged_ref = dict(existing_ref)
+        for host, origins in self.image_referers.items():
+            known = list(merged_ref.get(host, []) or [])
+            for origin in origins:
+                if origin not in known:
+                    known.append(origin)
+            merged_ref[host] = known
+        if write_json_if_changed(referers_path, merged_ref):
+            print(f"wrote data/image-referers.json ({len(merged_ref)} hosts)")
+        # Fetch patterns: the per-source chapter/image mechanisms,
+        # seeded from the keiyoushi extensions and updated as runs
+        # verify them. Deployed with the catalog so the reader can
+        # choose the same mechanism for its live fetch.
+        if self.patterns_dirty:
+            self.patterns["generated_at"] = self.now
+            if write_json_if_changed(
+                self.root / "data" / "source-patterns.json", self.patterns
+            ):
+                print(
+                    "wrote data/source-patterns.json "
+                    f"({len(self.patterns.get('sources', {}))} sources)"
+                )
         write_json_atomic(self.root / "scraper" / "state.json", self.state)
         print("wrote scraper/state.json")
 
@@ -803,6 +937,16 @@ def main(argv=None):
     parser.add_argument(
         "--list-pages", type=int, default=LIST_PAGES,
         help=f"/manga/ pages per source (default {LIST_PAGES})",
+    )
+    parser.add_argument(
+        "--seed", action="store_true",
+        help="seed mode: crawl each source's whole /manga/ "
+        "directory from the stored cursor instead of only the "
+        "latest-updates window",
+    )
+    parser.add_argument(
+        "--seed-pages", type=int, default=SEED_PAGES,
+        help=f"/manga/ pages per source per seed run (default {SEED_PAGES})",
     )
     parser.add_argument(
         "--dry-run", action="store_true",

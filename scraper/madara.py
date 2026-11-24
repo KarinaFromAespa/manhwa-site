@@ -8,11 +8,22 @@ against mangazin.org on 2026-11-23:
   author, alternative), li.wp-manga-chapter links
 - chapter page: div.reading-content img (data-src first), fallback
   div.page-break img
-- chapter list API: some Madara sites (zinmanga.net) do not render
-  the chapter list in the title page at all — they fetch it from a
-  JSON API (e.g. /api/comics/<slug>/chapters) whose URL is embedded
-  in the page. detail() falls back to that when the page has no
-  li.wp-manga-chapter items.
+
+Chapter lists come from whichever mechanism the source uses
+(keiyoushi extension reference, recorded per source in
+data/source-patterns.json so the choice is stable):
+- manga-page: the list is server-rendered in the title page.
+- api: a JSON API whose URL is embedded in the title page
+  (e.g. /api/comics/<slug>/chapters on zinmanga.net).
+- manga-ajax: POST {manga}/ajax/chapters/ (empty body, XHR).
+- manga-ajax-paginated: POST {manga}/ajax/chapters/?t={page} to 404.
+- admin-ajax: POST /wp-admin/admin-ajax.php with
+  action=manga_get_chapters&manga=<post id>.
+- spa: the list lives in the page's embedded JSON state
+  (__NEXT_DATA__ or <script type="application/json">).
+detail() tries the server-rendered list first (free), then the
+recorded mode, then the rest, and reports which mode supplied the
+list in self.last_chapter_mode.
 
 The list items carry the two latest chapters with their dates, so
 the runner can tell whether a title changed without fetching its
@@ -79,6 +90,57 @@ def fetch(url, timeout=REQUEST_TIMEOUT):
         return False, 0, "", "network", f"Could not be reached ({exc})."
 
 
+def fetch_post(url, data=b"", headers=None, timeout=REQUEST_TIMEOUT):
+    """One polite form POST (the Madara AJAX chapter endpoints).
+    Returns (ok, status, body, kind, message), same kinds as fetch.
+    A 404 is returned as ok=False with kind "http_404" — the
+    paginated AJAX endpoint signals the end of the list that way."""
+    req_headers = {
+        "User-Agent": USER_AGENT,
+        "Accept": "*/*",
+        "Accept-Language": "en-US,en;q=0.9",
+        "X-Requested-With": "XMLHttpRequest",
+        "Content-Type": "application/x-www-form-urlencoded",
+    }
+    if headers:
+        req_headers.update(headers)
+    req = urllib.request.Request(
+        url, data=data, headers=req_headers, method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            body = resp.read().decode("utf-8", "replace")
+            return True, resp.status, body, "", ""
+    except urllib.error.HTTPError as exc:
+        try:
+            body = exc.read().decode("utf-8", "replace")
+        except Exception:
+            body = ""
+        if exc.code == 404:
+            return False, 404, body, "http_404", "HTTP 404 (Not Found)."
+        if exc.code in (403, 503) and (
+            "Just a moment" in body
+            or "challenges.cloudflare.com" in body
+            or "cf-chl" in body
+        ):
+            return False, exc.code, body, "cloudflare", (
+                "Access is being challenged and this server cannot "
+                "pass the check."
+            )
+        if exc.code == 403:
+            return False, 403, body, "http_403", "HTTP 403 (Forbidden)."
+        return False, exc.code, body, f"http_{exc.code}", f"HTTP {exc.code}."
+    except urllib.error.URLError as exc:
+        reason = str(getattr(exc, "reason", exc))
+        if "timed out" in reason or "Timeout" in reason:
+            return False, 0, "", "timeout", "The request timed out."
+        return False, 0, "", "network", f"Could not be reached ({reason})."
+    except TimeoutError:
+        return False, 0, "", "timeout", "The request timed out."
+    except Exception as exc:  # noqa: BLE001 - network edge cases
+        return False, 0, "", "network", f"Could not be reached ({exc})."
+
+
 def is_madara(html):
     """True when the page looks like a Madara listing: the wp-manga
     markers plus list items. Guards against a source that redesigned
@@ -106,6 +168,12 @@ class MadaraSite:
         self.delay = delay
         self.requests = 0
         self._last_fetch = 0.0
+        # Chapter mode that supplied the last detail() list
+        # (manga-page, api, manga-ajax, manga-ajax-paginated,
+        # admin-ajax, spa, or "" when none did). The runner records
+        # it in data/source-patterns.json so the choice is stable.
+        self.last_chapter_mode = ""
+        self.last_chapters_api = ""
 
     def get(self, url):
         wait = self.delay - (time.monotonic() - self._last_fetch)
@@ -114,6 +182,19 @@ class MadaraSite:
         self._last_fetch = time.monotonic()
         self.requests += 1
         return fetch(url)
+
+    def post(self, url, data=b"", referer=""):
+        """Form POST with the XHR headers the Madara AJAX endpoints
+        expect. Referer is the manga page the request comes from."""
+        wait = self.delay - (time.monotonic() - self._last_fetch)
+        if wait > 0:
+            time.sleep(wait)
+        self._last_fetch = time.monotonic()
+        self.requests += 1
+        headers = {}
+        if referer:
+            headers["Referer"] = referer
+        return fetch_post(url, data=data, headers=headers)
 
     # --- Lists ---
 
@@ -135,9 +216,15 @@ class MadaraSite:
 
     # --- Title page ---
 
-    def detail(self, slug):
+    def detail(self, slug, chapter_mode=""):
         """Full title page: metadata + chapter list. Returns
-        (ok, data, kind, message)."""
+        (ok, data, kind, message). The chapter list is taken from
+        the mechanism that works for this source, in the order the
+        keiyoushi extension for it uses (recorded in
+        data/source-patterns.json): the server-rendered list is free
+        (already fetched), then the recorded mode, then the rest.
+        The mode that supplied the list is left in
+        self.last_chapter_mode for the runner to record."""
         url = f"{self.base}/{slug.strip('/')}/"
         ok, status, body, kind, message = self.get(url)
         if not ok:
@@ -147,16 +234,94 @@ class MadaraSite:
             return False, None, "bad_response", (
                 "The title page did not contain readable details."
             )
-        if not data.get("chapters"):
-            # Chapter list not rendered: some Madara sites load it
-            # from a JSON API whose URL is embedded in the page.
-            api_url = find_chapters_api(body, self.base)
-            if api_url:
-                title_slug = slug.strip("/").split("/")[-1]
-                data["chapters"] = self.fetch_api_chapters(
-                    api_url, title_slug
-                )
+        self.last_chapter_mode = ""
+        self.last_chapters_api = ""
+        if data.get("chapters"):
+            self.last_chapter_mode = "manga-page"
+            return True, data, "", ""
+        title_slug = slug.strip("/").split("/")[-1]
+        # Fallbacks, recorded mode first, then the rest. Each costs
+        # requests, so the recorded mode (when right) avoids the
+        # wasted attempts.
+        order = []
+        for mode in (chapter_mode, "api", "manga-ajax",
+                     "manga-ajax-paginated", "admin-ajax", "spa"):
+            if mode and mode not in order:
+                order.append(mode)
+        for mode in order:
+            chapters = []
+            if mode == "api":
+                api_url = find_chapters_api(body, self.base)
+                if api_url:
+                    chapters = self.fetch_api_chapters(api_url, title_slug)
+                    if chapters:
+                        self.last_chapters_api = api_url
+            elif mode == "manga-ajax":
+                chapters = self.ajax_chapters(slug)
+            elif mode == "manga-ajax-paginated":
+                chapters = self.ajax_chapters_paginated(slug)
+            elif mode == "admin-ajax":
+                post_id = find_post_id(body)
+                if post_id:
+                    chapters = self.admin_ajax_chapters(slug, post_id)
+            elif mode == "spa":
+                chapters = find_spa_chapters(body, self.base)
+            if chapters:
+                data["chapters"] = chapters
+                self.last_chapter_mode = mode
+                break
         return True, data, "", ""
+
+    def ajax_chapters(self, slug):
+        """MangaAjax chapter list: POST {manga}/ajax/chapters/ with
+        an empty body and XHR headers (the keiyoushi Madara theme's
+        fetchMangaAjaxChapters). Returns the chapter list, or []."""
+        manga_url = f"{self.base}/{slug.strip('/')}/"
+        url = f"{self.base}/{slug.strip('/')}/ajax/chapters/"
+        ok, _, body, _, _ = self.post(url, data=b"", referer=manga_url)
+        if not ok:
+            return []
+        return parse_chapter_list_html(body, self.base)
+
+    def ajax_chapters_paginated(self, slug):
+        """MangaAjaxPaginated: POST {manga}/ajax/chapters/?t={page}
+        until a 404 or an empty page. Returns the chapter list."""
+        manga_url = f"{self.base}/{slug.strip('/')}/"
+        chapters = []
+        page = 1
+        while page <= 50:
+            url = (
+                f"{self.base}/{slug.strip('/')}/ajax/chapters/?t={page}"
+            )
+            ok, status, body, kind, _ = self.post(
+                url, data=b"", referer=manga_url
+            )
+            if not ok:
+                break
+            page_chapters = parse_chapter_list_html(body, self.base)
+            if not page_chapters:
+                break
+            chapters.extend(page_chapters)
+            page += 1
+        return chapters
+
+    def admin_ajax_chapters(self, slug, post_id):
+        """AdminAjax chapter list: POST /wp-admin/admin-ajax.php
+        with action=manga_get_chapters&manga=<post id>."""
+        import urllib.parse
+
+        manga_url = f"{self.base}/{slug.strip('/')}/"
+        data = urllib.parse.urlencode({
+            "action": "manga_get_chapters",
+            "manga": post_id,
+        }).encode()
+        ok, _, body, _, _ = self.post(
+            f"{self.base}/wp-admin/admin-ajax.php",
+            data=data, referer=manga_url,
+        )
+        if not ok:
+            return []
+        return parse_chapter_list_html(body, self.base)
 
     def fetch_api_chapters(self, api_url, title_slug):
         """All pages of a chapters JSON API, newest first. The API
@@ -212,22 +377,30 @@ def parse_list(html, base):
     items = []
     seen = set()
     for node in find_all(root, tag="div", cls="page-item-detail"):
-        links = [
-            a for a in find_all(node, tag="a")
-            if "/manga/" in a.get("href", "")
-        ]
-        if not links:
+        # Title link: the <a> in div.post-title. Some Madara sites
+        # serve titles under /webtoon/ (or /manhwa/) instead of
+        # /manga/, so the href is not filtered on a fixed prefix.
+        title_node = find_first(node, tag="div", cls="post-title")
+        link = (
+            find_first(title_node, tag="a")
+            if title_node is not None else None
+        )
+        if link is None:
+            links = [
+                a for a in find_all(node, tag="a")
+                if "/manga/" in a.get("href", "")
+            ]
+            link = links[0] if links else None
+        if link is None:
             continue
-        slug = url_path(resolve_url(base, links[0].get("href", "")))
+        slug = url_path(resolve_url(base, link.get("href", "")))
         if not slug or slug in seen:
             continue
         title = ""
-        title_node = find_first(node, tag="div", cls="post-title")
         if title_node is not None:
-            link = find_first(title_node, tag="a")
-            title = text(link) if link is not None else ""
+            title = text(link)
         if not title:
-            title = links[0].get("title", "").strip()
+            title = link.get("title", "").strip()
         if not title:
             img = find_first(node, tag="img")
             title = img.get("alt", "").strip() if img is not None else ""
@@ -256,6 +429,104 @@ def parse_list(html, base):
             "latest": chapters,
         })
     return items
+
+
+def parse_chapter_list_html(html, base):
+    """Chapter list from any HTML carrying li.wp-manga-chapter
+    items (a title page, or an AJAX chapter-list response). The
+    same extraction parse_detail uses, standalone."""
+    from normalize import chapter_number_from  # local import: no cycle
+
+    root = parse(html)
+    chapters = []
+    for link in find_all(root, tag="a"):
+        li = link.parent
+        if li is None or li.tag != "li":
+            continue
+        if "wp-manga-chapter" not in li.cls():
+            continue
+        href = link.get("href", "")
+        if not href:
+            continue
+        link_text = text(link)
+        date_node = find_first(li, tag="span", cls="chapter-release-date")
+        chapters.append({
+            "number": chapter_number_from(link_text, href),
+            "title": link_text,
+            "id": url_path(resolve_url(base, href)),
+            "date": text(date_node),
+        })
+    return chapters
+
+
+def find_post_id(html):
+    """WordPress post id of a manga page (data-post-id), for the
+    AdminAjax chapter endpoint. None when absent."""
+    match = re.search(r'data-post-id=["\'](\d+)["\']', html)
+    return match.group(1) if match else None
+
+
+def find_spa_chapters(html, base):
+    """Chapter list from a single-page app's embedded state:
+    __NEXT_DATA__ JSON, or <script type="application/json"> blocks.
+    Looks for arrays of objects carrying a chapter URL (a href or
+    slug containing /chapter). Returns [] when the page carries no
+    such state — most Madara sites are server-rendered, so this is
+    the last fallback, not the first guess."""
+    from normalize import chapter_number_from  # local import: no cycle
+
+    blobs = []
+    m = re.search(
+        r'<script[^>]*id=["\']__NEXT_DATA__["\'][^>]*>(.*?)</script>',
+        html, re.S,
+    )
+    if m:
+        blobs.append(m.group(1))
+    blobs.extend(
+        re.findall(
+            r'<script[^>]*type=["\']application/json["\'][^>]*>(.*?)</script>',
+            html, re.S,
+        )
+    )
+    for blob in blobs:
+        try:
+            data = json.loads(blob)
+        except ValueError:
+            continue
+        found = _spa_chapter_entries(data, base)
+        if found:
+            return found
+    return []
+
+
+def _spa_chapter_entries(node, base, depth=0):
+    """Recursively search parsed JSON for chapter entries: objects
+    with a URL/slug containing /chapter, or a chapter number plus a
+    URL. Returns chapter dicts in the order found."""
+    from normalize import chapter_number_from  # local import: no cycle
+
+    if depth > 8:
+        return []
+    chapters = []
+    if isinstance(node, dict):
+        url = (
+            node.get("url") or node.get("href") or node.get("slug") or ""
+        )
+        if isinstance(url, str) and "/chapter" in url:
+            num = node.get("chapter_num") or node.get("number") or ""
+            name = node.get("chapter_name") or node.get("name") or node.get("title") or ""
+            chapters.append({
+                "number": chapter_number_from(str(name), url),
+                "title": str(name),
+                "id": url_path(resolve_url(base, url)),
+                "date": str(node.get("updated_at") or node.get("date") or ""),
+            })
+        for value in node.values():
+            chapters.extend(_spa_chapter_entries(value, base, depth + 1))
+    elif isinstance(node, list):
+        for item in node:
+            chapters.extend(_spa_chapter_entries(item, base, depth + 1))
+    return chapters
 
 
 def parse_detail(html, base, slug):
@@ -295,24 +566,7 @@ def parse_detail(html, base, slug):
                 part.strip() for part in re.split(r"[,/|]", raw)
                 if part.strip()
             ]
-    chapters = []
-    for link in find_all(root, tag="a"):
-        li = link.parent
-        if li is None or li.tag != "li":
-            continue
-        if "wp-manga-chapter" not in li.cls():
-            continue
-        href = link.get("href", "")
-        if not href:
-            continue
-        link_text = text(link)
-        date_node = find_first(li, tag="span", cls="chapter-release-date")
-        chapters.append({
-            "number": chapter_number_from(link_text, href),
-            "title": link_text,
-            "id": url_path(resolve_url(base, href)),
-            "date": text(date_node),
-        })
+    chapters = parse_chapter_list_html(html, base)
     return {
         "slug": slug.strip("/"),
         "title": title,

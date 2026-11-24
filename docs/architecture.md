@@ -258,7 +258,15 @@ Chapter images are the hardest part and are never stored:
 - The reader loads images through the site's own proxy
   (`img.php`, already built), which sets a browser User-Agent,
   follows redirects, and caches to disk. Image CDNs are usually
-  less protected than the main site.
+  less protected than the main site. Some CDNs hotlink-protect
+  (403 unless the Referer is a site that uses them); the proxy
+  sends a mapped Referer per image host from
+  `data/image-referers.json` (host → origins to try, recorded by
+  the scraper), falling back to no Referer.
+- Chapter images are links only: the catalog stores no chapter
+  images. The reader resolves them live from the chapter link
+  via the source adapter when the catalog copy has none, and
+  caches the result, so repeat opens are fast.
 - If the proxy is blocked, fall back to loading the image directly
   in the visitor's browser with `referrerpolicy="no-referrer"`.
   Many hotlink protections check the Referer header; sending none

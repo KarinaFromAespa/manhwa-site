@@ -76,7 +76,7 @@ class MadaraAdapter extends BaseAdapter
         return self::ok($detail['data']['chapters'] ?? []);
     }
 
-    public function chapter(string $slug, string $chapterId): array
+    public function chapter(string $slug, string $chapterId, int $timeout = 15): array
     {
         $base = $this->baseUrl();
         if ($base === '') {
@@ -87,16 +87,117 @@ class MadaraAdapter extends BaseAdapter
         if ($cached !== null) {
             return $cached;
         }
-        $res = $this->fetch($base . '/' . trim($chapterId, '/') . '/');
+        // API first when the source records one (data/source-patterns.json).
+        $pattern = $this->sourcePattern();
+        $apiUrl = (string) ($pattern['images_api'] ?? '');
+        if ($apiUrl !== '') {
+            $images = $this->chapterImagesApi($apiUrl, $slug, $chapterId);
+            if ($images !== []) {
+                $out = self::ok(['images' => $images]);
+                $this->cacheSet($key, $out);
+                return $out;
+            }
+        }
+        $res = $this->fetch($base . '/' . trim($chapterId, '/') . '/', $timeout);
         if (!$res['ok']) {
             return $res;
         }
-        $images = $this->parseChapterImages($res['data']);
+        $images = $this->parseChapterImages($res['data'], $chapterId);
         if ($images === []) {
             return self::err('bad_response', 'The chapter page did not contain any readable images.');
         }
         $out = self::ok(['images' => $images]);
         $this->cacheSet($key, $out);
+        return $out;
+    }
+
+    // Per-source fetch pattern (data/source-patterns.json), seeded
+    // from the keiyoushi extension for the source and updated by
+    // the scraper as runs verify it. Empty when unrecorded.
+    private function sourcePattern(): array
+    {
+        static $patterns = null;
+        if ($patterns === null) {
+            $file = dirname(__DIR__, 2) . '/data/source-patterns.json';
+            $raw = @file_get_contents($file);
+            $decoded = $raw !== false ? json_decode($raw, true) : null;
+            $patterns = is_array($decoded['sources'] ?? null) ? $decoded['sources'] : [];
+        }
+        $id = (string) ($this->source['id'] ?? '');
+        return is_array($patterns[$id] ?? null) ? $patterns[$id] : [];
+    }
+
+    // Known image hosts: the proxy allowlist plus this source's
+    // recorded image hosts. Used by the CDN extractor.
+    private function knownImageHosts(): array
+    {
+        static $hosts = null;
+        if ($hosts === null) {
+            $hosts = [];
+            $file = dirname(__DIR__, 2) . '/data/image-hosts.json';
+            $raw = @file_get_contents($file);
+            $decoded = $raw !== false ? json_decode($raw, true) : null;
+            if (is_array($decoded['hosts'] ?? null)) {
+                $hosts = array_map('strval', $decoded['hosts']);
+            }
+        }
+        $pattern = $this->sourcePattern();
+        if (is_array($pattern['image_hosts'] ?? null)) {
+            $hosts = array_values(array_unique(array_merge(
+                $hosts, array_map('strval', $pattern['image_hosts'])
+            )));
+        }
+        return $hosts;
+    }
+
+    // Chapter images from a JSON API (images_api template with
+    // {slug} and {chapter} placeholders). Returns [] when the API
+    // has no usable image list.
+    private function chapterImagesApi(string $template, string $slug, string $chapterId): array
+    {
+        $chapter = $this->chapterNumber($chapterId);
+        $url = str_replace(['{slug}', '{chapter}'], [$slug, $chapter], $template);
+        $res = $this->fetch($url, 10);
+        if (!$res['ok']) {
+            return [];
+        }
+        $data = json_decode((string) $res['data'], true);
+        if (!is_array($data)) {
+            return [];
+        }
+        return $this->imageUrlsFromJson($data);
+    }
+
+    // Chapter number from a chapter id path (manga/<slug>/chapter-211).
+    private function chapterNumber(string $chapterId): string
+    {
+        if (preg_match('/chapter-(\d+(?:\.\d+)?)/', $chapterId, $m)) {
+            return $m[1];
+        }
+        $parts = array_values(array_filter(explode('/', trim($chapterId, '/'))));
+        $last = end($parts);
+        return is_numeric($last) ? (string) $last : '';
+    }
+
+    // Image URLs anywhere in decoded JSON, in encounter order.
+    private function imageUrlsFromJson(mixed $node): array
+    {
+        $out = [];
+        if (is_string($node)) {
+            if (preg_match('#^https?://[^\\s"\']+\\.(webp|jpg|jpeg|png|gif)(\\?[^\\s"\']*)?$#i', $node)) {
+                $out[] = $node;
+            }
+            return $out;
+        }
+        if (is_array($node)) {
+            foreach ($node as $value) {
+                foreach ($this->imageUrlsFromJson($value) as $url) {
+                    if (!in_array($url, $out, true)) {
+                        $out[] = $url;
+                    }
+                }
+            }
+        }
         return $out;
     }
 
@@ -133,7 +234,12 @@ class MadaraAdapter extends BaseAdapter
             if (count($items) >= $limit) {
                 break;
             }
-            $link = $xp->query(".//a[contains(@href,'/manga/')]", $node)->item(0);
+            // Title link: the <a> in .post-title. Some Madara sites
+            // serve titles under /webtoon/ instead of /manga/.
+            $link = $xp->query(".//div[contains(@class,'post-title')]//a", $node)->item(0);
+            if ($link === null) {
+                $link = $xp->query(".//a[contains(@href,'/manga/')]", $node)->item(0);
+            }
             $href = self::attr($link, 'href');
             if ($href === '') {
                 continue;
@@ -240,7 +346,39 @@ class MadaraAdapter extends BaseAdapter
         return $items;
     }
 
-    private function parseChapterImages(string $html): array
+    // Chapter images from a chapter page, in the order the source's
+    // recorded pattern uses (data/source-patterns.json): the recorded
+    // mechanism first (stable choice), then the rest, so a stale
+    // record never breaks the read.
+    // - html: <img> tags in the chapter container (the common Madara
+    //   case; the srcs usually point at a CDN already).
+    // - cdn: image URLs on known image hosts embedded in the page
+    //   outside <img> tags (JS arrays, data attributes), filtered
+    //   to this chapter's number.
+    // - spa: the page's embedded JSON state (__NEXT_DATA__ or
+    //   <script type="application/json">).
+    private function parseChapterImages(string $html, string $chapterId): array
+    {
+        $pattern = $this->sourcePattern();
+        $order = ['html', 'cdn', 'spa'];
+        $mode = (string) ($pattern['images'] ?? '');
+        if ($mode !== '' && $mode !== 'api' && in_array($mode, $order, true)) {
+            $order = array_values(array_unique(array_merge([$mode], $order)));
+        }
+        foreach ($order as $kind) {
+            $images = match ($kind) {
+                'cdn' => $this->parseChapterImagesCdn($html, $chapterId),
+                'spa' => $this->parseChapterImagesSpa($html),
+                default => $this->parseChapterImagesHtml($html),
+            };
+            if ($images !== []) {
+                return $images;
+            }
+        }
+        return [];
+    }
+
+    private function parseChapterImagesHtml(string $html): array
     {
         $xp = self::xpath($html);
         if ($xp === null) {
@@ -261,6 +399,93 @@ class MadaraAdapter extends BaseAdapter
             }
         }
         return array_values(array_unique($images));
+    }
+
+    // CDN links embedded in the page (JS arrays, data attributes)
+    // rather than <img> tags. Only URLs on known image hosts whose
+    // path carries this chapter's number (or the title slug), so a
+    // cover or a related title's thumbnail is not mistaken for a
+    // page image. Sorted by the page number in the URL.
+    private function parseChapterImagesCdn(string $html, string $chapterId): array
+    {
+        $hosts = $this->knownImageHosts();
+        if ($hosts === []) {
+            return [];
+        }
+        $hostAlt = implode('|', array_map(
+            fn($h) => preg_quote($h, '#'), $hosts
+        ));
+        if (!preg_match_all(
+            '#https?://(?:' . $hostAlt . ')/[^\\s"\'<>]+\\.(?:webp|jpg|jpeg|png|gif)(?:\\?[^\\s"\'<>]*)?#i',
+            $html, $m
+        )) {
+            return [];
+        }
+        $number = $this->chapterNumber($chapterId);
+        $slug = '';
+        $parts = array_values(array_filter(explode('/', trim($chapterId, '/'))));
+        if (count($parts) >= 2) {
+            $slug = $parts[count($parts) - 2];
+        }
+        $found = [];
+        foreach (array_unique($m[0]) as $url) {
+            $path = parse_url($url, PHP_URL_PATH) ?? '';
+            $isChapter = ($number !== '' && str_contains($path, '/' . $number . '/'))
+                || ($number !== '' && str_contains($path, '/' . $number . '.'))
+                || ($slug !== '' && str_contains($path, '/' . $slug . '/'));
+            if (!$isChapter) {
+                continue;
+            }
+            $found[] = $url;
+        }
+        usort($found, function ($a, $b) {
+            $na = $this->pageIndex($a);
+            $nb = $this->pageIndex($b);
+            if ($na !== $nb) {
+                return $na <=> $nb;
+            }
+            return strcmp($a, $b);
+        });
+        return array_values(array_unique($found));
+    }
+
+    // Trailing page number in an image URL (/211/12.webp -> 12).
+    private function pageIndex(string $url): int
+    {
+        if (preg_match('#/(\\d+)\\.(?:webp|jpg|jpeg|png|gif)(?:\\?|$)#i', $url, $m)) {
+            return (int) $m[1];
+        }
+        return 0;
+    }
+
+    // SPA state: image URLs inside __NEXT_DATA__ or
+    // <script type="application/json"> blocks.
+    private function parseChapterImagesSpa(string $html): array
+    {
+        $blobs = [];
+        if (preg_match(
+            '#<script[^>]*id=["\']__NEXT_DATA__["\'][^>]*>(.*?)</script>#s',
+            $html, $m
+        )) {
+            $blobs[] = $m[1];
+        }
+        if (preg_match_all(
+            '#<script[^>]*type=["\']application/json["\'][^>]*>(.*?)</script>#s',
+            $html, $m
+        )) {
+            $blobs = array_merge($blobs, $m[1]);
+        }
+        foreach ($blobs as $blob) {
+            $data = json_decode($blob, true);
+            if (!is_array($data)) {
+                continue;
+            }
+            $images = $this->imageUrlsFromJson($data);
+            if ($images !== []) {
+                return $images;
+            }
+        }
+        return [];
     }
 
     private function resolveUrl(string $base, string $href): string

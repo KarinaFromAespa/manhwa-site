@@ -5,6 +5,12 @@
 // plus the image hosts in data/image-hosts.json (image CDNs on
 // unrelated domains, which the scraper records). Proxied images are
 // cached on disk for 7 days.
+//
+// Some image CDNs hotlink-protect: they return 403 unless the request
+// carries a Referer from a site that uses them. data/image-referers.json
+// maps such a host to the origins to try (recorded by the scraper from
+// the pages that link the images). The proxy tries each mapped origin
+// in order, then no Referer, until one returns a real image.
 require_once __DIR__ . '/lib/config.php';
 
 function imageHostsAllowed(): array
@@ -36,6 +42,39 @@ function imageHostsAllowed(): array
     }
     $hosts = array_values(array_unique(array_filter($hosts)));
     return $hosts;
+}
+
+// Host -> [origins to try as Referer], in order. Empty when the file
+// is missing or has no entry for the host.
+function imageReferers(): array
+{
+    static $map = null;
+    if ($map !== null) {
+        return $map;
+    }
+    $map = [];
+    $file = __DIR__ . '/data/image-referers.json';
+    if (is_file($file)) {
+        $data = json_decode((string) @file_get_contents($file), true);
+        if (is_array($data)) {
+            foreach ($data as $host => $origins) {
+                if (!is_array($origins)) {
+                    $origins = [$origins];
+                }
+                $clean = [];
+                foreach ($origins as $o) {
+                    $o = trim((string) $o);
+                    if ($o !== '' && !in_array($o, $clean, true)) {
+                        $clean[] = $o;
+                    }
+                }
+                if ($clean !== []) {
+                    $map[strtolower((string) $host)] = $clean;
+                }
+            }
+        }
+    }
+    return $map;
 }
 
 $url = $_GET['u'] ?? '';
@@ -80,34 +119,53 @@ if (is_file($cacheFile) && is_file($metaFile) && filemtime($cacheFile) > time() 
     }
 }
 
-$ch = curl_init($url);
-curl_setopt_array($ch, [
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_TIMEOUT => 15,
-    CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-]);
-$body = curl_exec($ch);
-$code = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-$mime = (string) curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
-curl_close($ch);
+// Try each mapped Referer for this host in order, then no Referer.
+// A CDN that hotlink-protects answers 403 to the wrong (or missing)
+// Referer and 200 to the right one; the first success wins and is
+// cached, so the retries are paid once per image at most.
+$candidates = imageReferers()[ $host ] ?? [];
+$candidates[] = null;
+$body = false;
+$code = 0;
+$mime = '';
+foreach ($candidates as $referer) {
+    $ch = curl_init($url);
+    $opts = [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 15,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_MAXREDIRS => 5,
+        CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+    ];
+    if ($referer !== null) {
+        $opts[CURLOPT_REFERER] = $referer;
+    }
+    curl_setopt_array($ch, $opts);
+    $attempt = curl_exec($ch);
+    $attemptCode = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+    $attemptMime = (string) curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+    curl_close($ch);
+    if ($attempt === false || $attemptCode !== 200) {
+        continue;
+    }
+    if (!str_starts_with($attemptMime, 'image/')) {
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
+        $attemptMime = $finfo->buffer($attempt) ?: '';
+        if (!str_starts_with($attemptMime, 'image/')) {
+            continue;
+        }
+    }
+    $body = $attempt;
+    $code = $attemptCode;
+    $mime = $attemptMime;
+    break;
+}
 
 if ($body === false || $code !== 200) {
     http_response_code(502);
     header('Content-Type: text/plain; charset=utf-8');
     echo 'Could not fetch the image.';
     exit;
-}
-
-// Only serve real images.
-if (!str_starts_with($mime, 'image/')) {
-    $finfo = new finfo(FILEINFO_MIME_TYPE);
-    $mime = $finfo->buffer($body) ?: '';
-    if (!str_starts_with($mime, 'image/')) {
-        http_response_code(502);
-        header('Content-Type: text/plain; charset=utf-8');
-        echo 'The remote file is not an image.';
-        exit;
-    }
 }
 
 if (!is_dir($CACHE_DIR) && !@mkdir($CACHE_DIR, 0755, true)) {

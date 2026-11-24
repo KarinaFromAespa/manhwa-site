@@ -1,0 +1,66 @@
+# Weekly catalog seed for manhwafreedev.
+#
+# Crawls each source's whole /manga/ directory (paginated,
+# newest-first) from the stored cursor, so the catalog reaches
+# hundreds of titles instead of only the recently-updated window.
+# A per-source cursor in scraper/state.json remembers the next
+# page, so a seed run resumes where the last one stopped and a
+# finished pass starts over. Same outputs, commit and FTP deploy
+# as the hourly workflow. Runs weekly (Sunday 03:00 UTC) and on
+# demand; the hourly workflow keeps doing latest-updates in
+# between. Site code (index.php, lib/) is NOT deployed here.
+name: Seed catalog
+
+on:
+  schedule:
+    - cron: "0 3 * * 0"  # weekly, Sunday 03:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: scrape-catalog
+  cancel-in-progress: false
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run seed pass
+        run: python3 scraper/scrape.py --seed --max-seconds 1500 --max-requests 900
+
+      - name: Commit catalog outputs
+        run: |
+          git config user.name "manhwafreedev-scraper"
+          git config user.email "scraper@manhwafreedev.local"
+          git add data/catalog.json data/image-hosts.json data/image-referers.json data/source-patterns.json scraper/state.json
+          git add data/titles 2>/dev/null || true
+          git diff --cached --quiet || git commit -m "Seed catalog $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          git push
+
+      - name: Deploy catalog to live site (FTP)
+        env:
+          FTP_USER: ${{ secrets.FTP_USERNAME }}
+          FTP_PASS: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          if [ -z "$FTP_PASS" ]; then
+            echo "FTP_PASSWORD secret not set, skipping deploy"
+            exit 0
+          fi
+          fail=0
+          for f in data/catalog.json data/image-hosts.json data/image-referers.json data/source-patterns.json data/titles/*.json; do
+            if curl -s --max-time 60 -u "$FTP_USER:$FTP_PASS" --ftp-create-dirs -T "$f" "ftp://ftpupload.net/htdocs/$f"; then
+              echo "OK $f"
+            else
+              echo "FAIL $f"
+              fail=1
+            fi
+          done
+          exit $fail

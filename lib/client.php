@@ -92,10 +92,36 @@ class SiteClient
         return $this->comix->detail($id);
     }
 
-    public function getChapters(string $id): array
+    public function getChapters(string $id, ?string $scan = null): array
     {
         if ($this->catalogMode()) {
-            $rows = Catalog::mergedChapters($id);
+            if ($scan === 'all') {
+                $rows = Catalog::mergedChapters($id);
+            } else {
+                $scans = Catalog::scanlators($id);
+                $wanted = $scan ?? ($scans[0]['source'] ?? null);
+                $found = null;
+                foreach ($scans as $s) {
+                    if ($s['source'] === $wanted) {
+                        $found = $s['source'];
+                        break;
+                    }
+                }
+                $rows = Catalog::sourceChapters($id, $found ?? ($scans[0]['source'] ?? ''));
+                // Per-source rows have no merged copies; shape them
+                // like merged rows for the pages.
+                $rows = array_map(
+                    fn($r) => [
+                        'key' => $r['key'],
+                        'number' => $r['number'],
+                        'title' => $r['title'],
+                        'date' => $r['date'],
+                        'alt' => $r['alt'],
+                        'copies' => [['label' => 'Copy 1', 'images' => $r['images'], 'updated' => 0, 'source' => $found ?? '', 'id' => $r['id']]],
+                    ],
+                    $rows
+                );
+            }
             return ['ok' => true, 'data' => array_map(
                 fn($r) => [
                     'id' => $r['key'],
@@ -111,12 +137,131 @@ class SiteClient
         return $this->comix->chapters($id);
     }
 
-    public function getChapter(string $id, string $chapterKey, int $copy = 0): array
+    // Ranked scanlators for a title (catalog mode only). Empty
+    // outside catalog mode — the dropdown is hidden there.
+    public function getScanlators(string $id): array
     {
-        if ($this->catalogMode()) {
-            return Catalog::chapterImages($id, $chapterKey, $copy);
+        if (!$this->catalogMode()) {
+            return ['ok' => true, 'data' => []];
         }
-        return $this->comix->chapter($id, $chapterKey);
+        return ['ok' => true, 'data' => Catalog::scanlators($id)];
+    }
+
+    public function getChapter(string $id, string $chapterKey, int $copy = 0, ?string $scan = null): array
+    {
+        if (!$this->catalogMode()) {
+            return $this->comix->chapter($id, $chapterKey);
+        }
+        if ($scan !== null && $scan !== '' && $scan !== 'all') {
+            return $this->getChapterFromScanlator($id, $chapterKey, $scan);
+        }
+        $res = Catalog::chapterImages($id, $chapterKey, $copy);
+        if (!$res['ok'] || !empty($res['data']['images'])) {
+            // Catalog images when present (no live request), or the
+            // catalog error when the chapter is not listed at all.
+            return $res;
+        }
+        // Links-only catalog: a chapter with no stored images is
+        // resolved live from its chapter link, copies in rank order,
+        // until one yields images. The adapter caches the result, so
+        // repeat opens are fast. Comix chapters are skipped — their
+        // payloads are encrypted and no live fetch can read them.
+        $list = $res['data']['copy_list'] ?? [];
+        $start = (int) ($res['data']['copy'] ?? 0);
+        $order = array_merge(
+            [$start],
+            array_values(array_filter(
+                array_keys($list),
+                fn($i) => $i !== $start
+            ))
+        );
+        foreach ($order as $i) {
+            $c = $list[$i] ?? null;
+            if ($c === null || ($c['source'] ?? '') === '' || ($c['id'] ?? '') === '') {
+                continue;
+            }
+            if (($c['source'] ?? '') === 'comix') {
+                continue;
+            }
+            $adapter = $this->adapterFor($this->registryEntry($c['source']));
+            if (!($adapter instanceof MadaraAdapter)) {
+                continue;
+            }
+            $live = $adapter->chapter($id, $c['id'], 8);
+            if ($live['ok'] && !empty($live['data']['images'] ?? [])) {
+                $res['data']['images'] = $live['data']['images'];
+                $res['data']['copy'] = $i;
+                $res['data']['label'] = 'Copy ' . ($i + 1);
+                $res['data']['live'] = true;
+                return $res;
+            }
+        }
+        return $res;
+    }
+
+    // Read one chapter from one scanlator: catalog images first,
+    // else live from the chapter link via that scanlator's adapter.
+    private function getChapterFromScanlator(string $id, string $chapterKey, string $scan): array
+    {
+        $scans = Catalog::scanlators($id);
+        $pos = null;
+        $current = null;
+        foreach ($scans as $i => $s) {
+            if ($s['source'] === $scan) {
+                $pos = $i;
+                $current = $s;
+                break;
+            }
+        }
+        if ($current === null) {
+            return ['ok' => false, 'error' => ['kind' => 'not_found', 'message' => 'Title not found.']];
+        }
+        $row = Catalog::sourceChapter($id, $scan, $chapterKey);
+        if ($row === null) {
+            return ['ok' => false, 'error' => ['kind' => 'not_found', 'message' => 'Chapter not found.']];
+        }
+        $images = $row['images'];
+        $live = false;
+        if (empty($images) && $scan !== 'comix' && ($row['id'] ?? '') !== '') {
+            $adapter = $this->adapterFor($this->registryEntry($scan));
+            if ($adapter instanceof MadaraAdapter) {
+                $fetched = $adapter->chapter($id, $row['id'], 8);
+                if ($fetched['ok'] && !empty($fetched['data']['images'] ?? [])) {
+                    $images = $fetched['data']['images'];
+                    $live = true;
+                }
+            }
+        }
+        // Next scanlator carrying this chapter number, for the
+        // "try another copy" link; 'all' when no other scanlator
+        // has it (falls back to the merged view).
+        $nextScan = 'all';
+        $nextChapter = $row['number'];
+        $n = count($scans);
+        for ($k = 1; $k < $n; $k++) {
+            $cand = $scans[($pos + $k) % $n];
+            foreach (Catalog::sourceChapters($id, $cand['source']) as $r) {
+                if ($r['number'] === $row['number']) {
+                    $nextScan = $cand['source'];
+                    $nextChapter = $r['key'];
+                    break 2;
+                }
+            }
+        }
+        return ['ok' => true, 'data' => [
+            'images' => $images,
+            'copies' => $n,
+            'copy' => $pos,
+            'label' => $current['name'],
+            'number' => $row['number'],
+            'title' => $row['title'],
+            'alt' => $row['alt'],
+            'scan' => $scan,
+            'scan_name' => $current['name'],
+            'next_scan' => $nextScan,
+            'next_chapter' => $nextChapter,
+            'live' => $live,
+        ]];
     }
 
     // One quick direct request, for status.php. Never hammered.

@@ -25,8 +25,9 @@ if (!$res['ok']) {
         echo '<div class="grid">';
         foreach ($items as $m) {
             $cover = $m['cover'] !== '' ? 'img.php?u=' . rawurlencode($m['cover']) : 'assets/no-cover.svg';
+            $direct = $m['cover'] !== '' ? ' data-direct="' . h($m['cover']) . '" onerror="this.onerror=null;this.src=this.dataset.direct"' : '';
             echo '<a class="card" href="manga.php?slug=' . rawurlencode($m['id']) . '">'
-                . '<img loading="lazy" referrerpolicy="no-referrer" src="' . h($cover) . '" alt="">'
+                . '<img loading="lazy" referrerpolicy="no-referrer" src="' . h($cover) . '"' . $direct . ' alt="">'
                 . '<span class="card-title">' . h($m['title']) . '</span>'
                 . ($m['status'] !== '' ? '<span class="card-status">' . h($m['status']) . '</span>' : '');
             $updated = isset($m['updated']) ? Catalog::relativeTime($m['updated']) : '';
