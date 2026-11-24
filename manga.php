@@ -88,7 +88,7 @@ if ($scanlators !== []) {
     }
     echo '<option value="all"' . ($scan === 'all' ? ' selected' : '') . '>'
         . 'All versions (' . (int) $allCount . ' chapters)</option>';
-    echo '</select><button type="submit">Go</button></form>';
+    echo '</select></form>';
 }
 
 $chapters = $client->getChapters($slug, $scan);
