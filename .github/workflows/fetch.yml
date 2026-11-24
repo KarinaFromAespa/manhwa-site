@@ -76,7 +76,14 @@ jobs:
           git add data/catalog.json data/image-hosts.json data/image-referers.json data/source-patterns.json fetcher/state.json
           git add data/titles 2>/dev/null || true
           git diff --cached --quiet || git commit -m "Fetch catalog $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          git push
+          # Main may have moved (code pushes) while the shards were
+          # fetching; rebase the catalog commit onto the latest main
+          # so the push does not fail as non-fast-forward. Code pushes
+          # touch code files and the fetch only touches data/ files,
+          # so the rebase is conflict-free.
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main
 
       - name: Deploy site + catalog to live site (FTP)
         env:
