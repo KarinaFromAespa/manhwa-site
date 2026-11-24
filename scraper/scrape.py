@@ -1013,6 +1013,11 @@ class Runner:
                 removed.add(loser_id)
                 self.index_entries.pop(loser_id, None)
                 self.title_files.pop(loser_id, None)
+                # The fetcher may have updated the loser earlier in
+                # this run, so it can still be in touched. Drop it
+                # there too, or write_outputs will look it up in
+                # title_files and crash with a KeyError.
+                self.touched.discard(loser_id)
                 self.state.get("titles", {}).pop(loser_id, None)
                 for key in [k for k, v in self.state.get("map", {}).items()
                             if v == loser_id]:
@@ -1088,7 +1093,11 @@ class Runner:
                   f"({len(titles)} titles)")
         written = 0
         for cid in sorted(self.touched):
-            title = self.title_files[cid]
+            title = self.title_files.get(cid)
+            if title is None:
+                # A title merged away mid-run (or otherwise gone)
+                # must not crash the whole deploy; skip it.
+                continue
             if write_json_if_changed(
                 self.root / "data" / "titles" / f"{cid}.json", title
             ):
