@@ -141,4 +141,19 @@ echo '<nav class="reader-nav">'
     . '</nav>';
 echo '<p><a href="manga.php?slug=' . rawurlencode($slug) . '">&larr; Back to title</a></p>';
 
+// Back-to-top floating button. Only rendered when the chapter loaded,
+// so it never appears on an error page. Shown once the reader has
+// scrolled down a bit, hidden again near the top.
+echo '<button id="toTopFab" class="fab" type="button" aria-label="Back to top" title="Back to top">&uarr;</button>';
+echo '<script>'
+    . '(function(){'
+    . 'var fab=document.getElementById("toTopFab");'
+    . 'if(!fab)return;'
+    . 'function toggle(){fab.classList.toggle("visible",window.scrollY>400);}'
+    . 'window.addEventListener("scroll",toggle,{passive:true});'
+    . 'toggle();'
+    . 'fab.addEventListener("click",function(){window.scrollTo({top:0,behavior:"smooth"});});'
+    . '})();'
+    . '</script>';
+
 pageFoot();
