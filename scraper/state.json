@@ -476,7 +476,35 @@
   "topmanhua-net|manga/rebirth-of-the-divine-demon": "rebirth-of-the-divine-demon",
   "topmanhua-net|manga/raising-villains-the-right-way": "raising-villains-the-right-way",
   "zinmanga|manga/the-empresss-time-reversed-abducted-marriage": "the-empresss-time-reversed-abducted-marriage",
-  "zinmanga-net|manga/beyond-our-marriage-contract": "beyond-our-marriage-contract"
+  "zinmanga-net|manga/beyond-our-marriage-contract": "beyond-our-marriage-contract",
+  "ap-comics|manga/so-it-turns-out-the-super-perverted-older-sister-is-the-strongest": "so-it-turns-out-the-super-perverted-older-sister-is-the-strongest",
+  "ap-comics|manga/kinkymation-golden-mother-elden-ring": "kinkymation-golden-mother-elden-ring",
+  "ap-comics|manga/hermit-moth-moon-butterfly-swimsuit-episode": "hermit-moth-moon-butterfly-swimsuit-episode",
+  "ap-comics|manga/aarokira-aarokira-singles": "aarokira-aarokira-singles",
+  "manhuanext|manga/underworld-monarch-i-am-the-abyss": "underworld-monarch-i-am-the-abyss",
+  "manhuanext|manga/the-genius-knight-of-a-fallen-race": "the-genius-knight-of-a-fallen-race",
+  "manhuanext|manga/my-necromancer-skills-cost-lifespan-too-bad-im-immortal": "my-necromancer-skills-cost-lifespan-too-bad-i-m-immortal",
+  "manhuanext|manga/global-superpowers-awakening-the-purple-thunder-at-the-beginning": "global-superpowers-awakening-the-purple-thunder-at-the-beginning",
+  "manhuanext|manga/another-world-invasion-im-busy-collecting-monsters-and-signing-contracts": "another-world-invasion-i-m-busy-collecting-monsters-and-signing-contracts",
+  "manhwa-reads|manga/bleach": "bleach",
+  "manhwa-reads|manga/eleceed": "eleceed",
+  "manhwaden|manga/the-night-i-eat-you": "the-night-i-eat-you",
+  "manhwaden|manga/portrait-of-pride": "portrait-of-pride",
+  "manhwaden|manga/be-my-boo": "be-my-boo",
+  "manhwaden|manga/desire-me-if-you-can": "desire-me-if-you-can",
+  "top-manhua|series/folding-the-moon": "folding-the-moon",
+  "top-manhua|series/i-was-more-overpowered-than-the-hero-so-i-hid-my-power33": "i-was-more-overpowered-than-the-hero-so-i-hid-my-power",
+  "top-manhua|series/the-crown-princes-fiancee": "the-crown-prince-s-fiancee",
+  "top-manhua|series/my-younger-sister-was-a-genius": "my-younger-sister-was-a-genius",
+  "topmanhua-fan|manhua/sovereign-of-a-hundred-blades-heir-to-the-strongest-style": "sovereign-of-a-hundred-blades-heir-to-the-strongest-style",
+  "topmanhua-net|manga/reincarnators-stream": "reincarnator-s-stream",
+  "topmanhua-net|manga/murim-psychopath": "murim-psychopath",
+  "topmanhua-net|manga/debtbound-by-blood": "debtbound-by-blood",
+  "topmanhua-net|manga/the-regressed-mercenarys-machinations": "the-regressed-mercenary-s-machinations",
+  "topmanhua-net|manga/i-killed-an-academy-player": "i-killed-an-academy-player",
+  "topmanhua-net|manga/children-of-the-rune": "children-of-the-rune",
+  "topmanhua-net|manga/my-wife-is-the-demonic-cult-leader": "my-wife-is-the-demonic-cult-leader",
+  "topmanhua-net|manga/the-divine-demons-grand-ascension": "the-divine-demon-s-grand-ascension"
  },
  "sources": {
   "zinmanga": {
@@ -524,10 +552,14 @@
     [
      1795490148,
      true
+    ],
+    [
+     1795491083,
+     true
     ]
    ],
-   "last_run": 1795490148,
-   "last_ok": 1795490148,
+   "last_run": 1795491083,
+   "last_ok": 1795491083,
    "consecutive_failures": 0
   },
   "zinmanga-net": {
@@ -567,10 +599,14 @@
     [
      1795490148,
      true
+    ],
+    [
+     1795491083,
+     true
     ]
    ],
-   "last_run": 1795490148,
-   "last_ok": 1795490148,
+   "last_run": 1795491083,
+   "last_ok": 1795491083,
    "consecutive_failures": 0
   },
   "manhua-plus": {
@@ -598,10 +634,14 @@
     [
      1795490148,
      true
+    ],
+    [
+     1795491083,
+     true
     ]
    ],
-   "last_run": 1795490148,
-   "last_ok": 1795490148,
+   "last_run": 1795491083,
+   "last_ok": 1795491083,
    "consecutive_failures": 0,
    "seed_page": 11
   },
@@ -626,10 +666,14 @@
     [
      1795490148,
      true
+    ],
+    [
+     1795491083,
+     true
     ]
    ],
-   "last_run": 1795490148,
-   "last_ok": 1795490148,
+   "last_run": 1795491083,
+   "last_ok": 1795491083,
    "consecutive_failures": 0,
    "seed_page": 11
   },
@@ -654,11 +698,15 @@
     [
      1795490148,
      true
+    ],
+    [
+     1795491083,
+     true
     ]
    ],
-   "last_run": 1795490148,
+   "last_run": 1795491083,
    "consecutive_failures": 0,
-   "last_ok": 1795490148
+   "last_ok": 1795491083
   },
   "ap-comics": {
    "attempts": [
@@ -681,10 +729,14 @@
     [
      1795490148,
      true
+    ],
+    [
+     1795491083,
+     true
     ]
    ],
-   "last_run": 1795490148,
-   "last_ok": 1795490148,
+   "last_run": 1795491083,
+   "last_ok": 1795491083,
    "consecutive_failures": 0
   },
   "manhuahot": {
@@ -704,10 +756,14 @@
     [
      1795490148,
      true
+    ],
+    [
+     1795491083,
+     true
     ]
    ],
-   "last_run": 1795490148,
-   "last_ok": 1795490148,
+   "last_run": 1795491083,
+   "last_ok": 1795491083,
    "consecutive_failures": 0
   },
   "manhuanext": {
@@ -727,11 +783,15 @@
     [
      1795490148,
      true
+    ],
+    [
+     1795491083,
+     true
     ]
    ],
-   "last_run": 1795490148,
+   "last_run": 1795491083,
    "consecutive_failures": 0,
-   "last_ok": 1795490148
+   "last_ok": 1795491083
   },
   "manhwa-reads": {
    "attempts": [
@@ -750,10 +810,14 @@
     [
      1795490148,
      true
+    ],
+    [
+     1795491083,
+     true
     ]
    ],
-   "last_run": 1795490148,
-   "last_ok": 1795490148,
+   "last_run": 1795491083,
+   "last_ok": 1795491083,
    "consecutive_failures": 0
   },
   "manhwaden": {
@@ -773,10 +837,14 @@
     [
      1795490148,
      true
+    ],
+    [
+     1795491083,
+     true
     ]
    ],
-   "last_run": 1795490148,
-   "last_ok": 1795490148,
+   "last_run": 1795491083,
+   "last_ok": 1795491083,
    "consecutive_failures": 0
   },
   "manhwanex": {
@@ -800,10 +868,14 @@
     [
      1795490148,
      true
+    ],
+    [
+     1795491083,
+     true
     ]
    ],
-   "last_run": 1795490148,
-   "last_ok": 1795490148,
+   "last_run": 1795491083,
+   "last_ok": 1795491083,
    "consecutive_failures": 0
   },
   "pornhwaz": {
@@ -823,10 +895,14 @@
     [
      1795490148,
      true
+    ],
+    [
+     1795491083,
+     true
     ]
    ],
-   "last_run": 1795490148,
-   "last_ok": 1795490148,
+   "last_run": 1795491083,
+   "last_ok": 1795491083,
    "consecutive_failures": 0
   },
   "top-manhua": {
@@ -846,10 +922,14 @@
     [
      1795490148,
      true
+    ],
+    [
+     1795491083,
+     true
     ]
    ],
-   "last_run": 1795490148,
-   "last_ok": 1795490148,
+   "last_run": 1795491083,
+   "last_ok": 1795491083,
    "consecutive_failures": 0
   },
   "topmanhua-fan": {
@@ -869,10 +949,14 @@
     [
      1795490148,
      true
+    ],
+    [
+     1795491083,
+     true
     ]
    ],
-   "last_run": 1795490148,
-   "last_ok": 1795490148,
+   "last_run": 1795491083,
+   "last_ok": 1795491083,
    "consecutive_failures": 0
   },
   "topmanhua-net": {
@@ -892,10 +976,14 @@
     [
      1795490148,
      true
+    ],
+    [
+     1795491083,
+     true
     ]
    ],
-   "last_run": 1795490148,
-   "last_ok": 1795490148,
+   "last_run": 1795491083,
+   "last_ok": 1795491083,
    "consecutive_failures": 0
   }
  },
@@ -1573,6 +1661,16 @@
      ],
      "no_chapters": false,
      "author": ",,,,, Lee HeenPig cakeYunsul돼지케이크라티네 / 돼지케이크윤슬"
+    },
+    "top-manhua": {
+     "slug": "series/the-crown-princes-fiancee",
+     "last_chapter": "57",
+     "last_chapter_date": "",
+     "chapter_count": 60,
+     "chapter_hash": "96bfa4054b9d",
+     "last_seen": 1795491083,
+     "no_chapters": false,
+     "author": ",,,,,, Lee HeenLee Huin / YunsulPig cakeYunsul돼지케이크라티네 / 돼지케이크윤슬"
     }
    }
   },
@@ -2068,6 +2166,16 @@
      ],
      "no_chapters": false,
      "author": ""
+    },
+    "top-manhua": {
+     "slug": "series/my-younger-sister-was-a-genius",
+     "last_chapter": "96",
+     "last_chapter_date": "",
+     "chapter_count": 96,
+     "chapter_hash": "0161d82486ca",
+     "last_seen": 1795491083,
+     "no_chapters": false,
+     "author": ",,, Geon-ilSihaSihaiUpdating"
     }
    }
   },
@@ -4116,7 +4224,7 @@
      "last_chapter_date": "5 seconds ago",
      "chapter_count": 941,
      "chapter_hash": "803bc551dfb4",
-     "last_seen": 1795490148,
+     "last_seen": 1795491083,
      "no_chapters": false,
      "author": ", Nightingale (Original)No Two Comics"
     },
@@ -4308,7 +4416,7 @@
      "last_chapter_date": "2025-12-04",
      "chapter_count": 194,
      "chapter_hash": "f190caf60a14",
-     "last_seen": 1795490148,
+     "last_seen": 1795491083,
      "no_chapters": false,
      "author": "Wine Pool Inebriation"
     }
@@ -4322,7 +4430,7 @@
      "last_chapter_date": "2025-09-19",
      "chapter_count": 16,
      "chapter_hash": "12f842df24a3",
-     "last_seen": 1795490148,
+     "last_seen": 1795491083,
      "no_chapters": false,
      "author": "原点格子漫画"
     },
@@ -6060,7 +6168,7 @@
      "last_chapter_date": "",
      "chapter_count": 78,
      "chapter_hash": "95f1153ddc85",
-     "last_seen": 1795490148,
+     "last_seen": 1795491083,
      "no_chapters": false,
      "author": "Shin Eun Ye"
     }
@@ -6126,7 +6234,7 @@
      "last_chapter_date": "",
      "chapter_count": 2,
      "chapter_hash": "721475bad8c4",
-     "last_seen": 1795490148,
+     "last_seen": 1795491083,
      "no_chapters": true,
      "author": ""
     }
@@ -7804,7 +7912,7 @@
      "last_chapter_date": "",
      "chapter_count": 2,
      "chapter_hash": "0b8ee7e8af26",
-     "last_seen": 1795490148,
+     "last_seen": 1795491083,
      "no_chapters": true,
      "author": ""
     }
@@ -8950,7 +9058,7 @@
      "last_chapter_date": "",
      "chapter_count": 133,
      "chapter_hash": "b888eb535bc5",
-     "last_seen": 1795490148,
+     "last_seen": 1795491083,
      "no_chapters": false,
      "author": "Hwang Hye-jin"
     }
@@ -8964,7 +9072,7 @@
      "last_chapter_date": "",
      "chapter_count": 2,
      "chapter_hash": "a1604b5ae5c3",
-     "last_seen": 1795490148,
+     "last_seen": 1795491083,
      "no_chapters": true,
      "author": ""
     }
@@ -8978,7 +9086,7 @@
      "last_chapter_date": "",
      "chapter_count": 2,
      "chapter_hash": "5e513c213dc1",
-     "last_seen": 1795490148,
+     "last_seen": 1795491083,
      "no_chapters": true,
      "author": ""
     }
@@ -9006,7 +9114,7 @@
      "last_chapter_date": "",
      "chapter_count": 63,
      "chapter_hash": "fe18d412355c",
-     "last_seen": 1795490148,
+     "last_seen": 1795491083,
      "no_chapters": false,
      "author": ",, BehwaJo Don HyungUpdating"
     }
@@ -9020,7 +9128,7 @@
      "last_chapter_date": "",
      "chapter_count": 193,
      "chapter_hash": "4eb46cbcb0fc",
-     "last_seen": 1795490148,
+     "last_seen": 1795491083,
      "no_chapters": false,
      "author": ",, 128Kim Hyeon YeongMIDNIGHT STUDIO"
     }
@@ -9046,9 +9154,9 @@
      "slug": "manga/the-bully-in-charge",
      "last_chapter": "207",
      "last_chapter_date": "",
-     "chapter_count": 207,
-     "chapter_hash": "cf9253a6005d",
-     "last_seen": 1795488349,
+     "chapter_count": 208,
+     "chapter_hash": "98ea6ae15088",
+     "last_seen": 1795491083,
      "no_chapters": false,
      "author": ", GRIMZONaver Series"
     }
@@ -9244,7 +9352,7 @@
      "last_chapter_date": "",
      "chapter_count": 94,
      "chapter_hash": "c464545f9944",
-     "last_seen": 1795490148,
+     "last_seen": 1795491083,
      "no_chapters": false,
      "author": "ONE"
     }
@@ -9566,7 +9674,7 @@
      "last_chapter_date": "",
      "chapter_count": 48,
      "chapter_hash": "0860fca4d31c",
-     "last_seen": 1795490148,
+     "last_seen": 1795491083,
      "no_chapters": false,
      "author": "TSUDA Houkou"
     }
@@ -9580,7 +9688,7 @@
      "last_chapter_date": "",
      "chapter_count": 62,
      "chapter_hash": "0ac62e80cca1",
-     "last_seen": 1795490148,
+     "last_seen": 1795491083,
      "no_chapters": false,
      "author": ", UpdatingYedo"
     }
@@ -9594,7 +9702,7 @@
      "last_chapter_date": "2026-11-24",
      "chapter_count": 100,
      "chapter_hash": "627cfa85bd5f",
-     "last_seen": 1795490148,
+     "last_seen": 1795491083,
      "no_chapters": false,
      "author": ""
     }
@@ -9870,11 +9978,11 @@
    "sources": {
     "pornhwaz": {
      "slug": "webtoon/naughty-girl",
-     "last_chapter": "43",
-     "last_chapter_date": "2026-10-13",
-     "chapter_count": 43,
-     "chapter_hash": "280de32b825f",
-     "last_seen": 1795490148,
+     "last_chapter": "52",
+     "last_chapter_date": "",
+     "chapter_count": 52,
+     "chapter_hash": "ec6e7da4193b",
+     "last_seen": 1795491083,
      "no_chapters": false,
      "author": "Bbangbbare"
     }
@@ -10000,7 +10108,371 @@
      "last_chapter_date": "2026-11-24",
      "chapter_count": 38,
      "chapter_hash": "a0eea1e10d68",
-     "last_seen": 1795490148,
+     "last_seen": 1795491083,
+     "no_chapters": false,
+     "author": ""
+    }
+   }
+  },
+  "so-it-turns-out-the-super-perverted-older-sister-is-the-strongest": {
+   "sources": {
+    "ap-comics": {
+     "slug": "manga/so-it-turns-out-the-super-perverted-older-sister-is-the-strongest",
+     "last_chapter": "1",
+     "last_chapter_date": "2026-10-29",
+     "chapter_count": 1,
+     "chapter_hash": "85ab64a1ac3b",
+     "last_seen": 1795491083,
+     "no_chapters": false,
+     "author": "Updating"
+    }
+   }
+  },
+  "kinkymation-golden-mother-elden-ring": {
+   "sources": {
+    "ap-comics": {
+     "slug": "manga/kinkymation-golden-mother-elden-ring",
+     "last_chapter": "1",
+     "last_chapter_date": "2026-10-29",
+     "chapter_count": 1,
+     "chapter_hash": "4882f2ecc46a",
+     "last_seen": 1795491083,
+     "no_chapters": false,
+     "author": "Updating"
+    }
+   }
+  },
+  "hermit-moth-moon-butterfly-swimsuit-episode": {
+   "sources": {
+    "ap-comics": {
+     "slug": "manga/hermit-moth-moon-butterfly-swimsuit-episode",
+     "last_chapter": "1",
+     "last_chapter_date": "2026-10-29",
+     "chapter_count": 1,
+     "chapter_hash": "a595fd269939",
+     "last_seen": 1795491083,
+     "no_chapters": false,
+     "author": "Updating"
+    }
+   }
+  },
+  "aarokira-aarokira-singles": {
+   "sources": {
+    "ap-comics": {
+     "slug": "manga/aarokira-aarokira-singles",
+     "last_chapter": "1",
+     "last_chapter_date": "2026-10-20",
+     "chapter_count": 1,
+     "chapter_hash": "4cb0ada49bea",
+     "last_seen": 1795491083,
+     "no_chapters": false,
+     "author": "Updating"
+    }
+   }
+  },
+  "underworld-monarch-i-am-the-abyss": {
+   "sources": {
+    "manhuanext": {
+     "slug": "manga/underworld-monarch-i-am-the-abyss",
+     "last_chapter": "19",
+     "last_chapter_date": "",
+     "chapter_count": 19,
+     "chapter_hash": "7f0042c59d62",
+     "last_seen": 1795491083,
+     "no_chapters": false,
+     "author": ""
+    }
+   }
+  },
+  "the-genius-knight-of-a-fallen-race": {
+   "sources": {
+    "manhuanext": {
+     "slug": "manga/the-genius-knight-of-a-fallen-race",
+     "last_chapter": "10",
+     "last_chapter_date": "",
+     "chapter_count": 10,
+     "chapter_hash": "552bfcdc1b1e",
+     "last_seen": 1795491083,
+     "no_chapters": false,
+     "author": "Watermelon Peach"
+    }
+   }
+  },
+  "my-necromancer-skills-cost-lifespan-too-bad-i-m-immortal": {
+   "sources": {
+    "manhuanext": {
+     "slug": "manga/my-necromancer-skills-cost-lifespan-too-bad-im-immortal",
+     "last_chapter": "5",
+     "last_chapter_date": "",
+     "chapter_count": 5,
+     "chapter_hash": "fd427e76f536",
+     "last_seen": 1795491083,
+     "no_chapters": false,
+     "author": ""
+    }
+   }
+  },
+  "global-superpowers-awakening-the-purple-thunder-at-the-beginning": {
+   "sources": {
+    "manhuanext": {
+     "slug": "manga/global-superpowers-awakening-the-purple-thunder-at-the-beginning",
+     "last_chapter": "104",
+     "last_chapter_date": "",
+     "chapter_count": 105,
+     "chapter_hash": "80650499a1dc",
+     "last_seen": 1795491083,
+     "no_chapters": false,
+     "author": "The wind is very noisy tonight"
+    }
+   }
+  },
+  "another-world-invasion-i-m-busy-collecting-monsters-and-signing-contracts": {
+   "sources": {
+    "manhuanext": {
+     "slug": "manga/another-world-invasion-im-busy-collecting-monsters-and-signing-contracts",
+     "last_chapter": "6",
+     "last_chapter_date": "",
+     "chapter_count": 6,
+     "chapter_hash": "60d5622eaf01",
+     "last_seen": 1795491083,
+     "no_chapters": false,
+     "author": ""
+    }
+   }
+  },
+  "bleach": {
+   "sources": {
+    "manhwa-reads": {
+     "slug": "manga/bleach",
+     "last_chapter": "31",
+     "last_chapter_date": "2026-11-02",
+     "chapter_count": 231,
+     "chapter_hash": "2b17562f3593",
+     "last_seen": 1795491083,
+     "no_chapters": false,
+     "author": "KUBO Tite"
+    }
+   }
+  },
+  "eleceed": {
+   "sources": {
+    "manhwa-reads": {
+     "slug": "manga/eleceed",
+     "last_chapter": "71",
+     "last_chapter_date": "",
+     "chapter_count": 71,
+     "chapter_hash": "e0a7f2cdb0be",
+     "last_seen": 1795491083,
+     "no_chapters": false,
+     "author": "Son Je Ho"
+    }
+   }
+  },
+  "the-night-i-eat-you": {
+   "sources": {
+    "manhwaden": {
+     "slug": "manga/the-night-i-eat-you",
+     "last_chapter": "9",
+     "last_chapter_date": "",
+     "chapter_count": 10,
+     "chapter_hash": "2ea307c5beb6",
+     "last_seen": 1795491083,
+     "no_chapters": false,
+     "author": "YAHAE Yeon"
+    }
+   }
+  },
+  "portrait-of-pride": {
+   "sources": {
+    "manhwaden": {
+     "slug": "manga/portrait-of-pride",
+     "last_chapter": "22",
+     "last_chapter_date": "",
+     "chapter_count": 23,
+     "chapter_hash": "232a84d1a979",
+     "last_seen": 1795491083,
+     "no_chapters": false,
+     "author": "Dalseul"
+    }
+   }
+  },
+  "be-my-boo": {
+   "sources": {
+    "manhwaden": {
+     "slug": "manga/be-my-boo",
+     "last_chapter": "8",
+     "last_chapter_date": "",
+     "chapter_count": 8,
+     "chapter_hash": "b49d6b5bcf99",
+     "last_seen": 1795491083,
+     "no_chapters": false,
+     "author": "Najin"
+    }
+   }
+  },
+  "desire-me-if-you-can": {
+   "sources": {
+    "manhwaden": {
+     "slug": "manga/desire-me-if-you-can",
+     "last_chapter": "36",
+     "last_chapter_date": "",
+     "chapter_count": 36,
+     "chapter_hash": "dc04672b3680",
+     "last_seen": 1795491083,
+     "no_chapters": false,
+     "author": ", Ondo (II)Zig"
+    }
+   }
+  },
+  "folding-the-moon": {
+   "sources": {
+    "top-manhua": {
+     "slug": "series/folding-the-moon",
+     "last_chapter": "24",
+     "last_chapter_date": "",
+     "chapter_count": 23,
+     "chapter_hash": "497b38772725",
+     "last_seen": 1795491083,
+     "no_chapters": false,
+     "author": ", Jinjiang Literature City (晋江文学城)竹已"
+    }
+   }
+  },
+  "i-was-more-overpowered-than-the-hero-so-i-hid-my-power": {
+   "sources": {
+    "top-manhua": {
+     "slug": "series/i-was-more-overpowered-than-the-hero-so-i-hid-my-power33",
+     "last_chapter": "148",
+     "last_chapter_date": "",
+     "chapter_count": 152,
+     "chapter_hash": "3f28709e20f1",
+     "last_seen": 1795491083,
+     "no_chapters": false,
+     "author": ", HHAANNUpdating"
+    }
+   }
+  },
+  "sovereign-of-a-hundred-blades-heir-to-the-strongest-style": {
+   "sources": {
+    "topmanhua-fan": {
+     "slug": "manhua/sovereign-of-a-hundred-blades-heir-to-the-strongest-style",
+     "last_chapter": "",
+     "last_chapter_date": "",
+     "chapter_count": 2,
+     "chapter_hash": "86ef0012888c",
+     "last_seen": 1795491083,
+     "no_chapters": true,
+     "author": ""
+    }
+   }
+  },
+  "reincarnator-s-stream": {
+   "sources": {
+    "topmanhua-net": {
+     "slug": "manga/reincarnators-stream",
+     "last_chapter": "41",
+     "last_chapter_date": "2026-03-15",
+     "chapter_count": 41,
+     "chapter_hash": "51acaf625f02",
+     "last_seen": 1795491083,
+     "no_chapters": false,
+     "author": ""
+    }
+   }
+  },
+  "murim-psychopath": {
+   "sources": {
+    "topmanhua-net": {
+     "slug": "manga/murim-psychopath",
+     "last_chapter": "17",
+     "last_chapter_date": "2026-03-15",
+     "chapter_count": 18,
+     "chapter_hash": "23c020097273",
+     "last_seen": 1795491083,
+     "no_chapters": false,
+     "author": "Kim Yeon"
+    }
+   }
+  },
+  "debtbound-by-blood": {
+   "sources": {
+    "topmanhua-net": {
+     "slug": "manga/debtbound-by-blood",
+     "last_chapter": "16",
+     "last_chapter_date": "2026-03-15",
+     "chapter_count": 19,
+     "chapter_hash": "d2232ab5d14c",
+     "last_seen": 1795491083,
+     "no_chapters": false,
+     "author": ""
+    }
+   }
+  },
+  "the-regressed-mercenary-s-machinations": {
+   "sources": {
+    "topmanhua-net": {
+     "slug": "manga/the-regressed-mercenarys-machinations",
+     "last_chapter": "80",
+     "last_chapter_date": "2026-03-15",
+     "chapter_count": 80,
+     "chapter_hash": "7e8ffa8d4c94",
+     "last_seen": 1795491083,
+     "no_chapters": false,
+     "author": ""
+    }
+   }
+  },
+  "i-killed-an-academy-player": {
+   "sources": {
+    "topmanhua-net": {
+     "slug": "manga/i-killed-an-academy-player",
+     "last_chapter": "115",
+     "last_chapter_date": "2026-03-15",
+     "chapter_count": 115,
+     "chapter_hash": "9f25655565aa",
+     "last_seen": 1795491083,
+     "no_chapters": false,
+     "author": ""
+    }
+   }
+  },
+  "children-of-the-rune": {
+   "sources": {
+    "topmanhua-net": {
+     "slug": "manga/children-of-the-rune",
+     "last_chapter": "54",
+     "last_chapter_date": "2026-03-15",
+     "chapter_count": 54,
+     "chapter_hash": "bed1b48d77b6",
+     "last_seen": 1795491083,
+     "no_chapters": false,
+     "author": ""
+    }
+   }
+  },
+  "my-wife-is-the-demonic-cult-leader": {
+   "sources": {
+    "topmanhua-net": {
+     "slug": "manga/my-wife-is-the-demonic-cult-leader",
+     "last_chapter": "56",
+     "last_chapter_date": "2026-03-15",
+     "chapter_count": 56,
+     "chapter_hash": "9676c4cec195",
+     "last_seen": 1795491083,
+     "no_chapters": false,
+     "author": ""
+    }
+   }
+  },
+  "the-divine-demon-s-grand-ascension": {
+   "sources": {
+    "topmanhua-net": {
+     "slug": "manga/the-divine-demons-grand-ascension",
+     "last_chapter": "44",
+     "last_chapter_date": "2026-03-15",
+     "chapter_count": 45,
+     "chapter_hash": "faf575c3d9c1",
+     "last_seen": 1795491083,
      "no_chapters": false,
      "author": ""
     }
