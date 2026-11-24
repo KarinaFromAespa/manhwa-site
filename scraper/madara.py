@@ -529,6 +529,176 @@ def _spa_chapter_entries(node, base, depth=0):
     return chapters
 
 
+def clean_synopsis(raw, title=""):
+    """Keep only the real plot from a Madara summary__content block.
+
+    Several sources stuff the synopsis block with SEO/marketing
+    sections that are not the story: ZinManga (zinmanga.net,
+    mangazin.org) adds "Details of X / Welcome to ZinManga / Main
+    Plot / Why should you read X on ZinManga? / Explore More
+    Genres" plus keyword lists; manhwanex adds a whole SEO article
+    ("Generic Breakdown / Character Relationships / Core Concept /
+    Arc Breakdown / Why You Should Read / Reader Experience /
+    Related Series / FAQ / Update Schedule"); pornhwaz adds
+    "Original Novel / Official Translations / Similar Manhwas /
+    Update of X" plus site promo; s2manga adds "Search for series
+    of same genre(s) / Welcome to site" plus keyword lists.
+    Clean synopses contain none of these markers and pass through
+    untouched. Returns the cleaned text (or the original when
+    cleaning would leave almost nothing).
+    """
+    if not raw:
+        return ""
+    text_clean = re.sub(r"\s+", " ", raw).strip()
+    if not text_clean:
+        return ""
+    lower = text_clean.lower()
+    # Section headings that start SEO/marketing content. The plot
+    # is everything before the first of these.
+    section_markers = [
+        "generic breakdown",
+        "character relationships",
+        "core concept",
+        "arc breakdown",
+        "why you should read",
+        "why should you read",
+        "reader experience",
+        "related series",
+        "faq of the",
+        "update schedule",
+        "explore more genres",
+        "similar manhwas",
+        "search for series of same genre",
+        "original novel",
+        "welcome to zinmanga",
+        "welcome to site",
+        "free access",
+        "daily updates",
+        "user-friendly interface",
+        "high-quality content",
+        "accessibility",
+    ]
+    # ZinManga pattern: the real plot sits under a "Main Plot"
+    # heading, after the "Details of X / Welcome to ZinManga"
+    # blurb and before the marketing sections.
+    main_plot = lower.find("main plot")
+    if main_plot >= 0:
+        after = text_clean[main_plot + len("main plot"):]
+        after_lower = after.lower()
+        cut = len(after)
+        for marker in section_markers:
+            pos = after_lower.find(marker)
+            if 0 <= pos < cut:
+                cut = pos
+        plot = after[:cut].strip()
+        if len(plot) >= 30:
+            return _trim_synopsis(plot)
+    # Generic pattern: the plot is the intro, before the first
+    # SEO/marketing section heading.
+    cut = len(text_clean)
+    for marker in section_markers:
+        pos = lower.find(marker)
+        if 0 <= pos < cut:
+            cut = pos
+    plot = text_clean[:cut].strip()
+    # pornhwaz leads with "Summary of X Online Manhwa" before the
+    # plot; drop that header.
+    m = re.match(
+        r"^summary of .{1,120}? online manhwa", plot, re.IGNORECASE
+    )
+    if m:
+        plot = plot[m.end():].strip()
+    # Drop the broken "Also known as , , , and ," template line
+    # manhwanex embeds in the intro (alt titles already live in
+    # the alt_titles field).
+    plot = re.sub(
+        r"also known as(?:\s*,){1,}\s*(?:and\s*,)?\s*",
+        "",
+        plot,
+        flags=re.IGNORECASE,
+    )
+    # Drop the broken "Other titles including , , and are also
+    # recognized by fans..." template sentence.
+    plot = re.sub(
+        r"other titles including\s*,.*?are also recognized by fans"
+        r"[^.]*\.\s*",
+        "",
+        plot,
+        flags=re.IGNORECASE,
+    )
+    # Drop inline keyword clusters ("... read manhua online",
+    # "... manhua online free") left inside the intro. Longest
+    # phrase first so "read manhua online free" is removed whole
+    # instead of leaving a stray "free".
+    plot = re.sub(
+        r"\s*(?:read\s+(?:manhua|manga|manhwa)\s+online\s+free"
+        r"|read\s+(?:manhua|manga|manhwa)\s+online"
+        r"|read\s+online\s+(?:manhua|manga|manhwa)"
+        r"|(?:manhua|manga|manhwa)\s+online\s+free)\s*",
+        " ",
+        plot,
+        flags=re.IGNORECASE,
+    )
+    # Drop concatenated genre-keyword tokens ("Manhuaevolution",
+    # "manhuaread") left when the keyword line is stripped.
+    plot = re.sub(
+        r"\b\w*(?:manhua|manga|manhwa)[a-z]{2,}\b",
+        "",
+        plot,
+        flags=re.IGNORECASE,
+    )
+    # Drop a long CJK span: manhwanex embeds the (already stored)
+    # alt titles as one concatenated blob of CJK + English names
+    # inside the intro. Remove from the first to the last CJK
+    # character of such a span (only when it is long, so a single
+    # CJK name in a real sentence survives).
+    def _drop_cjk_span(sentence):
+        cjk = re.compile(
+            r"[\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af]"
+        )
+        hits = [m.start() for m in cjk.finditer(sentence)]
+        if len(hits) >= 2 and hits[-1] - hits[0] > 40:
+            return sentence[: hits[0]] + sentence[hits[-1] + 1 :]
+        if len(hits) == 1:
+            return cjk.sub("", sentence)
+        return sentence
+
+    parts = re.split(r"(?<=[.!?])\s+", plot)
+    plot = " ".join(_drop_cjk_span(p) for p in parts)
+    # Drop a repeated title fragment: manhwanex repeats the title
+    # in its keyword line ("... Title Manhuaevolution manhua ..."),
+    # leaving a bare "Title manhua" after the keyword tokens are
+    # stripped. Keep the first occurrence, drop later ones.
+    if title and len(title) >= 8:
+        occ = [m for m in re.finditer(re.escape(title), plot, re.IGNORECASE)]
+        if len(occ) > 1:
+            for m in reversed(occ[1:]):
+                end = m.end()
+                tail = re.match(
+                    r"\s+(?:manhua|manga|manhwa)\b", plot[end:],
+                    re.IGNORECASE,
+                )
+                if tail:
+                    end += tail.end()
+                plot = plot[: m.start()] + plot[end:]
+    plot = re.sub(r"\s+", " ", plot).strip()
+    if len(plot) < 30:
+        return text_clean
+    return _trim_synopsis(plot)
+
+
+def _trim_synopsis(plot):
+    """Cap a cleaned synopsis at ~2000 chars on a sentence boundary."""
+    if len(plot) <= 2000:
+        return plot
+    head = plot[:2000]
+    for sep in (". ", "! ", "? "):
+        pos = head.rfind(sep)
+        if pos >= 500:
+            return head[: pos + 1].strip()
+    return head.rstrip() + "…"
+
+
 def parse_detail(html, base, slug):
     """Title page. Returns None when the page has no readable title."""
     from normalize import chapter_number_from  # local import: no cycle
@@ -547,7 +717,10 @@ def parse_detail(html, base, slug):
         return None
     cover_node = find_first(root, tag="div", cls="summary_image")
     cover = img_src(find_first(cover_node, tag="img")) if cover_node else ""
-    synopsis = text(find_first(root, tag="div", cls="summary__content"))
+    synopsis = clean_synopsis(
+        text(find_first(root, tag="div", cls="summary__content")),
+        title=title,
+    )
     status, genres, author, alt_titles = "", [], "", []
     for row in find_all(root, tag="div", cls="post-content_item"):
         heading = text(find_first(row, tag="div", cls="summary-heading")).lower()
