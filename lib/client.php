@@ -207,7 +207,22 @@ class SiteClient
         // report that cause (Cloudflare, 403, timeout) instead of
         // the generic "no images" message.
         if ($fetchError !== null) {
-            return ['ok' => false, 'error' => $fetchError];
+            $err = ['ok' => false, 'error' => $fetchError];
+            if (($fetchError['kind'] ?? '') === 'cloudflare') {
+                // Frame fallback: the reader embeds this chapter URL
+                // so the user solves the challenge in their own
+                // browser (the clearance stays there; the server
+                // never sees or stores it).
+                $c = $list[$start] ?? $list[0] ?? null;
+                if ($c !== null) {
+                    $site = (string) ($this->registryEntry($c['source'] ?? '')['site'] ?? '');
+                    $cid = (string) ($c['id'] ?? '');
+                    if ($site !== '' && $cid !== '') {
+                        $err['chapter_url'] = rtrim($site, '/') . '/' . trim($cid, '/') . '/';
+                    }
+                }
+            }
+            return $err;
         }
         return $res;
     }
@@ -252,7 +267,21 @@ class SiteClient
         // timeout) instead of the generic "no images" message, so
         // the reader shows why this chapter cannot be read.
         if ($images === [] && $fetchError !== null) {
-            return ['ok' => false, 'error' => $fetchError];
+            $err = ['ok' => false, 'error' => $fetchError];
+            if (($fetchError['kind'] ?? '') === 'cloudflare') {
+                // Frame fallback: the reader embeds this chapter URL
+                // so the user solves the challenge in their own
+                // browser (the clearance stays there; the server
+                // never sees or stores it).
+                $site = (string) ($this->registryEntry($scan)['site'] ?? '');
+                $cid = (string) ($row['id'] ?? '');
+                if ($site !== '' && $cid !== '') {
+                    $err['chapter_url'] = rtrim($site, '/') . '/' . trim($cid, '/') . '/';
+                    $err['scan'] = $scan;
+                    $err['scan_name'] = $current['name'];
+                }
+            }
+            return $err;
         }
         // Next scanlator carrying this chapter number, for the
         // "try another copy" link; 'all' when no other scanlator

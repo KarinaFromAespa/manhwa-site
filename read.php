@@ -26,6 +26,17 @@ echo '<p><a href="manga.php?slug=' . rawurlencode($slug) . '">&larr; Back to tit
 
 if (!$chapter['ok']) {
     errorBox($chapter['error']);
+    // Cloudflare fallback: the server cannot fetch this chapter, so
+    // load the source chapter in a frame in the user's browser.
+    // The user solves the challenge there if asked; the clearance
+    // stays in their browser and the server never sees it.
+    $curl = (string) ($chapter['chapter_url'] ?? '');
+    if (($chapter['error']['kind'] ?? '') === 'cloudflare' && $curl !== '') {
+        $scanName = (string) ($chapter['scan_name'] ?? $chapter['scan'] ?? '');
+        echo '<p class="muted">The chapter could not be loaded from the server, so it is shown here from the source' . ($scanName !== '' ? ' (' . h($scanName) . ')' : '') . '. If the source asks you to verify you are human, complete the check in the frame and the chapter will load. The check stays in your browser.</p>';
+        echo '<iframe class="chapter-frame" src="' . h($curl) . '" title="Chapter"></iframe>';
+        echo '<p class="muted">If the frame stays blank, the source blocks embedding. <a href="' . h($curl) . '" target="_blank" rel="noopener">Open the chapter in a new tab</a> instead.</p>';
+    }
     pageFoot();
     exit;
 }
