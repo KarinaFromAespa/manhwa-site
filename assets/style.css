@@ -67,8 +67,16 @@ main { padding: 24px 0 48px; }
 /* --- Homepage grid --- */
 .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+@media (min-width: 600px) {
+    .grid { grid-template-columns: repeat(4, 1fr); gap: 16px; }
+}
+
+@media (min-width: 1000px) {
+    .grid { grid-template-columns: repeat(6, 1fr); gap: 18px; }
 }
 .card {
     display: block; background: var(--surface); border: 1px solid var(--border);
@@ -186,13 +194,11 @@ main { padding: 24px 0 48px; }
 
 /* --- Wider screens --- */
 @media (min-width: 700px) {
-    .grid { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 18px; }
     .hero { flex-wrap: nowrap; }
     .hero-cover { width: 240px; }
     h1 { font-size: 1.9rem; }
 }
 @media (max-width: 600px) {
-    .grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
     .hero-cover { width: 150px; }
     .site-header nav { margin-left: 0; }
     .reader { margin-left: -16px; margin-right: -16px; border-radius: 0; }
