@@ -554,7 +554,27 @@
   "topmanhua-net|manga/the-novels-extra-remake": "the-novel-s-extra-remake",
   "topmanhua-net|manga/the-return-of-the-crazy-demon": "the-return-of-the-crazy-demon",
   "topmanhua-net|manga/heavenly-grand-archives-young-master": "heavenly-grand-archive-s-young-master",
-  "zinmanga|manga/zero-game": "zero-game"
+  "zinmanga|manga/zero-game": "zero-game",
+  "ap-comics|manga/hokkebain-halcon-widowed-mother-touka-san-38-takes-on-the-challenge-of-taking-her-daughters-grooms-virginity-english-digital": "hokkebain-halcon-widowed-mother-touka-san-38-takes-on-the-challenge-of-taking-her-daughter-s-groom-s-virginity-english-digital",
+  "ap-comics|manga/jopuari-jessies-got-a-friend-in-her-toy-story": "jopuari-jessie-s-got-a-friend-in-her-toy-story",
+  "ap-comics|manga/zillionaire-glazed-biscuits-teen-titans": "zillionaire-glazed-biscuits-teen-titans",
+  "ap-comics|manga/jopuari-fuck-that-milf-2-amaya-ongoingpublic": "jopuari-fuck-that-milf-2-amaya-ongoing-public",
+  "manhuanext|manga/in-the-age-of-class-awakening-i-bring-the-underworld-to-the-mortal-realm": "in-the-age-of-class-awakening-i-bring-the-underworld-to-the-mortal-realm",
+  "manhuanext|manga/who-let-him-cultivate-immortality": "who-let-him-cultivate-immortality",
+  "manhuanext|manga/game-invasion-awaken-dual-talents-at-the-start-like-manga": "game-invasion-awaken-dual-talents-at-the-start-like-manga",
+  "manhuanext|manga/mechanic-slayer": "mechanic-slayer",
+  "manhwa-reads|manga/maydare-tensei-monogatari": "maydare-tensei-monogatari",
+  "manhwa-reads|manga/the-guy-she-was-interested-in-wasnt-a-guy-at-all": "the-guy-she-was-interested-in-wasn-t-a-guy-at-all",
+  "toonizy|webtoon/paws-on-campus": "paws-on-campus",
+  "top-manhua|series/rental-hero": "rental-hero",
+  "top-manhua|series/the-max-level-hero-has-returned-2": "the-max-level-hero-has-returned",
+  "topmanhua-net|manga/i-obtained-a-mythic-item": "i-obtained-a-mythic-item",
+  "topmanhua-net|manga/noble-lady-reformation-guide": "noble-lady-reformation-guide",
+  "topmanhua-net|manga/sichuans-supreme-king": "sichuan-s-supreme-king",
+  "topmanhua-net|manga/starting-with-13-hidden-traits": "starting-with-13-hidden-traits",
+  "topmanhua-net|manga/the-demon-king-overrun-by-heroes": "the-demon-king-overrun-by-heroes",
+  "topmanhua-net|manga/reaper-of-the-drifting-moon": "reaper-of-the-drifting-moon",
+  "zinmanga-net|manga/knee-pads": "knee-pads"
  },
  "sources": {
   "zinmanga": {
@@ -614,10 +634,14 @@
     [
      1795494307,
      true
+    ],
+    [
+     1795495523,
+     true
     ]
    ],
-   "last_run": 1795494307,
-   "last_ok": 1795494307,
+   "last_run": 1795495523,
+   "last_ok": 1795495523,
    "consecutive_failures": 0
   },
   "zinmanga-net": {
@@ -669,10 +693,14 @@
     [
      1795494307,
      true
+    ],
+    [
+     1795495523,
+     true
     ]
    ],
-   "last_run": 1795494307,
-   "last_ok": 1795494307,
+   "last_run": 1795495523,
+   "last_ok": 1795495523,
    "consecutive_failures": 0
   },
   "manhua-plus": {
@@ -712,10 +740,14 @@
     [
      1795494307,
      true
+    ],
+    [
+     1795495523,
+     true
     ]
    ],
-   "last_run": 1795494307,
-   "last_ok": 1795494307,
+   "last_run": 1795495523,
+   "last_ok": 1795495523,
    "consecutive_failures": 0,
    "seed_page": 11
   },
@@ -752,10 +784,14 @@
     [
      1795494307,
      true
+    ],
+    [
+     1795495523,
+     true
     ]
    ],
-   "last_run": 1795494307,
-   "last_ok": 1795494307,
+   "last_run": 1795495523,
+   "last_ok": 1795495523,
    "consecutive_failures": 0,
    "seed_page": 11
   },
@@ -792,11 +828,15 @@
     [
      1795494307,
      false
+    ],
+    [
+     1795495523,
+     true
     ]
    ],
-   "last_run": 1795494307,
-   "consecutive_failures": 1,
-   "last_ok": 1795492498
+   "last_run": 1795495523,
+   "consecutive_failures": 0,
+   "last_ok": 1795495523
   },
   "ap-comics": {
    "attempts": [
@@ -831,10 +871,14 @@
     [
      1795494307,
      true
+    ],
+    [
+     1795495523,
+     true
     ]
    ],
-   "last_run": 1795494307,
-   "last_ok": 1795494307,
+   "last_run": 1795495523,
+   "last_ok": 1795495523,
    "consecutive_failures": 0
   },
   "manhuahot": {
@@ -866,10 +910,14 @@
     [
      1795494307,
      true
+    ],
+    [
+     1795495523,
+     true
     ]
    ],
-   "last_run": 1795494307,
-   "last_ok": 1795494307,
+   "last_run": 1795495523,
+   "last_ok": 1795495523,
    "consecutive_failures": 0
   },
   "manhuanext": {
@@ -901,11 +949,15 @@
     [
      1795494307,
      true
+    ],
+    [
+     1795495523,
+     true
     ]
    ],
-   "last_run": 1795494307,
+   "last_run": 1795495523,
    "consecutive_failures": 0,
-   "last_ok": 1795494307
+   "last_ok": 1795495523
   },
   "manhwa-reads": {
    "attempts": [
@@ -936,10 +988,14 @@
     [
      1795494307,
      true
+    ],
+    [
+     1795495523,
+     true
     ]
    ],
-   "last_run": 1795494307,
-   "last_ok": 1795494307,
+   "last_run": 1795495523,
+   "last_ok": 1795495523,
    "consecutive_failures": 0
   },
   "manhwaden": {
@@ -971,10 +1027,14 @@
     [
      1795494307,
      true
+    ],
+    [
+     1795495523,
+     true
     ]
    ],
-   "last_run": 1795494307,
-   "last_ok": 1795494307,
+   "last_run": 1795495523,
+   "last_ok": 1795495523,
    "consecutive_failures": 0
   },
   "manhwanex": {
@@ -1010,10 +1070,14 @@
     [
      1795494307,
      true
+    ],
+    [
+     1795495523,
+     true
     ]
    ],
-   "last_run": 1795494307,
-   "last_ok": 1795494307,
+   "last_run": 1795495523,
+   "last_ok": 1795495523,
    "consecutive_failures": 0
   },
   "pornhwaz": {
@@ -1045,10 +1109,14 @@
     [
      1795494307,
      true
+    ],
+    [
+     1795495523,
+     true
     ]
    ],
-   "last_run": 1795494307,
-   "last_ok": 1795494307,
+   "last_run": 1795495523,
+   "last_ok": 1795495523,
    "consecutive_failures": 0
   },
   "top-manhua": {
@@ -1080,10 +1148,14 @@
     [
      1795494307,
      true
+    ],
+    [
+     1795495523,
+     true
     ]
    ],
-   "last_run": 1795494307,
-   "last_ok": 1795494307,
+   "last_run": 1795495523,
+   "last_ok": 1795495523,
    "consecutive_failures": 0
   },
   "topmanhua-fan": {
@@ -1115,10 +1187,14 @@
     [
      1795494307,
      true
+    ],
+    [
+     1795495523,
+     true
     ]
    ],
-   "last_run": 1795494307,
-   "last_ok": 1795494307,
+   "last_run": 1795495523,
+   "last_ok": 1795495523,
    "consecutive_failures": 0
   },
   "topmanhua-net": {
@@ -1150,10 +1226,14 @@
     [
      1795494307,
      true
+    ],
+    [
+     1795495523,
+     true
     ]
    ],
-   "last_run": 1795494307,
-   "last_ok": 1795494307,
+   "last_run": 1795495523,
+   "last_ok": 1795495523,
    "consecutive_failures": 0
   }
  },
@@ -3938,6 +4018,16 @@
      "last_seen": 1795486618,
      "no_chapters": false,
      "author": ""
+    },
+    "top-manhua": {
+     "slug": "series/the-max-level-hero-has-returned-2",
+     "last_chapter": "255",
+     "last_chapter_date": "",
+     "chapter_count": 265,
+     "chapter_hash": "096933db1442",
+     "last_seen": 1795495523,
+     "no_chapters": false,
+     "author": ", Devil's tail,Yudo유도"
     }
    }
   },
@@ -3952,6 +4042,16 @@
      "last_seen": 1795486618,
      "no_chapters": false,
      "author": ""
+    },
+    "top-manhua": {
+     "slug": "series/rental-hero",
+     "last_chapter": "103",
+     "last_chapter_date": "",
+     "chapter_count": 104,
+     "chapter_hash": "8bbccd04a095",
+     "last_seen": 1795495523,
+     "no_chapters": false,
+     "author": ", PortoPorto, Corbett"
     }
    }
   },
@@ -4444,7 +4544,7 @@
      "last_chapter_date": "5 seconds ago",
      "chapter_count": 941,
      "chapter_hash": "803bc551dfb4",
-     "last_seen": 1795494307,
+     "last_seen": 1795495523,
      "no_chapters": false,
      "author": ", Nightingale (Original)No Two Comics"
     },
@@ -4646,7 +4746,7 @@
      "last_chapter_date": "2025-12-04",
      "chapter_count": 194,
      "chapter_hash": "f190caf60a14",
-     "last_seen": 1795494307,
+     "last_seen": 1795495523,
      "no_chapters": false,
      "author": "Wine Pool Inebriation"
     }
@@ -4660,7 +4760,7 @@
      "last_chapter_date": "2025-09-19",
      "chapter_count": 16,
      "chapter_hash": "12f842df24a3",
-     "last_seen": 1795494307,
+     "last_seen": 1795495523,
      "no_chapters": false,
      "author": "原点格子漫画"
     },
@@ -6255,6 +6355,16 @@
      "last_seen": 1795485966,
      "no_chapters": false,
      "author": ""
+    },
+    "topmanhua-net": {
+     "slug": "manga/noble-lady-reformation-guide",
+     "last_chapter": "12",
+     "last_chapter_date": "2026-02-22",
+     "chapter_count": 12,
+     "chapter_hash": "d76a5a183c08",
+     "last_seen": 1795495523,
+     "no_chapters": false,
+     "author": ""
     }
    }
   },
@@ -6398,7 +6508,7 @@
      "last_chapter_date": "",
      "chapter_count": 78,
      "chapter_hash": "95f1153ddc85",
-     "last_seen": 1795494307,
+     "last_seen": 1795495523,
      "no_chapters": false,
      "author": "Shin Eun Ye"
     }
@@ -6464,7 +6574,7 @@
      "last_chapter_date": "",
      "chapter_count": 2,
      "chapter_hash": "721475bad8c4",
-     "last_seen": 1795494307,
+     "last_seen": 1795495523,
      "no_chapters": true,
      "author": ""
     }
@@ -6740,7 +6850,7 @@
      "last_chapter_date": "",
      "chapter_count": 2,
      "chapter_hash": "28917f443fd2",
-     "last_seen": 1795494307,
+     "last_seen": 1795495523,
      "no_chapters": true,
      "author": ""
     }
@@ -8172,7 +8282,7 @@
      "last_chapter_date": "",
      "chapter_count": 2,
      "chapter_hash": "0b8ee7e8af26",
-     "last_seen": 1795494307,
+     "last_seen": 1795495523,
      "no_chapters": true,
      "author": ""
     }
@@ -8737,6 +8847,16 @@
      "last_seen": 1795487547,
      "no_chapters": false,
      "author": "Xingjiu"
+    },
+    "manhuanext": {
+     "slug": "manga/in-the-age-of-class-awakening-i-bring-the-underworld-to-the-mortal-realm",
+     "last_chapter": "17",
+     "last_chapter_date": "2026-11-20",
+     "chapter_count": 19,
+     "chapter_hash": "6dd7aa717e52",
+     "last_seen": 1795495523,
+     "no_chapters": false,
+     "author": ""
     }
    }
   },
@@ -9338,7 +9458,7 @@
      "last_chapter_date": "",
      "chapter_count": 133,
      "chapter_hash": "b888eb535bc5",
-     "last_seen": 1795494307,
+     "last_seen": 1795495523,
      "no_chapters": false,
      "author": "Hwang Hye-jin"
     }
@@ -9352,7 +9472,7 @@
      "last_chapter_date": "",
      "chapter_count": 2,
      "chapter_hash": "a1604b5ae5c3",
-     "last_seen": 1795494307,
+     "last_seen": 1795495523,
      "no_chapters": true,
      "author": ""
     }
@@ -9366,7 +9486,7 @@
      "last_chapter_date": "",
      "chapter_count": 2,
      "chapter_hash": "5e513c213dc1",
-     "last_seen": 1795494307,
+     "last_seen": 1795495523,
      "no_chapters": true,
      "author": ""
     }
@@ -9394,7 +9514,7 @@
      "last_chapter_date": "",
      "chapter_count": 63,
      "chapter_hash": "fe18d412355c",
-     "last_seen": 1795494307,
+     "last_seen": 1795495523,
      "no_chapters": false,
      "author": ",, BehwaJo Don HyungUpdating"
     }
@@ -9408,7 +9528,7 @@
      "last_chapter_date": "",
      "chapter_count": 193,
      "chapter_hash": "4eb46cbcb0fc",
-     "last_seen": 1795494307,
+     "last_seen": 1795495523,
      "no_chapters": false,
      "author": ",, 128Kim Hyeon YeongMIDNIGHT STUDIO"
     }
@@ -9436,7 +9556,7 @@
      "last_chapter_date": "",
      "chapter_count": 208,
      "chapter_hash": "98ea6ae15088",
-     "last_seen": 1795494307,
+     "last_seen": 1795495523,
      "no_chapters": false,
      "author": ", GRIMZONaver Series"
     }
@@ -9632,7 +9752,7 @@
      "last_chapter_date": "",
      "chapter_count": 94,
      "chapter_hash": "c464545f9944",
-     "last_seen": 1795494307,
+     "last_seen": 1795495523,
      "no_chapters": false,
      "author": "ONE"
     }
@@ -9954,7 +10074,7 @@
      "last_chapter_date": "",
      "chapter_count": 48,
      "chapter_hash": "0860fca4d31c",
-     "last_seen": 1795494307,
+     "last_seen": 1795495523,
      "no_chapters": false,
      "author": "TSUDA Houkou"
     }
@@ -9968,7 +10088,7 @@
      "last_chapter_date": "",
      "chapter_count": 62,
      "chapter_hash": "0ac62e80cca1",
-     "last_seen": 1795494307,
+     "last_seen": 1795495523,
      "no_chapters": false,
      "author": ", UpdatingYedo"
     }
@@ -10528,7 +10648,7 @@
      "last_chapter_date": "2026-11-02",
      "chapter_count": 231,
      "chapter_hash": "2b17562f3593",
-     "last_seen": 1795494307,
+     "last_seen": 1795495523,
      "no_chapters": false,
      "author": "KUBO Tite"
     }
@@ -10640,7 +10760,7 @@
      "last_chapter_date": "",
      "chapter_count": 2,
      "chapter_hash": "86ef0012888c",
-     "last_seen": 1795494307,
+     "last_seen": 1795495523,
      "no_chapters": true,
      "author": ""
     }
@@ -11018,7 +11138,7 @@
      "last_chapter_date": "2026-11-24",
      "chapter_count": 100,
      "chapter_hash": "070fb247ff32",
-     "last_seen": 1795494307,
+     "last_seen": 1795495523,
      "no_chapters": false,
      "author": ""
     }
@@ -11032,7 +11152,7 @@
      "last_chapter_date": "2026-11-24",
      "chapter_count": 100,
      "chapter_hash": "9c8ac89a08c5",
-     "last_seen": 1795494307,
+     "last_seen": 1795495523,
      "no_chapters": false,
      "author": ""
     },
@@ -11042,7 +11162,7 @@
      "last_chapter_date": "",
      "chapter_count": 389,
      "chapter_hash": "6172a7d6e7a7",
-     "last_seen": 1795494307,
+     "last_seen": 1795495523,
      "no_chapters": false,
      "author": ",, JEUL Bah-SenJeulbahsenzelbasen"
     }
@@ -11109,10 +11229,10 @@
     "manhuanext": {
      "slug": "manga/the-illegitimate-son-became-a-monster-summoner",
      "last_chapter": "11",
-     "last_chapter_date": "",
+     "last_chapter_date": "2026-11-21",
      "chapter_count": 11,
      "chapter_hash": "245791081e7b",
-     "last_seen": 1795494307,
+     "last_seen": 1795495523,
      "no_chapters": false,
      "author": ""
     }
@@ -11182,7 +11302,7 @@
      "last_chapter_date": "2026-11-03",
      "chapter_count": 132,
      "chapter_hash": "8338567773ea",
-     "last_seen": 1795494307,
+     "last_seen": 1795495523,
      "no_chapters": false,
      "author": "MATSUMOTO Kengo"
     }
@@ -11297,6 +11417,230 @@
      "last_seen": 1795494307,
      "no_chapters": false,
      "author": "Jinseong Yu"
+    }
+   }
+  },
+  "hokkebain-halcon-widowed-mother-touka-san-38-takes-on-the-challenge-of-taking-her-daughter-s-groom-s-virginity-english-digital": {
+   "sources": {
+    "ap-comics": {
+     "slug": "manga/hokkebain-halcon-widowed-mother-touka-san-38-takes-on-the-challenge-of-taking-her-daughters-grooms-virginity-english-digital",
+     "last_chapter": "1",
+     "last_chapter_date": "2026-10-15",
+     "chapter_count": 1,
+     "chapter_hash": "b90b18e1f5d3",
+     "last_seen": 1795495523,
+     "no_chapters": false,
+     "author": "Updating"
+    }
+   }
+  },
+  "jopuari-jessie-s-got-a-friend-in-her-toy-story": {
+   "sources": {
+    "ap-comics": {
+     "slug": "manga/jopuari-jessies-got-a-friend-in-her-toy-story",
+     "last_chapter": "1",
+     "last_chapter_date": "2026-10-14",
+     "chapter_count": 1,
+     "chapter_hash": "a94e4f948b62",
+     "last_seen": 1795495523,
+     "no_chapters": false,
+     "author": "Updating"
+    }
+   }
+  },
+  "zillionaire-glazed-biscuits-teen-titans": {
+   "sources": {
+    "ap-comics": {
+     "slug": "manga/zillionaire-glazed-biscuits-teen-titans",
+     "last_chapter": "1",
+     "last_chapter_date": "2026-10-14",
+     "chapter_count": 1,
+     "chapter_hash": "e62b3589694c",
+     "last_seen": 1795495523,
+     "no_chapters": false,
+     "author": "Updating"
+    }
+   }
+  },
+  "jopuari-fuck-that-milf-2-amaya-ongoing-public": {
+   "sources": {
+    "ap-comics": {
+     "slug": "manga/jopuari-fuck-that-milf-2-amaya-ongoingpublic",
+     "last_chapter": "1",
+     "last_chapter_date": "2026-10-14",
+     "chapter_count": 1,
+     "chapter_hash": "cddd33645b45",
+     "last_seen": 1795495523,
+     "no_chapters": false,
+     "author": "Updating"
+    }
+   }
+  },
+  "who-let-him-cultivate-immortality": {
+   "sources": {
+    "manhuanext": {
+     "slug": "manga/who-let-him-cultivate-immortality",
+     "last_chapter": "40",
+     "last_chapter_date": "2026-11-20",
+     "chapter_count": 40,
+     "chapter_hash": "d89aa3caa5cf",
+     "last_seen": 1795495523,
+     "no_chapters": false,
+     "author": ""
+    }
+   }
+  },
+  "game-invasion-awaken-dual-talents-at-the-start-like-manga": {
+   "sources": {
+    "manhuanext": {
+     "slug": "manga/game-invasion-awaken-dual-talents-at-the-start-like-manga",
+     "last_chapter": "12",
+     "last_chapter_date": "2026-11-20",
+     "chapter_count": 12,
+     "chapter_hash": "2f07dd0ac9bb",
+     "last_seen": 1795495523,
+     "no_chapters": false,
+     "author": ""
+    }
+   }
+  },
+  "mechanic-slayer": {
+   "sources": {
+    "manhuanext": {
+     "slug": "manga/mechanic-slayer",
+     "last_chapter": "22",
+     "last_chapter_date": "2026-11-20",
+     "chapter_count": 22,
+     "chapter_hash": "f5b0bbad095a",
+     "last_seen": 1795495523,
+     "no_chapters": false,
+     "author": ""
+    }
+   }
+  },
+  "maydare-tensei-monogatari": {
+   "sources": {
+    "manhwa-reads": {
+     "slug": "manga/maydare-tensei-monogatari",
+     "last_chapter": "61",
+     "last_chapter_date": "2026-11-18",
+     "chapter_count": 91,
+     "chapter_hash": "d91bbd803b94",
+     "last_seen": 1795495523,
+     "no_chapters": false,
+     "author": "YUUMA Midori"
+    }
+   }
+  },
+  "the-guy-she-was-interested-in-wasn-t-a-guy-at-all": {
+   "sources": {
+    "manhwa-reads": {
+     "slug": "manga/the-guy-she-was-interested-in-wasnt-a-guy-at-all",
+     "last_chapter": "187",
+     "last_chapter_date": "2026-11-16",
+     "chapter_count": 224,
+     "chapter_hash": "7daf5e0bf1fd",
+     "last_seen": 1795495523,
+     "no_chapters": false,
+     "author": "ARAI Sumiko"
+    }
+   }
+  },
+  "paws-on-campus": {
+   "sources": {
+    "toonizy": {
+     "slug": "webtoon/paws-on-campus",
+     "last_chapter": "",
+     "last_chapter_date": "",
+     "chapter_count": 50,
+     "chapter_hash": "389adffbe1b4",
+     "last_seen": 1795495523,
+     "no_chapters": false,
+     "author": ",, barleyshakeⓒ SujisuSujisu&barleyshake / Toomics"
+    }
+   }
+  },
+  "i-obtained-a-mythic-item": {
+   "sources": {
+    "topmanhua-net": {
+     "slug": "manga/i-obtained-a-mythic-item",
+     "last_chapter": "168",
+     "last_chapter_date": "2026-03-03",
+     "chapter_count": 170,
+     "chapter_hash": "6098e081529a",
+     "last_seen": 1795495523,
+     "no_chapters": false,
+     "author": "Jung SeonYul"
+    }
+   }
+  },
+  "sichuan-s-supreme-king": {
+   "sources": {
+    "topmanhua-net": {
+     "slug": "manga/sichuans-supreme-king",
+     "last_chapter": "14",
+     "last_chapter_date": "2026-02-22",
+     "chapter_count": 14,
+     "chapter_hash": "566fb220de88",
+     "last_seen": 1795495523,
+     "no_chapters": false,
+     "author": ""
+    }
+   }
+  },
+  "starting-with-13-hidden-traits": {
+   "sources": {
+    "topmanhua-net": {
+     "slug": "manga/starting-with-13-hidden-traits",
+     "last_chapter": "18",
+     "last_chapter_date": "2026-02-22",
+     "chapter_count": 18,
+     "chapter_hash": "7f21fafac875",
+     "last_seen": 1795495523,
+     "no_chapters": false,
+     "author": ""
+    }
+   }
+  },
+  "the-demon-king-overrun-by-heroes": {
+   "sources": {
+    "topmanhua-net": {
+     "slug": "manga/the-demon-king-overrun-by-heroes",
+     "last_chapter": "18",
+     "last_chapter_date": "2026-02-22",
+     "chapter_count": 18,
+     "chapter_hash": "001ff7b50361",
+     "last_seen": 1795495523,
+     "no_chapters": false,
+     "author": ""
+    }
+   }
+  },
+  "reaper-of-the-drifting-moon": {
+   "sources": {
+    "topmanhua-net": {
+     "slug": "manga/reaper-of-the-drifting-moon",
+     "last_chapter": "126",
+     "last_chapter_date": "2026-02-22",
+     "chapter_count": 127,
+     "chapter_hash": "d656428a4f50",
+     "last_seen": 1795495523,
+     "no_chapters": false,
+     "author": ""
+    }
+   }
+  },
+  "knee-pads": {
+   "sources": {
+    "zinmanga-net": {
+     "slug": "manga/knee-pads",
+     "last_chapter": "13",
+     "last_chapter_date": "2026-11-24",
+     "chapter_count": 13,
+     "chapter_hash": "b140835f24f7",
+     "last_seen": 1795495523,
+     "no_chapters": false,
+     "author": ""
     }
    }
   }
