@@ -27,7 +27,7 @@ facts:
 
 Until the catalog exists or a fetch service is configured, this
 site shows clear errors on every page instead of fake or empty
-data. See `status.php` on the live site for the live diagnostic.
+data. See `yubkzrmdwv.php` on the live site for the live diagnostic.
 
 ## Deploy (InfinityFree, manhwa.freedev.app)
 
@@ -49,7 +49,7 @@ data. See `status.php` on the live site for the live diagnostic.
    runs in direct mode and shows the honest error).
 4. Open `https://manhwa.freedev.app/` — the home page lists titles
    when the catalog exists, and shows the error box when it does not.
-5. Open `https://manhwa.freedev.app/status.php` to confirm the
+5. Open `https://manhwa.freedev.app/yubkzrmdwv.php` to confirm the
    configuration: PHP version, cache writable, catalog state,
    registry counts, and the result of one direct request.
 
@@ -124,7 +124,7 @@ session). This site does not care how — it only needs the JSON.
 | `read.php?slug=...&chapter=...&copy=0` | Chapter reader (images via `img.php`), with a neutral "try another copy" switcher |
 | `img.php?u=...` | Image proxy — allowlisted hosts only (registry site hosts + `data/image-hosts.json`), cached on disk for 7 days |
 | `api.php?action=list\|detail\|chapters\|chapter` | JSON endpoint using the same client |
-| `status.php` | Diagnostics: PHP version, cache, catalog, registry counts, service, one direct-fetch test |
+| `yubkzrmdwv.php` | Diagnostics: PHP version, cache, catalog, registry counts, service, one direct-fetch test |
 
 ## Notes and assumptions
 
