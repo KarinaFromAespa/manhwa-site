@@ -16,7 +16,7 @@ function pageHead(string $title): void
         . '<form class="search" action="index.php" method="get">'
         . '<input type="search" name="q" placeholder="Search titles…" value="' . h($_GET['q'] ?? '') . '">'
         . '<button type="submit">Search</button></form>'
-        . '<nav><a href="index.php">Browse</a> <a href="status.php">Status</a></nav>'
+        . '<nav><a href="index.php">Browse</a></nav>'
         . '</div></header><main class="wrap">';
 }
 
@@ -33,6 +33,5 @@ function errorBox(array $error): void
 {
     echo '<div class="error-box"><strong>Could not load data.</strong>'
         . '<p>' . h($error['message'] ?? 'Unknown error.') . '</p>'
-        . '<p class="error-kind">Error: ' . h($error['kind'] ?? 'unknown')
-        . ' &middot; <a href="status.php">Check the status page</a></p></div>';
+        . '<p class="error-kind">Error: ' . h($error['kind'] ?? 'unknown') . '</p></div>';
 }
