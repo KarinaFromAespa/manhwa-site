@@ -15,6 +15,7 @@ function pageHead(string $title): void
         . '<a class="brand" href="index.php">' . h($SITE_NAME) . '</a>'
         . '<form class="search" action="index.php" method="get">'
         . '<input type="search" name="q" placeholder="Search titles…" value="' . h($_GET['q'] ?? '') . '">'
+        . (trim($_GET['genre'] ?? '') !== '' ? '<input type="hidden" name="genre" value="' . h($_GET['genre']) . '">' : '')
         . '<button type="submit">Search</button></form>'
         . '<nav><a href="index.php">Browse</a></nav>'
         . '</div></header><main class="wrap">';

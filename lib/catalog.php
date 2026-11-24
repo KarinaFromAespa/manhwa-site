@@ -52,10 +52,55 @@ class Catalog
         return $out;
     }
 
-    public static function search(string $q): array
+    /** Genres present in the catalog, with title counts, most
+     *  used first. Used for the genre filter on the browse page. */
+    public static function genres(): array
+    {
+        $counts = [];
+        foreach (self::titles() as $t) {
+            foreach ($t['genres'] ?? [] as $g) {
+                $g = trim((string) $g);
+                if ($g === '') {
+                    continue;
+                }
+                $counts[$g] = ($counts[$g] ?? 0) + 1;
+            }
+        }
+        $list = [];
+        foreach ($counts as $name => $count) {
+            $list[] = ['name' => $name, 'count' => $count];
+        }
+        usort($list, static function ($a, $b) {
+            if ($a['count'] !== $b['count']) {
+                return $b['count'] <=> $a['count'];
+            }
+            return strcasecmp($a['name'], $b['name']);
+        });
+        return $list;
+    }
+
+    /** Canonical genre name for a requested value (case-insensitive),
+     *  or '' when it is not a genre in the catalog. */
+    public static function canonicalGenre(string $genre): string
+    {
+        $want = mb_strtolower(trim($genre));
+        if ($want === '') {
+            return '';
+        }
+        foreach (self::genres() as $g) {
+            if (mb_strtolower($g['name']) === $want) {
+                return $g['name'];
+            }
+        }
+        return '';
+    }
+
+    public static function search(string $q, string $genre = ''): array
     {
         $q = mb_strtolower(trim($q));
-        if ($q === '') {
+        $genre = trim($genre);
+        $genreLower = mb_strtolower($genre);
+        if ($q === '' && $genreLower === '') {
             return self::titles();
         }
         $stop = ['the', 'a', 'an', 'of', 'and', 'in', 'on', 'to', 'for', 'with', 'by', 'at', 'from', 'is', 'are', 'was', 'were', 'be', 'been', 'it', 'its', 'this', 'that', 'as', 'or', 'but', 'not', 'no', 'my', 'your', 'his', 'her', 'their', 'our'];
@@ -65,6 +110,21 @@ class Catalog
         ));
         $out = [];
         foreach (self::titles() as $t) {
+            // Genre filter: exact match against the title's genres
+            // (case-insensitive). A title with no genres never
+            // matches a genre filter.
+            if ($genreLower !== '') {
+                $hasGenre = false;
+                foreach ($t['genres'] ?? [] as $g) {
+                    if (mb_strtolower(trim((string) $g)) === $genreLower) {
+                        $hasGenre = true;
+                        break;
+                    }
+                }
+                if (!$hasGenre) {
+                    continue;
+                }
+            }
             $hay = mb_strtolower($t['title']);
             foreach (self::altTitles($t['id']) as $alt) {
                 $hay .= ' ' . mb_strtolower($alt);

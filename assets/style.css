@@ -88,7 +88,10 @@ main { padding: 24px 0 48px; }
     width: 100%; aspect-ratio: 3 / 4; object-fit: cover; display: block;
     background: var(--surface-2);
 }
-.card-title { display: block; padding: 10px 10px 2px; font-weight: 650; font-size: 0.95rem; line-height: 1.35; }
+.card-title {
+    display: -webkit-box; padding: 10px 10px 2px; font-weight: 650; font-size: 0.95rem; line-height: 1.35;
+    -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
 .card-status {
     display: inline-block; margin: 6px 10px 2px; padding: 1px 8px;
     border-radius: 20px; background: var(--surface-3); color: var(--muted);
@@ -139,6 +142,20 @@ main { padding: 24px 0 48px; }
     border: 1px solid var(--border); border-radius: 8px;
     background: var(--surface-2); color: var(--text); font: inherit; cursor: pointer;
 }
+
+/* --- Genre filter (browse page; same compact pattern as the scanlator selector) --- */
+.genre-filter {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    margin: 0 0 18px; padding: 12px 14px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+}
+.genre-filter label { font-weight: 700; }
+.genre-filter select {
+    flex: 1; min-width: 200px; padding: 9px 10px;
+    border: 1px solid var(--border); border-radius: 8px;
+    background: var(--surface-2); color: var(--text); font: inherit; cursor: pointer;
+}
+.genre-filter a { font-weight: 600; white-space: nowrap; }
 
 /* --- Chapter list --- */
 .chapters { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--border); }
@@ -194,6 +211,8 @@ main { padding: 24px 0 48px; }
 @media (min-width: 700px) {
     .scanlator { width: fit-content; max-width: 100%; }
     .scanlator select { max-width: 320px; }
+    .genre-filter { width: fit-content; max-width: 100%; }
+    .genre-filter select { max-width: 320px; }
     .hero { flex-wrap: nowrap; }
     .hero-cover { width: 240px; }
     h1 { font-size: 1.9rem; }

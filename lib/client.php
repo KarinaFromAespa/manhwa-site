@@ -59,10 +59,12 @@ class SiteClient
 
     // --- Reads (catalog first, live fallback) ---
 
-    public function listTitles(int $limit = 24, int $page = 1, string $search = ''): array
+    public function listTitles(int $limit = 24, int $page = 1, string $search = '', string $genre = ''): array
     {
         if ($this->catalogMode()) {
-            $items = $search !== '' ? Catalog::search($search) : Catalog::titles();
+            $items = ($search !== '' || $genre !== '')
+                ? Catalog::search($search, $genre)
+                : Catalog::titles();
             $total = count($items);
             $page = max(1, $page);
             $slice = array_slice($items, ($page - 1) * $limit, $limit);
