@@ -63,8 +63,14 @@ abstract class BaseAdapter implements SourceAdapter
         // A Cloudflare JS challenge often returns HTTP 200, not 403,
         // with a 'Just a moment' page and no real content. Treat a
         // challenge body as a block at any HTTP code, so the reader
-        // reports the cause instead of 'no images'.
-        if (str_contains($body, 'Just a moment') || str_contains($body, 'cf-chl') || str_contains($body, 'challenges.cloudflare.com') || str_contains($body, 'cf-turnstile')) {
+        // reports the cause instead of 'no images'. Only the
+        // challenge-page markers count: 'Just a moment' (the
+        // challenge title) and 'cf-chl' (the challenge form).
+        // 'cf-turnstile' and 'challenges.cloudflare.com' are NOT
+        // checked -- normal chapter pages embed a Turnstile widget
+        // and contain those strings while loading fine, so they
+        // false-positive and hide readable chapters.
+        if (str_contains($body, 'Just a moment') || str_contains($body, 'cf-chl')) {
             return self::err('cloudflare', 'Access is being challenged and this server cannot pass the check. The content cannot be loaded right now.');
         }
         if ($code === 403) {
