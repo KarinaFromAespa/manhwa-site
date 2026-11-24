@@ -162,10 +162,11 @@ class MadaraSite:
     """One Madara source. Enforces a delay between requests to the
     same host and counts requests for the run budget."""
 
-    def __init__(self, source_id, base_url, delay=0.5):
+    def __init__(self, source_id, base_url, delay=0.5, list_path="manga"):
         self.source_id = source_id
         self.base = base_url.rstrip("/")
         self.delay = delay
+        self.list_path = list_path.strip("/") or "manga"
         self.requests = 0
         self._last_fetch = 0.0
         # Chapter mode that supplied the last detail() list
@@ -199,10 +200,11 @@ class MadaraSite:
     # --- Lists ---
 
     def list_page(self, page=1):
-        """Latest-updates list. Madara's /manga/ archive is ordered
+        """Latest-updates list. The archive (default /manga/,
+        some sources use /manhwa/ or /read/) is ordered
         newest-first by default. Returns (ok, items, kind, message)
         where each item has slug, title, cover and latest chapters."""
-        url = f"{self.base}/manga/"
+        url = f"{self.base}/{self.list_path}/"
         if page > 1:
             url += f"page/{page}/"
         ok, status, body, kind, message = self.get(url)

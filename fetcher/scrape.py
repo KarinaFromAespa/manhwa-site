@@ -376,8 +376,12 @@ class Runner:
     # --- Per-source run ---
 
     def run_source(self, source_id, item):
+        pattern = (self.patterns.get("sources", {}) or {}).get(source_id, {})
         site = MadaraSite(
-            source_id, item["site"].rstrip("/"), delay=REQUEST_DELAY
+            source_id,
+            item["site"].rstrip("/"),
+            delay=REQUEST_DELAY,
+            list_path=pattern.get("list_path", "manga"),
         )
         # Seed mode crawls the whole /manga/ directory from the
         # stored cursor; hourly mode only reads the latest window.
