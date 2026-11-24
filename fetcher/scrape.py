@@ -85,6 +85,10 @@ V1_EXCLUDE = {
     "toongod": "HTTP 403 from datacenter IPs (2026-11-24)",
     "gingertoon": "/manga/ archive empty — 'There is no Manga yet' (2026-11-24)",
     "manhwa-toon": "/manga/ archive has no parseable list items (2026-11-24)",
+    "manhwa18-today": "Cloudflare-challenged from datacenter IPs (2026-11-24; VPN exit 144.24.149.59 also 403)",
+    "webtoonxyz": "HTTP 403 from datacenter IPs (2026-11-24; VPN exit also 403)",
+    "aunt-manhwa": "SSL cert hostname mismatch (2026-11-24; unreachable via VPN too)",
+    "manhwamanhua": "Connection reset from datacenter IPs (2026-11-24; unreachable via VPN too)",
 }
 
 # --- Budgets (private repo: 2,000 Actions min/month, 720 runs) ---
