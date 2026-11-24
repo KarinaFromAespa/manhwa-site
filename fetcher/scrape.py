@@ -92,8 +92,8 @@ LIST_PAGES = 2            # /manga/ pages per source per run
 SEED_PAGES = 30           # /manga/ pages per source per seed run
 REQUEST_TIMEOUT = 10      # seconds per request
 REQUEST_DELAY = 0.5       # seconds between requests to the same host
-MAX_SECONDS = 100         # wall-clock cap for the whole run
-MAX_REQUESTS = 150        # request cap for the whole run
+MAX_SECONDS = 200         # wall-clock cap for the whole run
+MAX_REQUESTS = 300        # request cap for the whole run
 MAX_TITLE_PAGES_PER_SOURCE = 30
 HOLLOW_RETRY_PER_SOURCE = 10  # 0-chapter titles retried per run
 
