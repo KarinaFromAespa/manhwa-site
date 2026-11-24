@@ -5,10 +5,12 @@ function pageHead(string $title): void
 {
     global $SITE_NAME;
     $full = $title !== '' ? $title . ' — ' . $SITE_NAME : $SITE_NAME;
+    $cssVer = @filemtime(__DIR__ . '/../assets/style.css');
+    $cssHref = 'assets/style.css' . ($cssVer ? '?v=' . $cssVer : '');
     echo '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">'
         . '<meta name="viewport" content="width=device-width, initial-scale=1">'
         . '<title>' . h($full) . '</title>'
-        . '<link rel="stylesheet" href="assets/style.css"></head><body>'
+        . '<link rel="stylesheet" href="' . $cssHref . '"></head><body>'
         . '<header class="site-header"><div class="wrap">'
         . '<a class="brand" href="index.php">' . h($SITE_NAME) . '</a>'
         . '<form class="search" action="index.php" method="get">'
