@@ -224,4 +224,8 @@ main { padding: 24px 0 48px; }
     .hero-cover { width: 150px; }
     .site-header nav { margin-left: 0; }
     .reader { margin-left: -16px; margin-right: -16px; border-radius: 0; }
+    /* Mobile: the header is not sticky, so it scrolls away while
+       reading chapters instead of eating screen space. Desktop
+       keeps position: sticky. */
+    .site-header { position: static; }
 }
