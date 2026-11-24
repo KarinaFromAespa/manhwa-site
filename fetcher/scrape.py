@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Hourly catalog scraper for manhwafreedev (stdlib only).
+"""Hourly catalog fetcher for manhwafreedev (stdlib only).
 
 Links-only model: the scraper collects title metadata (title, cover
 link, synopsis, status, genres) and the chapter list (number, title,
@@ -34,7 +34,7 @@ so a title whose latest chapter is unchanged costs zero requests
 title-page fetch. The whole run is capped (wall clock + request
 count) and stops gracefully, still writing a valid partial catalog.
 
-State lives in scraper/state.json: per-source reliability history
+State lives in fetcher/state.json: per-source reliability history
 (30-day success rate), per-title last-seen chapter info, a
 (source, slug) -> canonical-id map so ids stay stable across runs,
 and the seed cursor per source.
@@ -277,9 +277,9 @@ class Runner:
         self.args = args
         self.now = int(time.time())
         self.budget = Budget(args.max_seconds, args.max_requests)
-        self.state = load_state(self.root / "scraper" / "state.json")
+        self.state = load_state(self.root / "fetcher" / "state.json")
         self.overrides = load_json(
-            self.root / "scraper" / "overrides.json", {"aliases": {}}
+            self.root / "fetcher" / "overrides.json", {"aliases": {}}
         )
         self.aliases = self.overrides.get("aliases", {})
         # Per-source fetch patterns (data/source-patterns.json):
@@ -1042,7 +1042,7 @@ class Runner:
                 print(f"  {line}")
             self.overrides["aliases"] = self.aliases
             write_json_if_changed(
-                self.root / "scraper" / "overrides.json", self.overrides
+                self.root / "fetcher" / "overrides.json", self.overrides
             )
         self.stats["titles_merged"] = len(merged)
         return merged
@@ -1136,8 +1136,8 @@ class Runner:
                     "wrote data/source-patterns.json "
                     f"({len(self.patterns.get('sources', {}))} sources)"
                 )
-        write_json_atomic(self.root / "scraper" / "state.json", self.state)
-        print("wrote scraper/state.json")
+        write_json_atomic(self.root / "fetcher" / "state.json", self.state)
+        print("wrote fetcher/state.json")
 
 
 def _chapter_sort_key(number):
@@ -1149,11 +1149,11 @@ def _chapter_sort_key(number):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(
-        description="Hourly catalog scraper for manhwafreedev."
+        description="Hourly catalog fetcher for manhwafreedev."
     )
     parser.add_argument(
         "--root", default=str(ROOT),
-        help="repo root (default: parent of the scraper dir)",
+        help="repo root (default: parent of the fetcher dir)",
     )
     parser.add_argument(
         "--sources", default=None,

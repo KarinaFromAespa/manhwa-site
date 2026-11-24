@@ -308,7 +308,7 @@ Chapter images are the hardest part and are never stored:
 - New files: `lib/sources.php` (registry + ranking),
   `lib/catalog.php` (catalog reads), `data/` (catalog JSON, not
   committed by hand — written by the scraper).
-- The scraper itself lives in the repo under `scraper/` (or in a
+- The scraper itself lives in the repo under `fetcher/` (or in a
   separate workflow repo) and is a separate piece of work from the
   site rework.
 

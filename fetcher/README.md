@@ -1,12 +1,12 @@
-# Catalog scraper
+# Catalog fetcher
 
-Hourly batch scraper for manhwafreedev. Python 3, **standard
+Hourly batch fetcher for manhwafreedev. Python 3, **standard
 library only** (urllib, html.parser) — GitHub Actions needs no
 setup step beyond checkout.
 
 ## Links-only model
 
-The scraper collects **links, never image data**: title metadata
+The fetcher collects **links, never image data**: title metadata
 (title, cover link, synopsis, status, genres) and the chapter list
 (number, title, link, id, date). It never fetches chapter pages.
 Chapter images are resolved live by the reader (`lib/client.php`)
@@ -49,11 +49,11 @@ loading them directly.
 ## Run it
 
 ```sh
-python3 scraper/scrape.py                    # hourly run
-python3 scraper/scrape.py --sources zinmanga # one source only
-python3 scraper/scrape.py --dry-run          # scrape, write nothing
-python3 scraper/scrape.py --seed --max-seconds 900 --max-requests 600  # seed pass
-python3 scraper/scrape.py --max-seconds 300 --max-requests 400
+python3 fetcher/scrape.py                    # hourly run
+python3 fetcher/scrape.py --sources zinmanga # one source only
+python3 fetcher/scrape.py --dry-run          # scrape, write nothing
+python3 fetcher/scrape.py --seed --max-seconds 900 --max-requests 600  # seed pass
+python3 fetcher/scrape.py --max-seconds 300 --max-requests 400
 ```
 
 ## Budgets (private repo: 2,000 Actions min/month, 720 runs)
@@ -148,7 +148,7 @@ open) and retried every run.
 ## Adding sources
 
 Edit `docs/manhwa-sources.json` and regenerate the registry
-(`tools/build-sources-registry.py`). The scraper picks up any
+(`tools/build-sources-registry.py`). The fetcher picks up any
 source matching the v1 filter on the next run. A source that is
 Cloudflare-challenged or 403 from datacenter IPs goes in
 `V1_EXCLUDE` with the date and reason (see `dragontea`).
@@ -168,7 +168,7 @@ Non-Madara themes need an adapter + parser before they can join.
   whose list is loaded some other way shows its titles with no
   chapters until an adapter for it exists; those titles are
   retried every run (`no_chapters` in state).
-- Chapter images are never fetched by the scraper; the reader
+- Chapter images are never fetched by the fetcher; the reader
   resolves them live. A chapter whose source is down at read time
   shows the honest "no images" box until the source answers.
 - No login-required sources, no comix, no JS rendering. Anything

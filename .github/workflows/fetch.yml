@@ -3,7 +3,7 @@
 # Runs the stdlib-only Python fetcher and commits ONLY its outputs
 # back to main: data/catalog.json, data/titles/*.json,
 # data/image-hosts.json, data/image-referers.json and
-# scraper/state.json. Never docs/, lib/, or the registry. Then it
+# fetcher/state.json. Never docs/, lib/, or the registry. Then it
 # FTPs the site code AND the catalog outputs to the live site
 # (InfinityFree, /htdocs/) using the repo secrets FTP_USERNAME and
 # FTP_PASSWORD — add both under Settings → Secrets and variables →
@@ -36,13 +36,13 @@ jobs:
           fetch-depth: 0
 
       - name: Run fetcher
-        run: python3 scraper/scrape.py
+        run: python3 fetcher/scrape.py
 
       - name: Commit catalog outputs
         run: |
           git config user.name "manhwafreedev-fetcher"
           git config user.email "fetcher@manhwafreedev.local"
-          git add data/catalog.json data/image-hosts.json data/image-referers.json data/source-patterns.json scraper/state.json
+          git add data/catalog.json data/image-hosts.json data/image-referers.json data/source-patterns.json fetcher/state.json
           git add data/titles 2>/dev/null || true
           git diff --cached --quiet || git commit -m "Fetch catalog $(date -u +%Y-%m-%dT%H:%M:%SZ)"
           git push
