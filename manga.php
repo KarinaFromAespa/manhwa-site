@@ -62,6 +62,10 @@ if (!empty($m['copies']) && $m['copies'] > 1) {
 if ($m['genres'] !== []) {
     echo '<p class="genres">' . implode('', array_map(fn($g) => '<span class="genre">' . h($g) . '</span>', $m['genres'])) . '</p>';
 }
+$englishAlts = Catalog::englishAltTitles($m['alt_titles'] ?? []);
+if ($englishAlts !== []) {
+    echo '<p class="muted alt-titles">Also known as: ' . h(implode(', ', $englishAlts)) . '</p>';
+}
 if ($m['synopsis'] !== '') {
     $syn = trim($m['synopsis']);
     $syn = preg_replace('/^.+?\bis a (?:Manga|Manhwa|Manhua)(?:\/(?:Manga|Manhwa|Manhua))* in english language,.*?english chapters have been \w*(?:\x{2026}|\.)?\s*/isu', '', $syn);

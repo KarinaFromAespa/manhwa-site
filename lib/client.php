@@ -87,6 +87,7 @@ class SiteClient
                 'genres' => $t['genres'],
                 'updated' => $t['updated'],
                 'copies' => $t['copies'],
+                'alt_titles' => $t['alt_titles'] ?? [],
             ]];
         }
         return $this->comix->detail($id);

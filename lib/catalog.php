@@ -532,6 +532,41 @@ class Catalog
         return $t['alt_titles'] ?? [];
     }
 
+    // Alternative names, English only, for the title page. Sources
+    // sometimes mash several alternative names into one entry with
+    // no delimiter, so a long entry is split on the bullet, on
+    // , / |, and on a lowercase letter running straight into an
+    // uppercase one. Names in a non-Latin script (CJK, Hangul,
+    // Hiragana, Katakana, Cyrillic, Arabic) are dropped.
+    public static function englishAltTitles(array $alts): array
+    {
+        $out = [];
+        foreach ($alts as $alt) {
+            $parts = preg_split('/\s*[•,|\/]\s*/u', (string) $alt) ?: [];
+            foreach ($parts as $p) {
+                $p = trim($p);
+                if ($p === '') {
+                    continue;
+                }
+                $pieces = [$p];
+                if (mb_strlen($p) > 60) {
+                    $pieces = preg_split('/(?<=[a-z])(?=[A-Z])/u', $p) ?: [$p];
+                }
+                foreach ($pieces as $piece) {
+                    $piece = trim($piece);
+                    if (mb_strlen($piece) < 2) {
+                        continue;
+                    }
+                    if (preg_match('/[^\x{0000}-\x{024F}\x{1E00}-\x{1EFF}]/u', $piece)) {
+                        continue;
+                    }
+                    $out[] = $piece;
+                }
+            }
+        }
+        return array_values(array_unique($out));
+    }
+
     private static function registryById(): array
     {
         static $byId = null;

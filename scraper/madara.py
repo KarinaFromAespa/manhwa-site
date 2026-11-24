@@ -563,7 +563,7 @@ def parse_detail(html, base, slug):
         elif "alternative" in heading or "alt name" in heading:
             raw = text(content)
             alt_titles = [
-                part.strip() for part in re.split(r"[,/|]", raw)
+                part.strip() for part in re.split(r"[,/|•]", raw)
                 if part.strip()
             ]
     chapters = parse_chapter_list_html(html, base)
