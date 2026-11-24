@@ -60,7 +60,11 @@ abstract class BaseAdapter implements SourceAdapter
             }
             return self::err('network', 'The source could not be reached.');
         }
-        if ($code === 403 && (str_contains($body, 'Just a moment') || str_contains($body, 'cf-chl') || str_contains($body, 'challenges.cloudflare.com'))) {
+        // A Cloudflare JS challenge often returns HTTP 200, not 403,
+        // with a 'Just a moment' page and no real content. Treat a
+        // challenge body as a block at any HTTP code, so the reader
+        // reports the cause instead of 'no images'.
+        if (str_contains($body, 'Just a moment') || str_contains($body, 'cf-chl') || str_contains($body, 'challenges.cloudflare.com') || str_contains($body, 'cf-turnstile')) {
             return self::err('cloudflare', 'Access is being challenged and this server cannot pass the check. The content cannot be loaded right now.');
         }
         if ($code === 403) {
