@@ -46,7 +46,7 @@ h2 { font-size: 1.2rem; margin: 28px 0 12px; letter-spacing: -0.01em; }
 }
 .brand { font-size: 1.35rem; font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
 .brand:hover { text-decoration: none; color: var(--accent); }
-.search { display: flex; gap: 8px; flex: 1; min-width: 180px; }
+.search { display: flex; gap: 8px; flex: 0 1 340px; min-width: 180px; }
 .search input {
     flex: 1; min-width: 0; padding: 9px 12px;
     border: 1px solid var(--border); border-radius: 8px;
@@ -58,9 +58,14 @@ h2 { font-size: 1.2rem; margin: 28px 0 12px; letter-spacing: -0.01em; }
     background: var(--surface-3); color: var(--text); cursor: pointer; font: inherit;
 }
 .search button:hover { border-color: var(--accent); }
-.site-header nav { display: flex; gap: 16px; margin-left: auto; }
-.site-header nav a { color: var(--muted); font-weight: 600; }
-.site-header nav a:hover { color: var(--text); text-decoration: none; }
+/* Genre select in the header, beside the search box (browse page only). */
+.genre-select { display: flex; gap: 8px; align-items: center; }
+.genre-select select {
+    padding: 9px 10px; border: 1px solid var(--border); border-radius: 8px;
+    background: var(--surface-2); color: var(--text); font: inherit; cursor: pointer;
+    max-width: 200px;
+}
+.genre-select a { font-weight: 600; white-space: nowrap; }
 
 main { padding: 24px 0 48px; }
 
@@ -143,20 +148,6 @@ main { padding: 24px 0 48px; }
     background: var(--surface-2); color: var(--text); font: inherit; cursor: pointer;
 }
 
-/* --- Genre filter (browse page; same compact pattern as the scanlator selector) --- */
-.genre-filter {
-    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-    margin: 0 0 18px; padding: 12px 14px;
-    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-}
-.genre-filter label { font-weight: 700; }
-.genre-filter select {
-    flex: 1; min-width: 200px; padding: 9px 10px;
-    border: 1px solid var(--border); border-radius: 8px;
-    background: var(--surface-2); color: var(--text); font: inherit; cursor: pointer;
-}
-.genre-filter a { font-weight: 600; white-space: nowrap; }
-
 /* --- Chapter list --- */
 .chapters { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--border); }
 .chapters li {
@@ -211,8 +202,6 @@ main { padding: 24px 0 48px; }
 @media (min-width: 700px) {
     .scanlator { width: fit-content; max-width: 100%; }
     .scanlator select { max-width: 320px; }
-    .genre-filter { width: fit-content; max-width: 100%; }
-    .genre-filter select { max-width: 320px; }
     .hero { flex-wrap: nowrap; }
     .hero-cover { width: 240px; }
     h1 { font-size: 1.9rem; }
