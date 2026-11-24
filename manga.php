@@ -63,7 +63,12 @@ if ($m['genres'] !== []) {
     echo '<p class="genres">' . implode('', array_map(fn($g) => '<span class="genre">' . h($g) . '</span>', $m['genres'])) . '</p>';
 }
 if ($m['synopsis'] !== '') {
-    echo '<p class="synopsis">' . h($m['synopsis']) . '</p>';
+    $syn = trim($m['synopsis']);
+    $syn = preg_replace('/^.+?\bis a (?:Manga|Manhwa|Manhua)(?:\/(?:Manga|Manhwa|Manhua))* in english language,.*?english chapters have been \w*(?:\x{2026}|\.)?\s*/isu', '', $syn);
+    $syn = trim($syn ?? '');
+    if ($syn !== '') {
+        echo '<p class="synopsis">' . h($syn) . '</p>';
+    }
 }
 echo '</div></div>';
 
@@ -98,13 +103,27 @@ if (!$chapters['ok']) {
         $scanQs = ($scan !== 'all') ? '&amp;scan=' . rawurlencode($scan) : '';
         echo '<ul class="chapters">';
         foreach ($list as $c) {
-            $label = $c['number'] !== '' ? 'Chapter ' . $c['number'] : ($c['title'] !== '' ? $c['title'] : 'Chapter ' . $c['id']);
+            $num = $c['number'];
+            $title = trim($c['title'] ?? '');
+            $extra = '';
+            if ($num !== '') {
+                $label = 'Chapter ' . $num;
+                if ($title !== '') {
+                    if (preg_match('/^chapter\s*(\d+(?:\.\d+)?)(?:\s*[:\-–—]?\s*(.*))?$/i', $title, $m) && (float) $m[1] === (float) $num) {
+                        $extra = $m[2] ?? '';
+                    } else {
+                        $extra = $title;
+                    }
+                }
+            } else {
+                $label = $title !== '' ? $title : 'Chapter ' . $c['id'];
+            }
             if (!empty($c['alt'])) {
                 $label .= ' (alt)';
             }
             echo '<li><a class="chapter-link" href="read.php?slug=' . rawurlencode($slug) . '&amp;chapter=' . rawurlencode($c['id']) . $scanQs . '">'
                 . '<span class="chapter-num">' . h($label) . '</span>'
-                . ($c['title'] !== '' && $c['number'] !== '' ? '<span class="chapter-title">' . h($c['title']) . '</span>' : '')
+                . ($extra !== '' ? '<span class="chapter-title">' . h($extra) . '</span>' : '')
                 . '</a>' . ($c['date'] !== '' ? '<span class="muted"> ' . h($c['date']) . '</span>' : '');
             if (!empty($c['copies']) && $c['copies'] > 1) {
                 echo ' <span class="muted">(' . (int) $c['copies'] . ' copies)</span>';
