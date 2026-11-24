@@ -1,9 +1,9 @@
-# Code-only deploy for manhwafreedev.
+# TEMPORARY one-off data deploy for manhwafreedev.
 #
-# Uploads ONLY the site code (PHP + CSS) to the live site via FTP.
-# Does NOT run the fetcher and does NOT touch the catalog, so the
-# live data stays exactly as it is. Used when site code changes need
-# to go live without a fetch.
+# Same as the code-only deploy, but ALSO uploads the catalog data
+# files and deletes the merged-away loser detail file, so the
+# Barbarian duplicate merge reaches the live site without
+# re-running the fetcher. REVERT to code-only after this deploy.
 name: Deploy Site Code
 
 on:
@@ -40,8 +40,9 @@ jobs:
           export FTP_USER FTP_PASS
           export -f upload_one
           {
-            for f in .htaccess index.php manga.php read.php img.php api.php yubkzrmdwv.php lib/*.php lib/adapters/*.php assets/style.css; do
+            for f in .htaccess index.php manga.php read.php img.php api.php yubkzrmdwv.php lib/*.php lib/adapters/*.php assets/style.css data/catalog.json data/image-hosts.json data/image-referers.json data/source-patterns.json data/titles/*.json; do
               printf '%s\n' "$f"
             done
           } | xargs -P 4 -I{} bash -c 'upload_one "$@"' _ {}
           curl -s --max-time 30 -u "$FTP_USER:$FTP_PASS" "ftp://ftpupload.net/htdocs/" -Q "-DELE status.php" || true
+          curl -s --max-time 30 -u "$FTP_USER:$FTP_PASS" "ftp://ftpupload.net/htdocs/" -Q "-DELE data/titles/barbarian-from-the-middle-ages.json" || true
