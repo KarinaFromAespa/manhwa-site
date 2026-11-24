@@ -105,8 +105,8 @@ $nav = function ($row, string $label) use ($slug, $scanQs) {
         . h($label) . ' ' . h($text) . '</a>';
 };
 echo '<nav class="reader-nav">'
-    . $nav($navPrev, '&larr; Previous')
-    . $nav($navNext, 'Next &rarr;')
+    . $nav($navPrev, '← Previous')
+    . $nav($navNext, 'Next →')
     . '</nav>';
 
 echo '<div class="reader">';
@@ -120,8 +120,8 @@ foreach ($images as $img) {
 echo '</div>';
 
 echo '<nav class="reader-nav">'
-    . $nav($navPrev, '&larr; Previous')
-    . $nav($navNext, 'Next &rarr;')
+    . $nav($navPrev, '← Previous')
+    . $nav($navNext, 'Next →')
     . '</nav>';
 echo '<p><a href="manga.php?slug=' . rawurlencode($slug) . '">&larr; Back to title</a></p>';
 
