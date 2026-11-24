@@ -672,7 +672,22 @@
   "s2manga|manga/why-she-helps-the-villain": "why-she-helps-the-villain",
   "s2manga|manga/the-calamity-prince-desires-the-fake-princess": "the-calamity-prince-desires-the-fake-princess",
   "topmanhua-fan|manhua/an-affair-with-my-knight": "an-affair-with-my-knight",
-  "zinmanga|manga/the-secretary-of-my-ex-favorite-character": "the-secretary-of-my-ex-favorite-character"
+  "zinmanga|manga/the-secretary-of-my-ex-favorite-character": "the-secretary-of-my-ex-favorite-character",
+  "manhuahot|manga/bloom-from-mistake": "bloom-from-mistake",
+  "pornhwaz|webtoon/teachers-efforts": "teacher-s-efforts-manhwa",
+  "s2manga|manga/why-are-you-obsessed-even-though-you-re-dead": "why-are-you-obsessed-even-though-you-re-dead",
+  "s2manga|manga/sha-money-ism": "sha-money-ism",
+  "s2manga|manga/artisans-district": "artisan-s-district",
+  "s2manga|manga/the-legendary-eye-master-i-create-the-heavens-and-earth-with-my-own-eyes": "the-legendary-eye-master-i-create-the-heavens-and-earth-with-my-own-eyes",
+  "top-manhua|series/the-chaebeols-youngest-son": "the-chaebeol-s-youngest-son",
+  "zinmanga|manga/i-may-be-a-sickly-mom-but-i-ll-raise-my-fallen-son": "i-may-be-a-sickly-mom-but-i-ll-raise-my-fallen-son",
+  "zinmanga|manga/predatory-marriage": "predatory-marriage",
+  "zinmanga|manga/fragrant-contractual-relationship": "fragrant-contractual-relationship",
+  "zinmanga|manga/love-starts-with-parenting": "love-starts-with-parenting",
+  "zinmanga|manga/miyeon": "miyeon",
+  "zinmanga-net|manga/i-may-be-a-sickly-mom-but-ill-raise-my-fallen-son": "i-may-be-a-sickly-mom-but-i-ll-raise-my-fallen-son",
+  "zinmanga-net|manga/the-secretary-of-my-ex-favorite-character": "the-secretary-of-my-ex-favorite-character",
+  "zinmanga-net|manga/miyeon": "miyeon"
  },
  "sources": {
   "zinmanga": {
@@ -760,10 +775,14 @@
     [
      1795506205,
      true
+    ],
+    [
+     1795513972,
+     true
     ]
    ],
-   "last_run": 1795506205,
-   "last_ok": 1795506205,
+   "last_run": 1795513972,
+   "last_ok": 1795513972,
    "consecutive_failures": 0
   },
   "zinmanga-net": {
@@ -843,10 +862,14 @@
     [
      1795506205,
      true
+    ],
+    [
+     1795513972,
+     true
     ]
    ],
-   "last_run": 1795506205,
-   "last_ok": 1795506205,
+   "last_run": 1795513972,
+   "last_ok": 1795513972,
    "consecutive_failures": 0
   },
   "manhua-plus": {
@@ -914,10 +937,14 @@
     [
      1795506205,
      true
+    ],
+    [
+     1795513972,
+     true
     ]
    ],
-   "last_run": 1795506205,
-   "last_ok": 1795506205,
+   "last_run": 1795513972,
+   "last_ok": 1795513972,
    "consecutive_failures": 0,
    "seed_page": 11
   },
@@ -982,10 +1009,14 @@
     [
      1795506205,
      true
+    ],
+    [
+     1795513972,
+     true
     ]
    ],
-   "last_run": 1795506205,
-   "last_ok": 1795506205,
+   "last_run": 1795513972,
+   "last_ok": 1795513972,
    "consecutive_failures": 0,
    "seed_page": 11
   },
@@ -1050,11 +1081,15 @@
     [
      1795506205,
      true
+    ],
+    [
+     1795513972,
+     true
     ]
    ],
-   "last_run": 1795506205,
+   "last_run": 1795513972,
    "consecutive_failures": 0,
-   "last_ok": 1795506205
+   "last_ok": 1795513972
   },
   "ap-comics": {
    "attempts": [
@@ -1117,10 +1152,14 @@
     [
      1795506205,
      true
+    ],
+    [
+     1795513972,
+     true
     ]
    ],
-   "last_run": 1795506205,
-   "last_ok": 1795506205,
+   "last_run": 1795513972,
+   "last_ok": 1795513972,
    "consecutive_failures": 0
   },
   "manhuahot": {
@@ -1180,10 +1219,14 @@
     [
      1795506205,
      true
+    ],
+    [
+     1795513972,
+     true
     ]
    ],
-   "last_run": 1795506205,
-   "last_ok": 1795506205,
+   "last_run": 1795513972,
+   "last_ok": 1795513972,
    "consecutive_failures": 0
   },
   "manhuanext": {
@@ -1243,11 +1286,15 @@
     [
      1795506205,
      true
+    ],
+    [
+     1795513972,
+     true
     ]
    ],
-   "last_run": 1795506205,
+   "last_run": 1795513972,
    "consecutive_failures": 0,
-   "last_ok": 1795506205
+   "last_ok": 1795513972
   },
   "manhwa-reads": {
    "attempts": [
@@ -1306,10 +1353,14 @@
     [
      1795506205,
      true
+    ],
+    [
+     1795513972,
+     true
     ]
    ],
-   "last_run": 1795506205,
-   "last_ok": 1795506205,
+   "last_run": 1795513972,
+   "last_ok": 1795513972,
    "consecutive_failures": 0
   },
   "manhwaden": {
@@ -1369,11 +1420,15 @@
     [
      1795506205,
      true
+    ],
+    [
+     1795513972,
+     false
     ]
    ],
-   "last_run": 1795506205,
+   "last_run": 1795513972,
    "last_ok": 1795506205,
-   "consecutive_failures": 0
+   "consecutive_failures": 1
   },
   "manhwanex": {
    "attempts": [
@@ -1436,10 +1491,14 @@
     [
      1795506205,
      true
+    ],
+    [
+     1795513972,
+     true
     ]
    ],
-   "last_run": 1795506205,
-   "last_ok": 1795506205,
+   "last_run": 1795513972,
+   "last_ok": 1795513972,
    "consecutive_failures": 0
   },
   "pornhwaz": {
@@ -1499,10 +1558,14 @@
     [
      1795506205,
      true
+    ],
+    [
+     1795513972,
+     true
     ]
    ],
-   "last_run": 1795506205,
-   "last_ok": 1795506205,
+   "last_run": 1795513972,
+   "last_ok": 1795513972,
    "consecutive_failures": 0
   },
   "top-manhua": {
@@ -1562,10 +1625,14 @@
     [
      1795506205,
      true
+    ],
+    [
+     1795513972,
+     true
     ]
    ],
-   "last_run": 1795506205,
-   "last_ok": 1795506205,
+   "last_run": 1795513972,
+   "last_ok": 1795513972,
    "consecutive_failures": 0
   },
   "topmanhua-fan": {
@@ -1625,10 +1692,14 @@
     [
      1795506205,
      true
+    ],
+    [
+     1795513972,
+     true
     ]
    ],
-   "last_run": 1795506205,
-   "last_ok": 1795506205,
+   "last_run": 1795513972,
+   "last_ok": 1795513972,
    "consecutive_failures": 0
   },
   "topmanhua-net": {
@@ -1688,10 +1759,14 @@
     [
      1795506205,
      true
+    ],
+    [
+     1795513972,
+     true
     ]
    ],
-   "last_run": 1795506205,
-   "last_ok": 1795506205,
+   "last_run": 1795513972,
+   "last_ok": 1795513972,
    "consecutive_failures": 0
   }
  },
@@ -4975,10 +5050,10 @@
     "manhua-plus": {
      "slug": "manga/tales-of-demons-and-gods01",
      "last_chapter": "539.6",
-     "last_chapter_date": "2026-11-23",
+     "last_chapter_date": "2026-11-24",
      "chapter_count": 521,
      "chapter_hash": "e76dffed7477",
-     "last_seen": 1795485966,
+     "last_seen": 1795513972,
      "no_chapters": false,
      "author": "Mad Snail"
     },
@@ -5002,7 +5077,7 @@
      "last_chapter_date": "5 seconds ago",
      "chapter_count": 941,
      "chapter_hash": "803bc551dfb4",
-     "last_seen": 1795506205,
+     "last_seen": 1795513972,
      "no_chapters": false,
      "author": ", Nightingale (Original)No Two Comics"
     },
@@ -5190,7 +5265,7 @@
      "last_chapter_date": "2025-12-04",
      "chapter_count": 194,
      "chapter_hash": "f190caf60a14",
-     "last_seen": 1795506205,
+     "last_seen": 1795513972,
      "no_chapters": false,
      "author": "Wine Pool Inebriation"
     }
@@ -5204,7 +5279,7 @@
      "last_chapter_date": "2025-09-19",
      "chapter_count": 16,
      "chapter_hash": "12f842df24a3",
-     "last_seen": 1795506205,
+     "last_seen": 1795513972,
      "no_chapters": false,
      "author": "原点格子漫画"
     },
@@ -7018,7 +7093,7 @@
      "last_chapter_date": "",
      "chapter_count": 2,
      "chapter_hash": "721475bad8c4",
-     "last_seen": 1795504693,
+     "last_seen": 1795513972,
      "no_chapters": true,
      "author": ""
     }
@@ -7112,11 +7187,11 @@
    "sources": {
     "s2manga": {
      "slug": "manga/are-you-saying-im-going-to-become-the-favorite-daughter-in-law",
-     "last_chapter": "15",
+     "last_chapter": "20",
      "last_chapter_date": "2026-11-23",
-     "chapter_count": 16,
-     "chapter_hash": "cfec97531589",
-     "last_seen": 1795503169,
+     "chapter_count": 21,
+     "chapter_hash": "335341465384",
+     "last_seen": 1795513972,
      "no_chapters": false,
      "author": "Marmello , Massi"
     }
@@ -8756,7 +8831,7 @@
      "last_chapter_date": "",
      "chapter_count": 2,
      "chapter_hash": "0b8ee7e8af26",
-     "last_seen": 1795504693,
+     "last_seen": 1795513972,
      "no_chapters": true,
      "author": ""
     }
@@ -8943,6 +9018,16 @@
      "last_seen": 1795486618,
      "no_chapters": false,
      "author": ""
+    },
+    "s2manga": {
+     "slug": "manga/sha-money-ism",
+     "last_chapter": "70",
+     "last_chapter_date": "2026-11-23",
+     "chapter_count": 72,
+     "chapter_hash": "6726ee1b017a",
+     "last_seen": 1795513972,
+     "no_chapters": false,
+     "author": "Narack, YOUNG GI"
     }
    }
   },
@@ -8997,6 +9082,16 @@
      "chapter_count": 53,
      "chapter_hash": "9f3078a7677c",
      "last_seen": 1795486618,
+     "no_chapters": false,
+     "author": ""
+    },
+    "s2manga": {
+     "slug": "manga/why-are-you-obsessed-even-though-you-re-dead",
+     "last_chapter": "53",
+     "last_chapter_date": "2026-11-23",
+     "chapter_count": 53,
+     "chapter_hash": "2f914b274456",
+     "last_seen": 1795513972,
      "no_chapters": false,
      "author": ""
     }
@@ -9711,6 +9806,16 @@
      "last_seen": 1795488349,
      "no_chapters": false,
      "author": ""
+    },
+    "s2manga": {
+     "slug": "manga/the-legendary-eye-master-i-create-the-heavens-and-earth-with-my-own-eyes",
+     "last_chapter": "6",
+     "last_chapter_date": "2026-11-23",
+     "chapter_count": 7,
+     "chapter_hash": "ff5a94657848",
+     "last_seen": 1795513972,
+     "no_chapters": false,
+     "author": ""
     }
    }
   },
@@ -9962,7 +10067,7 @@
      "last_chapter_date": "",
      "chapter_count": 2,
      "chapter_hash": "a1604b5ae5c3",
-     "last_seen": 1795506205,
+     "last_seen": 1795513972,
      "no_chapters": true,
      "author": ""
     }
@@ -9976,7 +10081,7 @@
      "last_chapter_date": "",
      "chapter_count": 2,
      "chapter_hash": "5e513c213dc1",
-     "last_seen": 1795506205,
+     "last_seen": 1795513972,
      "no_chapters": true,
      "author": ""
     }
@@ -10242,7 +10347,7 @@
      "last_chapter_date": "",
      "chapter_count": 94,
      "chapter_hash": "c464545f9944",
-     "last_seen": 1795506205,
+     "last_seen": 1795513972,
      "no_chapters": false,
      "author": "ONE"
     }
@@ -11138,7 +11243,7 @@
      "last_chapter_date": "2026-11-02",
      "chapter_count": 231,
      "chapter_hash": "2b17562f3593",
-     "last_seen": 1795506205,
+     "last_seen": 1795513972,
      "no_chapters": false,
      "author": "KUBO Tite"
     }
@@ -11250,7 +11355,7 @@
      "last_chapter_date": "",
      "chapter_count": 2,
      "chapter_hash": "86ef0012888c",
-     "last_seen": 1795506205,
+     "last_seen": 1795513972,
      "no_chapters": true,
      "author": ""
     }
@@ -11489,6 +11594,16 @@
      "chapter_count": 17,
      "chapter_hash": "592f4a804913",
      "last_seen": 1795492498,
+     "no_chapters": false,
+     "author": "Saha"
+    },
+    "zinmanga": {
+     "slug": "manga/predatory-marriage",
+     "last_chapter": "",
+     "last_chapter_date": "",
+     "chapter_count": 102,
+     "chapter_hash": "f1de10cb5631",
+     "last_seen": 1795513972,
      "no_chapters": false,
      "author": "Saha"
     }
@@ -11792,7 +11907,7 @@
      "last_chapter_date": "2026-11-03",
      "chapter_count": 132,
      "chapter_hash": "8338567773ea",
-     "last_seen": 1795506205,
+     "last_seen": 1795513972,
      "no_chapters": false,
      "author": "MATSUMOTO Kengo"
     }
@@ -12222,7 +12337,7 @@
      "last_chapter_date": "2026-11-02",
      "chapter_count": 162,
      "chapter_hash": "909b3d283964",
-     "last_seen": 1795506205,
+     "last_seen": 1795513972,
      "no_chapters": false,
      "author": "YAGI Norihiro"
     }
@@ -12600,7 +12715,7 @@
      "last_chapter_date": "",
      "chapter_count": 159,
      "chapter_hash": "e96e3d53779d",
-     "last_seen": 1795506205,
+     "last_seen": 1795513972,
      "no_chapters": false,
      "author": ", Kim Jung-HyunUpdating"
     }
@@ -12614,7 +12729,7 @@
      "last_chapter_date": "11/19/2026",
      "chapter_count": 195,
      "chapter_hash": "87c78904cd2a",
-     "last_seen": 1795506205,
+     "last_seen": 1795513972,
      "no_chapters": false,
      "author": ",,, Na Min ChaeNFToon (JANG)Suzuki Misaki, Rei Gotoh, JANG, Na Min ChaeUpdating"
     }
@@ -12998,11 +13113,11 @@
    "sources": {
     "s2manga": {
      "slug": "manga/doted-on-by-the-military-god-despite-an-arranged-marriage-for-children",
-     "last_chapter": "14",
+     "last_chapter": "17",
      "last_chapter_date": "2026-11-23",
-     "chapter_count": 15,
-     "chapter_hash": "476574740dad",
-     "last_seen": 1795503169,
+     "chapter_count": 18,
+     "chapter_hash": "0e70ad935859",
+     "last_seen": 1795513972,
      "no_chapters": false,
      "author": "Hirune, Kakubo Chisato, Watano Yunomi, Tanihara, SHERPA STUDIO, StudioV"
     }
@@ -13296,7 +13411,7 @@
      "last_chapter_date": "",
      "chapter_count": 171,
      "chapter_hash": "e100302cff0f",
-     "last_seen": 1795506205,
+     "last_seen": 1795513972,
      "no_chapters": false,
      "author": "Go eunchae"
     }
@@ -13310,7 +13425,7 @@
      "last_chapter_date": "",
      "chapter_count": 51,
      "chapter_hash": "25b1fac95e79",
-     "last_seen": 1795506205,
+     "last_seen": 1795513972,
      "no_chapters": false,
      "author": "Team Four Leaf"
     }
@@ -13324,7 +13439,7 @@
      "last_chapter_date": "",
      "chapter_count": 41,
      "chapter_hash": "9e9ae1153645",
-     "last_seen": 1795506205,
+     "last_seen": 1795513972,
      "no_chapters": false,
      "author": ",,,, CaesarHwangto scidieN/AUpdating황토"
     }
@@ -13338,7 +13453,7 @@
      "last_chapter_date": "",
      "chapter_count": 279,
      "chapter_hash": "7d6516ce1967",
-     "last_seen": 1795506205,
+     "last_seen": 1795513972,
      "no_chapters": false,
      "author": ",, Updating羽栖羽栖动漫"
     }
@@ -13436,9 +13551,151 @@
      "last_chapter_date": "",
      "chapter_count": 46,
      "chapter_hash": "73aa2c6363d4",
-     "last_seen": 1795506205,
+     "last_seen": 1795513972,
      "no_chapters": false,
      "author": "Awoolkim"
+    },
+    "zinmanga-net": {
+     "slug": "manga/the-secretary-of-my-ex-favorite-character",
+     "last_chapter": "46",
+     "last_chapter_date": "2026-11-24",
+     "chapter_count": 47,
+     "chapter_hash": "6496294b59ac",
+     "last_seen": 1795513972,
+     "no_chapters": false,
+     "author": ""
+    }
+   }
+  },
+  "bloom-from-mistake": {
+   "sources": {
+    "manhuahot": {
+     "slug": "manga/bloom-from-mistake",
+     "last_chapter": "",
+     "last_chapter_date": "",
+     "chapter_count": 0,
+     "chapter_hash": "da39a3ee5e6b",
+     "last_seen": 1795513972,
+     "no_chapters": false,
+     "author": ""
+    }
+   }
+  },
+  "teacher-s-efforts-manhwa": {
+   "sources": {
+    "pornhwaz": {
+     "slug": "webtoon/teachers-efforts",
+     "last_chapter": "121",
+     "last_chapter_date": "",
+     "chapter_count": 120,
+     "chapter_hash": "72d965485ecd",
+     "last_seen": 1795513972,
+     "no_chapters": false,
+     "author": "Haron"
+    }
+   }
+  },
+  "artisan-s-district": {
+   "sources": {
+    "s2manga": {
+     "slug": "manga/artisans-district",
+     "last_chapter": "35",
+     "last_chapter_date": "2026-11-23",
+     "chapter_count": 36,
+     "chapter_hash": "eea31f971d85",
+     "last_seen": 1795513972,
+     "no_chapters": false,
+     "author": ""
+    }
+   }
+  },
+  "the-chaebeol-s-youngest-son": {
+   "sources": {
+    "top-manhua": {
+     "slug": "series/the-chaebeols-youngest-son",
+     "last_chapter": "236",
+     "last_chapter_date": "11/19/2026",
+     "chapter_count": 238,
+     "chapter_hash": "5aec379b685f",
+     "last_seen": 1795513972,
+     "no_chapters": false,
+     "author": ",,,, JPJp, sk(산경)Naver SeriesSangyeongUpdating"
+    }
+   }
+  },
+  "i-may-be-a-sickly-mom-but-i-ll-raise-my-fallen-son": {
+   "sources": {
+    "zinmanga": {
+     "slug": "manga/i-may-be-a-sickly-mom-but-i-ll-raise-my-fallen-son",
+     "last_chapter": "51",
+     "last_chapter_date": "",
+     "chapter_count": 51,
+     "chapter_hash": "ada2cf3ad5d4",
+     "last_seen": 1795513972,
+     "no_chapters": false,
+     "author": ", N/Aoookami"
+    },
+    "zinmanga-net": {
+     "slug": "manga/i-may-be-a-sickly-mom-but-ill-raise-my-fallen-son",
+     "last_chapter": "51",
+     "last_chapter_date": "2026-11-24",
+     "chapter_count": 51,
+     "chapter_hash": "114c3026f800",
+     "last_seen": 1795513972,
+     "no_chapters": false,
+     "author": ""
+    }
+   }
+  },
+  "fragrant-contractual-relationship": {
+   "sources": {
+    "zinmanga": {
+     "slug": "manga/fragrant-contractual-relationship",
+     "last_chapter": "42",
+     "last_chapter_date": "",
+     "chapter_count": 42,
+     "chapter_hash": "4ecd00a1b164",
+     "last_seen": 1795513972,
+     "no_chapters": false,
+     "author": ", N/ATorang"
+    }
+   }
+  },
+  "love-starts-with-parenting": {
+   "sources": {
+    "zinmanga": {
+     "slug": "manga/love-starts-with-parenting",
+     "last_chapter": "46",
+     "last_chapter_date": "",
+     "chapter_count": 46,
+     "chapter_hash": "c0fd5ee8f663",
+     "last_seen": 1795513972,
+     "no_chapters": false,
+     "author": ", N/Aoookami"
+    }
+   }
+  },
+  "miyeon": {
+   "sources": {
+    "zinmanga": {
+     "slug": "manga/miyeon",
+     "last_chapter": "63",
+     "last_chapter_date": "",
+     "chapter_count": 63,
+     "chapter_hash": "63cd6e2b4653",
+     "last_seen": 1795513972,
+     "no_chapters": false,
+     "author": ", Seonyeserny"
+    },
+    "zinmanga-net": {
+     "slug": "manga/miyeon",
+     "last_chapter": "63",
+     "last_chapter_date": "2026-11-24",
+     "chapter_count": 64,
+     "chapter_hash": "44e80ecca00c",
+     "last_seen": 1795513972,
+     "no_chapters": false,
+     "author": ""
     }
    }
   }
