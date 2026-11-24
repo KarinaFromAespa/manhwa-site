@@ -104,12 +104,15 @@ main { padding: 24px 0 48px; }
 }
 .card-updated { display: block; padding: 2px 10px 10px; color: var(--muted); font-size: 0.82rem; }
 
-.pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 28px; }
-.pager a {
-    padding: 10px 18px; border: 1px solid var(--border); border-radius: 8px;
+.pager { display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 28px; }
+.pager a, .pager-current, .pager-disabled {
+    padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px;
     background: var(--surface-2); color: var(--text); font-weight: 600;
 }
 .pager a:hover { border-color: var(--accent); text-decoration: none; }
+.pager-current { border-color: var(--accent); background: var(--accent-soft); }
+.pager-disabled { color: var(--muted); opacity: 0.55; }
+.pager-ellipsis { color: var(--muted); padding: 10px 4px; }
 
 /* --- Title hero --- */
 .hero { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; margin-bottom: 8px; }

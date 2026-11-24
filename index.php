@@ -55,9 +55,55 @@ if (!$res['ok']) {
         echo '<div class="pager">';
         if ($page > 1) {
             echo '<a href="index.php?page=' . ($page - 1) . $extra . '">&larr; Previous</a>';
+        } else {
+            echo '<span class="pager-disabled">&larr; Previous</span>';
+        }
+        // Numbered pages: first, last, and a window of 2 on each side
+        // of the current page, with an ellipsis where pages are
+        // skipped. Page size is 24, matching listTitles.
+        $perPage = 24;
+        $totalPages = $total !== null ? max(1, (int) ceil($total / $perPage)) : null;
+        $pages = [];
+        if ($totalPages !== null) {
+            $want = [1, $totalPages];
+            for ($pn = $page - 2; $pn <= $page + 2; $pn++) {
+                if ($pn >= 1 && $pn <= $totalPages) {
+                    $want[] = $pn;
+                }
+            }
+            $want = array_unique($want);
+            sort($want, SORT_NUMERIC);
+            $prevPn = 0;
+            foreach ($want as $pn) {
+                if ($prevPn !== 0 && $pn - $prevPn > 1) {
+                    $pages[] = 0; // ellipsis
+                }
+                $pages[] = $pn;
+                $prevPn = $pn;
+            }
+        } else {
+            // Total unknown: show a small window around the current
+            // page, extending forward only when there is a next page.
+            for ($pn = max(1, $page - 2); $pn <= $page; $pn++) {
+                $pages[] = $pn;
+            }
+            if ($hasMore) {
+                $pages[] = $page + 1;
+            }
+        }
+        foreach ($pages as $pn) {
+            if ($pn === 0) {
+                echo '<span class="pager-ellipsis">&hellip;</span>';
+            } elseif ($pn === $page) {
+                echo '<span class="pager-current">' . $pn . '</span>';
+            } else {
+                echo '<a href="index.php?page=' . $pn . $extra . '">' . $pn . '</a>';
+            }
         }
         if ($hasMore) {
             echo '<a href="index.php?page=' . ($page + 1) . $extra . '">Next &rarr;</a>';
+        } else {
+            echo '<span class="pager-disabled">Next &rarr;</span>';
         }
         echo '</div>';
     }
