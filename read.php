@@ -115,9 +115,25 @@ foreach ($images as $img) {
     if ($src === '') {
         continue;
     }
-    echo '<img loading="lazy" referrerpolicy="no-referrer" src="img.php?u=' . rawurlencode($src) . '" data-direct="' . h($src) . '" onerror="this.onerror=null;this.src=this.dataset.direct" alt="">';
+    echo '<img loading="lazy" referrerpolicy="no-referrer" src="img.php?u=' . rawurlencode($src) . '" data-direct="' . h($src) . '" onerror="readerImgError(this)" alt="">';
 }
 echo '</div>';
+// When a source's image server is down, every page image fails
+// (first the proxy, then the direct fallback) and the reader would
+// otherwise show only a blank area. Track failures: once every
+// image has failed, say so plainly instead of leaving a blank page.
+echo '<div id="reader-load-error" class="error-box" hidden><strong>The page images could not be loaded.</strong>'
+    . '<p>The source this copy comes from is not serving its images right now. '
+    . 'Try another copy if one is listed above, or try again later.</p></div>';
+echo '<script>'
+    . 'function readerImgError(img){'
+    . 'if(!img.dataset.directFailed){img.dataset.directFailed="1";img.src=img.dataset.direct;return;}'
+    . 'img.dataset.failed="1";img.style.display="none";'
+    . 'var imgs=document.querySelectorAll(".reader img");'
+    . 'var failed=0;imgs.forEach(function(i){if(i.dataset.failed==="1")failed++;});'
+    . 'if(imgs.length&&failed===imgs.length){document.getElementById("reader-load-error").hidden=false;}'
+    . '}'
+    . '</script>';
 
 echo '<nav class="reader-nav">'
     . $nav($navPrev, '← Previous')
