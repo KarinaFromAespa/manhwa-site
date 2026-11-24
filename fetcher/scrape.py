@@ -179,6 +179,27 @@ def chapter_hash(chapters):
     return hashlib.sha1(blob.encode("utf-8")).hexdigest()[:12]
 
 
+# Titles that are clearly an error page, not a work. A source
+# that serves its 404 page with a list-like shape used to create a
+# bogus "404" title (mangapark, 2026-11-24). Skip those before they
+# reach the catalog.
+_JUNK_TITLES = {
+    "404", "403", "401", "400", "500", "502", "503",
+    "not found", "page not found", "error", "oops",
+}
+
+
+def is_junk_title(title):
+    t = (title or "").strip().lower()
+    if not t:
+        return True
+    if t in _JUNK_TITLES:
+        return True
+    if re.fullmatch(r"\d{3}", t):
+        return True
+    return False
+
+
 # --- State ---
 
 def load_state(path):
@@ -519,6 +540,12 @@ class Runner:
         if not ok:
             return "failed"
         self._record_pattern(site, source_id, source_item, data)
+        if is_junk_title(data.get("title")):
+            print(
+                f"[{source_id}] skipping junk title "
+                f"{data.get('title')!r} (slug {list_item['slug']})"
+            )
+            return "failed"
         if cid is None:
             cid = self.resolve_id(data["title"], data.get("author", ""))
             self.state.setdefault("map", {})[key] = cid
@@ -782,6 +809,36 @@ class Runner:
 
     def run(self):
         sources = load_v1_sources(self.root, self.args.sources)
+        shard = getattr(self.args, "shard", None)
+        self.shard_index = None
+        self.shard_total = None
+        self.shard_out = None
+        if shard:
+            try:
+                idx, total = shard.split("/")
+                self.shard_index = int(idx)
+                self.shard_total = int(total)
+            except ValueError:
+                raise SystemExit(f"--shard must be INDEX/TOTAL, got {shard!r}")
+            if not (0 <= self.shard_index < self.shard_total):
+                raise SystemExit(
+                    f"--shard index {self.shard_index} out of range "
+                    f"for {self.shard_total} shards"
+                )
+            # Deterministic partition: sorted source ids, round-robin.
+            ordered = sorted(sources, key=lambda s: s[0])
+            sources = [
+                s for i, s in enumerate(ordered)
+                if i % self.shard_total == self.shard_index
+            ]
+            out = getattr(self.args, "shard_out", None) or (
+                f"data/shard-{self.shard_index}"
+            )
+            self.shard_out = Path(out)
+            print(
+                f"shard {self.shard_index}/{self.shard_total}: "
+                f"{len(sources)} sources -> {self.shard_out}"
+            )
         self.registry_adult = {
             sid: bool(item.get("adult", False)) for sid, item in sources
         }
@@ -800,7 +857,10 @@ class Runner:
             print(f"[{source_id}] {item['site']} ...")
             self.run_source(source_id, item)
         self.merge_duplicates()
-        self.write_outputs()
+        if self.shard_index is not None:
+            self.write_shard_outputs()
+        else:
+            self.write_outputs()
         summary = {
             "sources_ok": self.stats["sources_ok"],
             "sources_failed": self.stats["sources_failed"],
@@ -1058,6 +1118,72 @@ class Runner:
 
     # --- Output writing ---
 
+    def write_shard_outputs(self):
+        """Shard mode: write ONLY the titles this shard touched,
+        plus a manifest, into the shard-out dir. The merge job
+        combines the shards into the final catalog. Nothing is
+        written to data/ here, so shards never clobber each other."""
+        if self.args.dry_run:
+            print("dry run: not writing shard outputs")
+            return
+        out = self.shard_out
+        out.mkdir(parents=True, exist_ok=True)
+        titles_dir = out / "titles"
+        titles_dir.mkdir(parents=True, exist_ok=True)
+        entries = []
+        written = 0
+        for cid in sorted(self.touched):
+            title = self.title_files.get(cid)
+            if title is None:
+                continue
+            if write_json_if_changed(titles_dir / f"{cid}.json", title):
+                written += 1
+            updated = max(
+                (int(s.get("scraped_at", 0)) for s in title["sources"]),
+                default=0,
+            )
+            entries.append({
+                "id": cid,
+                "title": title["title"],
+                "cover": title.get("cover", ""),
+                "status": title.get("status", ""),
+                "genres": list(title.get("genres", [])),
+                "updated": updated,
+                "copies": len(title["sources"]),
+                "adult": bool(title.get("adult", False)),
+            })
+        manifest = {
+            "version": 1,
+            "shard": self.shard_index,
+            "shards": self.shard_total,
+            "generated_at": self.now,
+            "titles": entries,
+            "image_hosts": sorted(self.image_hosts),
+            "image_referers": self.image_referers,
+            "patterns": self.patterns if self.patterns_dirty else {},
+            "patterns_dirty": bool(self.patterns_dirty),
+            "stats": {
+                "sources_ok": self.stats["sources_ok"],
+                "sources_failed": self.stats["sources_failed"],
+                "titles_seen": self.stats["titles_seen"],
+                "titles_new": self.stats["titles_new"],
+                "titles_updated": self.stats["titles_updated"],
+                "titles_unchanged": self.stats["titles_unchanged"],
+                "title_pages": self.stats["title_pages"],
+                "requests": self.budget.requests,
+            },
+        }
+        write_json_atomic(out / "manifest.json", manifest)
+        print(
+            f"shard {self.shard_index}: wrote {written} title files "
+            f"and manifest ({len(entries)} entries) to {out}"
+        )
+        # State is per-source, so each shard writes its own copy;
+        # the merge job combines them.
+        state_path = out / "state.json"
+        write_json_atomic(state_path, self.state)
+        print(f"shard {self.shard_index}: wrote {state_path}")
+
     def write_outputs(self):
         if self.args.dry_run:
             print("dry run: not writing outputs")
@@ -1193,6 +1319,16 @@ def main(argv=None):
     parser.add_argument(
         "--dry-run", action="store_true",
         help="scrape but do not write any output files",
+    )
+    parser.add_argument(
+        "--shard", default=None,
+        help="shard to fetch, as INDEX/TOTAL (e.g. 0/3). "
+        "Only that slice of the v1 source list is fetched, and "
+        "output goes to --shard-out instead of data/.",
+    )
+    parser.add_argument(
+        "--shard-out", default=None,
+        help="directory for shard output (default: data/shard-<index>)",
     )
     args = parser.parse_args(argv)
     args.sources = (

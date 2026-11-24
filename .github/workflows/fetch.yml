@@ -1,17 +1,18 @@
 # Hourly catalog fetcher for manhwafreedev.
 #
-# Runs the stdlib-only Python fetcher and commits ONLY its outputs
-# back to main: data/catalog.json, data/titles/*.json,
-# data/image-hosts.json, data/image-referers.json and
-# fetcher/state.json. Never docs/, lib/, or the registry. Then it
-# FTPs the site code AND the catalog outputs to the live site
+# Parallel fetch: the v1 source list is split into 3 shards and each
+# shard runs on its own runner (matrix). A shard fetches only its
+# slice and writes just the titles it touched, plus a manifest, to
+# data/shard-N (never to data/ itself, so shards cannot clobber each
+# other). The merge job then combines the three shards on top of the
+# checked-out base catalog, commits ONLY the merged outputs back to
+# main (data/catalog.json, data/titles/*.json, data/image-hosts.json,
+# data/image-referers.json, data/source-patterns.json and
+# fetcher/state.json — never docs/, lib/, or the registry), and FTPs
+# the site code AND the catalog outputs to the live site
 # (InfinityFree, /htdocs/) using the repo secrets FTP_USERNAME and
-# FTP_PASSWORD — add both under Settings → Secrets and variables →
-# Actions. The FTP step is skipped until FTP_PASSWORD exists, so the
-# workflow is safe to run before then. Because the FTP step uploads
-# the site code from the checkout, the live site tracks main: every
-# push to main is deployed within the hour (and immediately on a
-# manual dispatch), so no separate manual FTP deploy is needed.
+# FTP_PASSWORD. The FTP upload runs 4 files in parallel (xargs -P 4)
+# because the sequential upload was the slow part of the run.
 name: Fetching Data
 
 on:
@@ -29,14 +30,44 @@ concurrency:
 jobs:
   fetch:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2]
     steps:
       - name: Check out
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Run fetcher
-        run: python3 fetcher/scrape.py
+      - name: Run fetcher shard
+        run: python3 fetcher/scrape.py --shard ${{ matrix.shard }}/3 --shard-out data/shard-${{ matrix.shard }}
+
+      - name: Upload shard output
+        uses: actions/upload-artifact@v4
+        with:
+          name: shard-${{ matrix.shard }}
+          path: data/shard-${{ matrix.shard }}
+          if-no-files-found: error
+
+  merge:
+    needs: fetch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download shard outputs
+        uses: actions/download-artifact@v4
+        with:
+          path: data
+          pattern: shard-*
+          merge-multiple: false
+
+      - name: Merge shards into the catalog
+        run: python3 fetcher/merge_shards.py --root . data/shard-0 data/shard-1 data/shard-2
 
       - name: Commit catalog outputs
         run: |
@@ -56,14 +87,23 @@ jobs:
             echo "FTP_PASSWORD secret not set, skipping deploy"
             exit 0
           fi
-          fail=0
-          for f in .htaccess index.php manga.php read.php img.php api.php yubkzrmdwv.php lib/*.php lib/adapters/*.php assets/style.css data/catalog.json data/image-hosts.json data/image-referers.json data/source-patterns.json data/titles/*.json; do
+          # Parallel upload (4 at a time): the sequential loop was
+          # the slow part of the run. xargs exits 123 if any upload
+          # fails, which fails this step.
+          upload_one() {
+            local f="$1"
             if curl -s --max-time 60 -u "$FTP_USER:$FTP_PASS" --ftp-create-dirs -T "$f" "ftp://ftpupload.net/htdocs/$f"; then
               echo "OK $f"
             else
               echo "FAIL $f"
-              fail=1
+              return 1
             fi
-          done
+          }
+          export FTP_USER FTP_PASS
+          export -f upload_one
+          {
+            for f in .htaccess index.php manga.php read.php img.php api.php yubkzrmdwv.php lib/*.php lib/adapters/*.php assets/style.css data/catalog.json data/image-hosts.json data/image-referers.json data/source-patterns.json data/titles/*.json; do
+              printf '%s\n' "$f"
+            done
+          } | xargs -P 4 -I{} bash -c 'upload_one "$@"' _ {}
           curl -s --max-time 30 -u "$FTP_USER:$FTP_PASS" "ftp://ftpupload.net/htdocs/" -Q "-DELE status.php" || true
-          exit $fail
