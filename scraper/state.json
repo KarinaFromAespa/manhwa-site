@@ -367,7 +367,45 @@
   "manhwanex|manga/i-became-a-god-devouring-souls-at-the-crematorium": "i-became-a-god-devouring-souls-at-the-crematorium",
   "manhwanex|manga/catastrophic-necromancer": "catastrophic-necromancer",
   "manhwanex|manga/disastrous-necromancer": "disastrous-necromancer",
-  "manhwanex|manga/cataclysm-hunter-i-have-an-experience-point-system": "cataclysm-hunter-i-have-an-experience-points-system"
+  "manhwanex|manga/cataclysm-hunter-i-have-an-experience-point-system": "cataclysm-hunter-i-have-an-experience-points-system",
+  "ap-comics|manga/c4sperscoffin-the-coffin-of-andy-and-leyley": "c4sperscoffin-the-coffin-of-andy-and-leyley",
+  "ap-comics|manga/furyuu-wajirushi-i-woke-up-in-the-morning-to-find-my-naked-mom-lying-next-to-me-ghostmilflame-english": "furyuu-wajirushi-i-woke-up-in-the-morning-to-find-my-naked-mom-lying-next-to-me-ghostmilflame-english",
+  "ap-comics|manga/18master-mother-harumi": "18master-mother-harumi",
+  "ap-comics|manga/sakai-hamachi-only%e2%99%80%e2%99%82mum-comic-aun-2020-02-english-lkkscans-digital": "sakai-hamachi-only-mum-comic-aun-2020-02-english-lkk-scans-digital",
+  "manhuahot|manga/alliance-of-unrequited-love": "alliance-of-unrequited-love",
+  "manhuahot|manga/spring-in-the-jade-pavilion": "spring-in-the-jade-pavilion",
+  "manhuahot|manga/biting-the-master-7": "biting-the-master",
+  "manhuahot|manga/bad-dogs-should-be-trained": "bad-dogs-should-be-trained",
+  "manhuahot|manga/black-tide": "black-tide",
+  "manhuahot|manga/a-fruitless-harvest": "a-fruitless-harvest",
+  "manhuahot|manga/the-cold-commander-cried-when-he-kissed-3": "the-cold-commander-cried-when-he-kissed",
+  "manhuanext|manga/online-game-divine-knight-is-destroying-stars-with-your-bare-hands-really-that-hard": "online-game-divine-knight-is-destroying-stars-with-your-bare-hands-really-that-hard",
+  "manhuanext|manga/two-worlds-i-have-an-ancient-martial-arts-world": "two-worlds-i-have-an-ancient-martial-arts-world",
+  "manhuanext|manga/starting-as-the-god-of-wealth-taming-billions-of-divine-pets": "starting-as-the-god-of-wealth-taming-billions-of-divine-pets",
+  "manhuanext|manga/the-legendary-eye-master-i-create-the-heavens-and-earth-with-my-own-eyes": "the-legendary-eye-master-i-create-the-heavens-and-earth-with-my-own-eyes",
+  "manhwa-reads|manga/necro-cataclysm-i-summon-a-million-skeletons": "necro-cataclysm-i-summon-a-million-skeletons",
+  "manhwanex|manga/start-by-signing-in-and-obtaining-the-ancient-divine-body": "start-by-signing-in-and-obtaining-the-ancient-divine-body",
+  "manhwanex|manga/high-martial-world-manhua": "high-martial-world-sweeping-through-three-thousand-emperors",
+  "manhwanex|manga/apex-future-martial-arts": "apex-future-martial-arts",
+  "manhwanex|manga/logging-10000-years-into-the-future": "logging-10-000-years-into-the-future",
+  "pornhwaz|webtoon/hypnotist-security-guard": "hypnotist-security-guard-manhwa",
+  "pornhwaz|webtoon/heart-pounding-s-matching": "heart-pounding-s-matching-manhwa",
+  "pornhwaz|webtoon/heart-level": "heart-level-manhwa",
+  "pornhwaz|webtoon/greed-game": "greed-game-manhwa",
+  "pornhwaz|webtoon/dual-residence": "dual-residence-manhwa",
+  "pornhwaz|webtoon/country-virgin": "country-virgin-manhwa",
+  "pornhwaz|webtoon/corruption-in-the-dungeon": "corruption-in-the-dungeon-manhwa",
+  "pornhwaz|webtoon/college-grades-skyrocketing": "college-grades-skyrocketing-manhwa",
+  "top-manhua|series/heavenly-grand-archives-young-master": "heavenly-grand-archive-s-young-master",
+  "top-manhua|series/the-fox-club": "the-fox-club",
+  "topmanhua-fan|manhua/the-magic-theory-of-the-regressed-sword-saint": "the-magic-theory-of-the-regressed-sword-saint",
+  "topmanhua-fan|manhua/the-rebellious-villainess-doesnt-want-to-be-swayed-by-the-obsessive-prince": "the-rebellious-villainess-doesn-t-want-to-be-swayed-by-the-obsessive-prince",
+  "topmanhua-net|manga/the-wandering-knights-survival-manual": "the-wandering-knight-s-survival-manual",
+  "zinmanga|manga/the-supreme-demon-swordmaster": "the-supreme-demon-swordmaster",
+  "zinmanga|manga/heavenly-grand-archive-s-young-master": "heavenly-grand-archive-s-young-master-128kim-hyeon-yeongmidnight-studio",
+  "zinmanga|manga/the-fox-club": "the-fox-club",
+  "zinmanga|manga/it-wasn-t-love-at-first-sight": "it-wasn-t-love-at-first-sight",
+  "zinmanga|manga/the-bully-in-charge": "the-bully-in-charge"
  },
  "sources": {
   "zinmanga": {
@@ -403,10 +441,14 @@
     [
      1795486368,
      true
+    ],
+    [
+     1795488349,
+     true
     ]
    ],
-   "last_run": 1795486368,
-   "last_ok": 1795486368,
+   "last_run": 1795488349,
+   "last_ok": 1795488349,
    "consecutive_failures": 0
   },
   "zinmanga-net": {
@@ -434,10 +476,14 @@
     [
      1795486618,
      true
+    ],
+    [
+     1795488349,
+     true
     ]
    ],
-   "last_run": 1795486618,
-   "last_ok": 1795486618,
+   "last_run": 1795488349,
+   "last_ok": 1795488349,
    "consecutive_failures": 0
   },
   "manhua-plus": {
@@ -453,10 +499,14 @@
     [
      1795487547,
      true
+    ],
+    [
+     1795488349,
+     true
     ]
    ],
-   "last_run": 1795487547,
-   "last_ok": 1795487547,
+   "last_run": 1795488349,
+   "last_ok": 1795488349,
    "consecutive_failures": 0,
    "seed_page": 11
   },
@@ -469,10 +519,14 @@
     [
      1795486368,
      true
+    ],
+    [
+     1795488349,
+     true
     ]
    ],
-   "last_run": 1795486368,
-   "last_ok": 1795486368,
+   "last_run": 1795488349,
+   "last_ok": 1795488349,
    "consecutive_failures": 0,
    "seed_page": 11
   },
@@ -485,10 +539,15 @@
     [
      1795486368,
      false
+    ],
+    [
+     1795488349,
+     true
     ]
    ],
-   "last_run": 1795486368,
-   "consecutive_failures": 2
+   "last_run": 1795488349,
+   "consecutive_failures": 0,
+   "last_ok": 1795488349
   },
   "ap-comics": {
    "attempts": [
@@ -499,10 +558,14 @@
     [
      1795487547,
      true
+    ],
+    [
+     1795488349,
+     true
     ]
    ],
-   "last_run": 1795487547,
-   "last_ok": 1795487547,
+   "last_run": 1795488349,
+   "last_ok": 1795488349,
    "consecutive_failures": 0
   },
   "manhuahot": {
@@ -510,10 +573,14 @@
     [
      1795486368,
      true
+    ],
+    [
+     1795488349,
+     true
     ]
    ],
-   "last_run": 1795486368,
-   "last_ok": 1795486368,
+   "last_run": 1795488349,
+   "last_ok": 1795488349,
    "consecutive_failures": 0
   },
   "manhuanext": {
@@ -521,20 +588,29 @@
     [
      1795486368,
      false
+    ],
+    [
+     1795488349,
+     true
     ]
    ],
-   "last_run": 1795486368,
-   "consecutive_failures": 1
+   "last_run": 1795488349,
+   "consecutive_failures": 0,
+   "last_ok": 1795488349
   },
   "manhwa-reads": {
    "attempts": [
     [
      1795486368,
      true
+    ],
+    [
+     1795488349,
+     true
     ]
    ],
-   "last_run": 1795486368,
-   "last_ok": 1795486368,
+   "last_run": 1795488349,
+   "last_ok": 1795488349,
    "consecutive_failures": 0
   },
   "manhwaden": {
@@ -542,10 +618,14 @@
     [
      1795486368,
      true
+    ],
+    [
+     1795488349,
+     true
     ]
    ],
-   "last_run": 1795486368,
-   "last_ok": 1795486368,
+   "last_run": 1795488349,
+   "last_ok": 1795488349,
    "consecutive_failures": 0
   },
   "manhwanex": {
@@ -557,10 +637,14 @@
     [
      1795487547,
      true
+    ],
+    [
+     1795488349,
+     true
     ]
    ],
-   "last_run": 1795487547,
-   "last_ok": 1795487547,
+   "last_run": 1795488349,
+   "last_ok": 1795488349,
    "consecutive_failures": 0
   },
   "pornhwaz": {
@@ -568,10 +652,14 @@
     [
      1795486368,
      true
+    ],
+    [
+     1795488349,
+     true
     ]
    ],
-   "last_run": 1795486368,
-   "last_ok": 1795486368,
+   "last_run": 1795488349,
+   "last_ok": 1795488349,
    "consecutive_failures": 0
   },
   "top-manhua": {
@@ -579,10 +667,14 @@
     [
      1795486368,
      true
+    ],
+    [
+     1795488349,
+     true
     ]
    ],
-   "last_run": 1795486368,
-   "last_ok": 1795486368,
+   "last_run": 1795488349,
+   "last_ok": 1795488349,
    "consecutive_failures": 0
   },
   "topmanhua-fan": {
@@ -590,10 +682,14 @@
     [
      1795486368,
      true
+    ],
+    [
+     1795488349,
+     true
     ]
    ],
-   "last_run": 1795486368,
-   "last_ok": 1795486368,
+   "last_run": 1795488349,
+   "last_ok": 1795488349,
    "consecutive_failures": 0
   },
   "topmanhua-net": {
@@ -601,10 +697,14 @@
     [
      1795486368,
      true
+    ],
+    [
+     1795488349,
+     true
     ]
    ],
-   "last_run": 1795486368,
-   "last_ok": 1795486368,
+   "last_run": 1795488349,
+   "last_ok": 1795488349,
    "consecutive_failures": 0
   }
  },
@@ -3797,12 +3897,12 @@
     },
     "manhwa-reads": {
      "slug": "manga/tales-of-demons-and-gods",
-     "last_chapter": "",
+     "last_chapter": "111",
      "last_chapter_date": "",
-     "chapter_count": 2,
-     "chapter_hash": "162304c00111",
-     "last_seen": 1795486368,
-     "no_chapters": true,
+     "chapter_count": 138,
+     "chapter_hash": "449e05233295",
+     "last_seen": 1795488349,
+     "no_chapters": false,
      "author": "Mad Snail"
     }
    }
@@ -3815,7 +3915,7 @@
      "last_chapter_date": "5 seconds ago",
      "chapter_count": 941,
      "chapter_hash": "803bc551dfb4",
-     "last_seen": 1795487547,
+     "last_seen": 1795488349,
      "no_chapters": false,
      "author": ", Nightingale (Original)No Two Comics"
     },
@@ -4007,7 +4107,7 @@
      "last_chapter_date": "2025-12-04",
      "chapter_count": 194,
      "chapter_hash": "f190caf60a14",
-     "last_seen": 1795487547,
+     "last_seen": 1795488349,
      "no_chapters": false,
      "author": "Wine Pool Inebriation"
     }
@@ -4021,7 +4121,7 @@
      "last_chapter_date": "2025-09-19",
      "chapter_count": 16,
      "chapter_hash": "12f842df24a3",
-     "last_seen": 1795487547,
+     "last_seen": 1795488349,
      "no_chapters": false,
      "author": "原点格子漫画"
     },
@@ -5647,12 +5747,12 @@
     },
     "topmanhua-net": {
      "slug": "manga/sword-devouring-swordmaster",
-     "last_chapter": "",
-     "last_chapter_date": "",
-     "chapter_count": 2,
-     "chapter_hash": "b82fe39410e1",
-     "last_seen": 1795486368,
-     "no_chapters": true,
+     "last_chapter": "20",
+     "last_chapter_date": "2026-03-19",
+     "chapter_count": 20,
+     "chapter_hash": "fe43b6c53aac",
+     "last_seen": 1795488349,
+     "no_chapters": false,
      "author": ""
     }
    }
@@ -5815,7 +5915,7 @@
      "last_chapter_date": "",
      "chapter_count": 2,
      "chapter_hash": "721475bad8c4",
-     "last_seen": 1795486368,
+     "last_seen": 1795488349,
      "no_chapters": true,
      "author": ""
     }
@@ -7259,12 +7359,12 @@
    "sources": {
     "manhwa-reads": {
      "slug": "manga/kengan-omega",
-     "last_chapter": "",
+     "last_chapter": "130",
      "last_chapter_date": "",
-     "chapter_count": 2,
-     "chapter_hash": "e4d8d2e1e1d5",
-     "last_seen": 1795486368,
-     "no_chapters": true,
+     "chapter_count": 141,
+     "chapter_hash": "b5ad2d2de4a6",
+     "last_seen": 1795488349,
+     "no_chapters": false,
      "author": "SANDROVICH Yabako"
     }
    }
@@ -7273,12 +7373,12 @@
    "sources": {
     "manhwa-reads": {
      "slug": "manga/star-martial-god-technique",
-     "last_chapter": "",
+     "last_chapter": "902",
      "last_chapter_date": "",
-     "chapter_count": 2,
-     "chapter_hash": "ab1631d79871",
-     "last_seen": 1795486368,
-     "no_chapters": true,
+     "chapter_count": 124,
+     "chapter_hash": "d18c98e86501",
+     "last_seen": 1795488349,
+     "no_chapters": false,
      "author": "Mad Snail"
     }
    }
@@ -7287,12 +7387,12 @@
    "sources": {
     "manhwaden": {
      "slug": "manga/i-just-went-for-a-health-checkup",
-     "last_chapter": "",
+     "last_chapter": "20",
      "last_chapter_date": "",
-     "chapter_count": 2,
-     "chapter_hash": "49e0f8c6c4d1",
-     "last_seen": 1795486368,
-     "no_chapters": true,
+     "chapter_count": 20,
+     "chapter_hash": "b87672837eec",
+     "last_seen": 1795488349,
+     "no_chapters": false,
      "author": "Taenggeul Taenggeul"
     }
    }
@@ -7301,12 +7401,12 @@
    "sources": {
     "manhwaden": {
      "slug": "manga/flashlight",
-     "last_chapter": "",
+     "last_chapter": "76",
      "last_chapter_date": "",
-     "chapter_count": 2,
-     "chapter_hash": "b8206621da9d",
-     "last_seen": 1795486368,
-     "no_chapters": true,
+     "chapter_count": 77,
+     "chapter_hash": "26a5aa384dd1",
+     "last_seen": 1795488349,
+     "no_chapters": false,
      "author": "Yangma"
     }
    }
@@ -7315,12 +7415,12 @@
    "sources": {
     "manhwaden": {
      "slug": "manga/non-human-complex",
-     "last_chapter": "",
+     "last_chapter": "1",
      "last_chapter_date": "",
      "chapter_count": 2,
      "chapter_hash": "86cd01668dbb",
-     "last_seen": 1795486368,
-     "no_chapters": true,
+     "last_seen": 1795488349,
+     "no_chapters": false,
      "author": ""
     }
    }
@@ -7385,11 +7485,11 @@
    "sources": {
     "pornhwaz": {
      "slug": "webtoon/man-of-the-house",
-     "last_chapter": "84",
-     "last_chapter_date": "2026-08-10",
-     "chapter_count": 84,
-     "chapter_hash": "2ecd6a2c8e64",
-     "last_seen": 1795486368,
+     "last_chapter": "85",
+     "last_chapter_date": "",
+     "chapter_count": 85,
+     "chapter_hash": "954f5dc49652",
+     "last_seen": 1795488349,
      "no_chapters": false,
      "author": "Lee Kwang"
     }
@@ -7483,7 +7583,7 @@
      "last_chapter_date": "",
      "chapter_count": 2,
      "chapter_hash": "0b8ee7e8af26",
-     "last_seen": 1795486368,
+     "last_seen": 1795488349,
      "no_chapters": true,
      "author": ""
     }
@@ -7493,12 +7593,12 @@
    "sources": {
     "topmanhua-net": {
      "slug": "manga/the-shepherd-wizard",
-     "last_chapter": "",
-     "last_chapter_date": "",
-     "chapter_count": 2,
-     "chapter_hash": "35b5bcee170e",
-     "last_seen": 1795486368,
-     "no_chapters": true,
+     "last_chapter": "11",
+     "last_chapter_date": "2026-03-19",
+     "chapter_count": 11,
+     "chapter_hash": "92c62e64a297",
+     "last_seen": 1795488349,
+     "no_chapters": false,
      "author": ""
     }
    }
@@ -7507,12 +7607,12 @@
    "sources": {
     "topmanhua-net": {
      "slug": "manga/a-mercenarys-rebirth-among-nobles",
-     "last_chapter": "",
-     "last_chapter_date": "",
-     "chapter_count": 2,
-     "chapter_hash": "b2db826c9d45",
-     "last_seen": 1795486368,
-     "no_chapters": true,
+     "last_chapter": "21",
+     "last_chapter_date": "2026-03-19",
+     "chapter_count": 21,
+     "chapter_hash": "4124e52a49a0",
+     "last_seen": 1795488349,
+     "no_chapters": false,
      "author": "BELF"
     }
    }
@@ -7521,12 +7621,12 @@
    "sources": {
     "topmanhua-net": {
      "slug": "manga/the-dark-magician-transmigrates-after-66",
-     "last_chapter": "",
-     "last_chapter_date": "",
-     "chapter_count": 2,
-     "chapter_hash": "7a7d2ce921d6",
-     "last_seen": 1795486368,
-     "no_chapters": true,
+     "last_chapter": "175",
+     "last_chapter_date": "2026-03-19",
+     "chapter_count": 177,
+     "chapter_hash": "cbfd0b7ba457",
+     "last_seen": 1795488349,
+     "no_chapters": false,
      "author": ""
     }
    }
@@ -7535,12 +7635,12 @@
    "sources": {
     "topmanhua-net": {
      "slug": "manga/chronicles-of-the-lazy-sovereign",
-     "last_chapter": "",
-     "last_chapter_date": "",
-     "chapter_count": 2,
-     "chapter_hash": "c5f9bc109028",
-     "last_seen": 1795486368,
-     "no_chapters": true,
+     "last_chapter": "38",
+     "last_chapter_date": "2026-03-19",
+     "chapter_count": 38,
+     "chapter_hash": "9edead161549",
+     "last_seen": 1795488349,
+     "no_chapters": false,
      "author": "dirge"
     },
     "zinmanga-net": {
@@ -7549,7 +7649,7 @@
      "last_chapter_date": "2026-11-24",
      "chapter_count": 75,
      "chapter_hash": "ca760c636e1d",
-     "last_seen": 1795486618,
+     "last_seen": 1795488349,
      "no_chapters": false,
      "author": ""
     }
@@ -7591,7 +7691,7 @@
      "last_chapter_date": "2026-11-24",
      "chapter_count": 3,
      "chapter_hash": "81b781402973",
-     "last_seen": 1795486618,
+     "last_seen": 1795488349,
      "no_chapters": false,
      "author": ""
     }
@@ -7605,7 +7705,7 @@
      "last_chapter_date": "2026-11-24",
      "chapter_count": 3,
      "chapter_hash": "a7836541232c",
-     "last_seen": 1795486618,
+     "last_seen": 1795488349,
      "no_chapters": false,
      "author": ""
     }
@@ -7620,6 +7720,16 @@
      "chapter_count": 100,
      "chapter_hash": "5c5ad79bf5d1",
      "last_seen": 1795486618,
+     "no_chapters": false,
+     "author": ""
+    },
+    "manhuanext": {
+     "slug": "manga/starting-as-the-god-of-wealth-taming-billions-of-divine-pets",
+     "last_chapter": "113",
+     "last_chapter_date": "",
+     "chapter_count": 113,
+     "chapter_hash": "61cff8e3c996",
+     "last_seen": 1795488349,
      "no_chapters": false,
      "author": ""
     }
@@ -8206,6 +8316,520 @@
      "last_seen": 1795487547,
      "no_chapters": false,
      "author": "伶文拾柒 (Ling Wen Shi Qi)"
+    }
+   }
+  },
+  "c4sperscoffin-the-coffin-of-andy-and-leyley": {
+   "sources": {
+    "ap-comics": {
+     "slug": "manga/c4sperscoffin-the-coffin-of-andy-and-leyley",
+     "last_chapter": "1",
+     "last_chapter_date": "2026-11-07",
+     "chapter_count": 1,
+     "chapter_hash": "06086dcefb3e",
+     "last_seen": 1795488349,
+     "no_chapters": false,
+     "author": "Updating"
+    }
+   }
+  },
+  "furyuu-wajirushi-i-woke-up-in-the-morning-to-find-my-naked-mom-lying-next-to-me-ghostmilflame-english": {
+   "sources": {
+    "ap-comics": {
+     "slug": "manga/furyuu-wajirushi-i-woke-up-in-the-morning-to-find-my-naked-mom-lying-next-to-me-ghostmilflame-english",
+     "last_chapter": "1",
+     "last_chapter_date": "2026-11-07",
+     "chapter_count": 1,
+     "chapter_hash": "0b97b843669a",
+     "last_seen": 1795488349,
+     "no_chapters": false,
+     "author": "Updating"
+    }
+   }
+  },
+  "18master-mother-harumi": {
+   "sources": {
+    "ap-comics": {
+     "slug": "manga/18master-mother-harumi",
+     "last_chapter": "1",
+     "last_chapter_date": "2026-11-07",
+     "chapter_count": 1,
+     "chapter_hash": "e273f5434300",
+     "last_seen": 1795488349,
+     "no_chapters": false,
+     "author": "Updating"
+    }
+   }
+  },
+  "sakai-hamachi-only-mum-comic-aun-2020-02-english-lkk-scans-digital": {
+   "sources": {
+    "ap-comics": {
+     "slug": "manga/sakai-hamachi-only%e2%99%80%e2%99%82mum-comic-aun-2020-02-english-lkkscans-digital",
+     "last_chapter": "1",
+     "last_chapter_date": "2026-11-07",
+     "chapter_count": 1,
+     "chapter_hash": "2eb65393ab19",
+     "last_seen": 1795488349,
+     "no_chapters": false,
+     "author": "Updating"
+    }
+   }
+  },
+  "alliance-of-unrequited-love": {
+   "sources": {
+    "manhuahot": {
+     "slug": "manga/alliance-of-unrequited-love",
+     "last_chapter": "",
+     "last_chapter_date": "",
+     "chapter_count": 0,
+     "chapter_hash": "da39a3ee5e6b",
+     "last_seen": 1795488349,
+     "no_chapters": false,
+     "author": ""
+    }
+   }
+  },
+  "spring-in-the-jade-pavilion": {
+   "sources": {
+    "manhuahot": {
+     "slug": "manga/spring-in-the-jade-pavilion",
+     "last_chapter": "",
+     "last_chapter_date": "",
+     "chapter_count": 0,
+     "chapter_hash": "da39a3ee5e6b",
+     "last_seen": 1795488349,
+     "no_chapters": false,
+     "author": ""
+    }
+   }
+  },
+  "biting-the-master": {
+   "sources": {
+    "manhuahot": {
+     "slug": "manga/biting-the-master-7",
+     "last_chapter": "",
+     "last_chapter_date": "",
+     "chapter_count": 0,
+     "chapter_hash": "da39a3ee5e6b",
+     "last_seen": 1795488349,
+     "no_chapters": false,
+     "author": ""
+    }
+   }
+  },
+  "bad-dogs-should-be-trained": {
+   "sources": {
+    "manhuahot": {
+     "slug": "manga/bad-dogs-should-be-trained",
+     "last_chapter": "",
+     "last_chapter_date": "",
+     "chapter_count": 0,
+     "chapter_hash": "da39a3ee5e6b",
+     "last_seen": 1795488349,
+     "no_chapters": false,
+     "author": ""
+    }
+   }
+  },
+  "black-tide": {
+   "sources": {
+    "manhuahot": {
+     "slug": "manga/black-tide",
+     "last_chapter": "",
+     "last_chapter_date": "",
+     "chapter_count": 0,
+     "chapter_hash": "da39a3ee5e6b",
+     "last_seen": 1795488349,
+     "no_chapters": false,
+     "author": ""
+    }
+   }
+  },
+  "a-fruitless-harvest": {
+   "sources": {
+    "manhuahot": {
+     "slug": "manga/a-fruitless-harvest",
+     "last_chapter": "",
+     "last_chapter_date": "",
+     "chapter_count": 0,
+     "chapter_hash": "da39a3ee5e6b",
+     "last_seen": 1795488349,
+     "no_chapters": false,
+     "author": ""
+    }
+   }
+  },
+  "the-cold-commander-cried-when-he-kissed": {
+   "sources": {
+    "manhuahot": {
+     "slug": "manga/the-cold-commander-cried-when-he-kissed-3",
+     "last_chapter": "",
+     "last_chapter_date": "",
+     "chapter_count": 0,
+     "chapter_hash": "da39a3ee5e6b",
+     "last_seen": 1795488349,
+     "no_chapters": false,
+     "author": ""
+    }
+   }
+  },
+  "online-game-divine-knight-is-destroying-stars-with-your-bare-hands-really-that-hard": {
+   "sources": {
+    "manhuanext": {
+     "slug": "manga/online-game-divine-knight-is-destroying-stars-with-your-bare-hands-really-that-hard",
+     "last_chapter": "3",
+     "last_chapter_date": "",
+     "chapter_count": 3,
+     "chapter_hash": "cad58b94ba79",
+     "last_seen": 1795488349,
+     "no_chapters": false,
+     "author": ""
+    }
+   }
+  },
+  "two-worlds-i-have-an-ancient-martial-arts-world": {
+   "sources": {
+    "manhuanext": {
+     "slug": "manga/two-worlds-i-have-an-ancient-martial-arts-world",
+     "last_chapter": "20",
+     "last_chapter_date": "",
+     "chapter_count": 21,
+     "chapter_hash": "d2f9d68ec67d",
+     "last_seen": 1795488349,
+     "no_chapters": false,
+     "author": ""
+    }
+   }
+  },
+  "the-legendary-eye-master-i-create-the-heavens-and-earth-with-my-own-eyes": {
+   "sources": {
+    "manhuanext": {
+     "slug": "manga/the-legendary-eye-master-i-create-the-heavens-and-earth-with-my-own-eyes",
+     "last_chapter": "6",
+     "last_chapter_date": "",
+     "chapter_count": 7,
+     "chapter_hash": "ff5a94657848",
+     "last_seen": 1795488349,
+     "no_chapters": false,
+     "author": ""
+    }
+   }
+  },
+  "necro-cataclysm-i-summon-a-million-skeletons": {
+   "sources": {
+    "manhwa-reads": {
+     "slug": "manga/necro-cataclysm-i-summon-a-million-skeletons",
+     "last_chapter": "35",
+     "last_chapter_date": "",
+     "chapter_count": 35,
+     "chapter_hash": "b298e60bd849",
+     "last_seen": 1795488349,
+     "no_chapters": false,
+     "author": "Chu Yang"
+    }
+   }
+  },
+  "start-by-signing-in-and-obtaining-the-ancient-divine-body": {
+   "sources": {
+    "manhwanex": {
+     "slug": "manga/start-by-signing-in-and-obtaining-the-ancient-divine-body",
+     "last_chapter": "177",
+     "last_chapter_date": "2026-11-05",
+     "chapter_count": 15,
+     "chapter_hash": "df13dd1a14b2",
+     "last_seen": 1795488349,
+     "no_chapters": false,
+     "author": "星空社"
+    }
+   }
+  },
+  "high-martial-world-sweeping-through-three-thousand-emperors": {
+   "sources": {
+    "manhwanex": {
+     "slug": "manga/high-martial-world-manhua",
+     "last_chapter": "82",
+     "last_chapter_date": "2026-11-05",
+     "chapter_count": 82,
+     "chapter_hash": "16625cf05b81",
+     "last_seen": 1795488349,
+     "no_chapters": false,
+     "author": "漫创堂"
+    }
+   }
+  },
+  "apex-future-martial-arts": {
+   "sources": {
+    "manhwanex": {
+     "slug": "manga/apex-future-martial-arts",
+     "last_chapter": "365",
+     "last_chapter_date": "2026-11-05",
+     "chapter_count": 38,
+     "chapter_hash": "9ec5c02fadf7",
+     "last_seen": 1795488349,
+     "no_chapters": false,
+     "author": ""
+    }
+   }
+  },
+  "logging-10-000-years-into-the-future": {
+   "sources": {
+    "manhwanex": {
+     "slug": "manga/logging-10000-years-into-the-future",
+     "last_chapter": "365",
+     "last_chapter_date": "2026-11-05",
+     "chapter_count": 38,
+     "chapter_hash": "edeb02653304",
+     "last_seen": 1795488349,
+     "no_chapters": false,
+     "author": ""
+    }
+   }
+  },
+  "hypnotist-security-guard-manhwa": {
+   "sources": {
+    "pornhwaz": {
+     "slug": "webtoon/hypnotist-security-guard",
+     "last_chapter": "119",
+     "last_chapter_date": "",
+     "chapter_count": 120,
+     "chapter_hash": "84ddf6b78fcd",
+     "last_seen": 1795488349,
+     "no_chapters": false,
+     "author": "OneDollar"
+    }
+   }
+  },
+  "heart-pounding-s-matching-manhwa": {
+   "sources": {
+    "pornhwaz": {
+     "slug": "webtoon/heart-pounding-s-matching",
+     "last_chapter": "27",
+     "last_chapter_date": "",
+     "chapter_count": 28,
+     "chapter_hash": "5a4054d99356",
+     "last_seen": 1795488349,
+     "no_chapters": false,
+     "author": "Yagyeong"
+    }
+   }
+  },
+  "heart-level-manhwa": {
+   "sources": {
+    "pornhwaz": {
+     "slug": "webtoon/heart-level",
+     "last_chapter": "47",
+     "last_chapter_date": "",
+     "chapter_count": 47,
+     "chapter_hash": "0b157473ca37",
+     "last_seen": 1795488349,
+     "no_chapters": false,
+     "author": "Uncle Rabbit"
+    }
+   }
+  },
+  "greed-game-manhwa": {
+   "sources": {
+    "pornhwaz": {
+     "slug": "webtoon/greed-game",
+     "last_chapter": "36",
+     "last_chapter_date": "",
+     "chapter_count": 36,
+     "chapter_hash": "600b25d19cee",
+     "last_seen": 1795488349,
+     "no_chapters": false,
+     "author": "Nangman Godeung-eo"
+    }
+   }
+  },
+  "dual-residence-manhwa": {
+   "sources": {
+    "pornhwaz": {
+     "slug": "webtoon/dual-residence",
+     "last_chapter": "42",
+     "last_chapter_date": "",
+     "chapter_count": 43,
+     "chapter_hash": "daffbd6235b1",
+     "last_seen": 1795488349,
+     "no_chapters": false,
+     "author": "Atradin"
+    }
+   }
+  },
+  "country-virgin-manhwa": {
+   "sources": {
+    "pornhwaz": {
+     "slug": "webtoon/country-virgin",
+     "last_chapter": "47",
+     "last_chapter_date": "",
+     "chapter_count": 47,
+     "chapter_hash": "d0caf3935ae8",
+     "last_seen": 1795488349,
+     "no_chapters": false,
+     "author": "To the moon"
+    }
+   }
+  },
+  "corruption-in-the-dungeon-manhwa": {
+   "sources": {
+    "pornhwaz": {
+     "slug": "webtoon/corruption-in-the-dungeon",
+     "last_chapter": "61",
+     "last_chapter_date": "",
+     "chapter_count": 63,
+     "chapter_hash": "1e306cc6d2e8",
+     "last_seen": 1795488349,
+     "no_chapters": false,
+     "author": ", DossiyuMinMaCho"
+    }
+   }
+  },
+  "college-grades-skyrocketing-manhwa": {
+   "sources": {
+    "pornhwaz": {
+     "slug": "webtoon/college-grades-skyrocketing",
+     "last_chapter": "121",
+     "last_chapter_date": "",
+     "chapter_count": 121,
+     "chapter_hash": "ce60737d9688",
+     "last_seen": 1795488349,
+     "no_chapters": false,
+     "author": "1535"
+    }
+   }
+  },
+  "heavenly-grand-archive-s-young-master": {
+   "sources": {
+    "top-manhua": {
+     "slug": "series/heavenly-grand-archives-young-master",
+     "last_chapter": "193",
+     "last_chapter_date": "",
+     "chapter_count": 193,
+     "chapter_hash": "d2fbce93b251",
+     "last_seen": 1795488349,
+     "no_chapters": false,
+     "author": ",,, 128Kim Hyeon YeongMIDNIGHT STUDIOUpdating"
+    }
+   }
+  },
+  "the-fox-club": {
+   "sources": {
+    "top-manhua": {
+     "slug": "series/the-fox-club",
+     "last_chapter": "133",
+     "last_chapter_date": "",
+     "chapter_count": 131,
+     "chapter_hash": "de195351c298",
+     "last_seen": 1795488349,
+     "no_chapters": false,
+     "author": "Hwang Hye-jin"
+    },
+    "zinmanga": {
+     "slug": "manga/the-fox-club",
+     "last_chapter": "133",
+     "last_chapter_date": "",
+     "chapter_count": 133,
+     "chapter_hash": "b888eb535bc5",
+     "last_seen": 1795488349,
+     "no_chapters": false,
+     "author": "Hwang Hye-jin"
+    }
+   }
+  },
+  "the-magic-theory-of-the-regressed-sword-saint": {
+   "sources": {
+    "topmanhua-fan": {
+     "slug": "manhua/the-magic-theory-of-the-regressed-sword-saint",
+     "last_chapter": "",
+     "last_chapter_date": "",
+     "chapter_count": 2,
+     "chapter_hash": "a1604b5ae5c3",
+     "last_seen": 1795488349,
+     "no_chapters": true,
+     "author": ""
+    }
+   }
+  },
+  "the-rebellious-villainess-doesn-t-want-to-be-swayed-by-the-obsessive-prince": {
+   "sources": {
+    "topmanhua-fan": {
+     "slug": "manhua/the-rebellious-villainess-doesnt-want-to-be-swayed-by-the-obsessive-prince",
+     "last_chapter": "",
+     "last_chapter_date": "",
+     "chapter_count": 2,
+     "chapter_hash": "5e513c213dc1",
+     "last_seen": 1795488349,
+     "no_chapters": true,
+     "author": ""
+    }
+   }
+  },
+  "the-wandering-knight-s-survival-manual": {
+   "sources": {
+    "topmanhua-net": {
+     "slug": "manga/the-wandering-knights-survival-manual",
+     "last_chapter": "29",
+     "last_chapter_date": "2026-03-19",
+     "chapter_count": 29,
+     "chapter_hash": "ab5c0e157529",
+     "last_seen": 1795488349,
+     "no_chapters": false,
+     "author": ""
+    }
+   }
+  },
+  "the-supreme-demon-swordmaster": {
+   "sources": {
+    "zinmanga": {
+     "slug": "manga/the-supreme-demon-swordmaster",
+     "last_chapter": "63",
+     "last_chapter_date": "",
+     "chapter_count": 63,
+     "chapter_hash": "fe18d412355c",
+     "last_seen": 1795488349,
+     "no_chapters": false,
+     "author": ",, BehwaJo Don HyungUpdating"
+    }
+   }
+  },
+  "heavenly-grand-archive-s-young-master-128kim-hyeon-yeongmidnight-studio": {
+   "sources": {
+    "zinmanga": {
+     "slug": "manga/heavenly-grand-archive-s-young-master",
+     "last_chapter": "193",
+     "last_chapter_date": "",
+     "chapter_count": 193,
+     "chapter_hash": "4eb46cbcb0fc",
+     "last_seen": 1795488349,
+     "no_chapters": false,
+     "author": ",, 128Kim Hyeon YeongMIDNIGHT STUDIO"
+    }
+   }
+  },
+  "it-wasn-t-love-at-first-sight": {
+   "sources": {
+    "zinmanga": {
+     "slug": "manga/it-wasn-t-love-at-first-sight",
+     "last_chapter": "72",
+     "last_chapter_date": "",
+     "chapter_count": 72,
+     "chapter_hash": "8d1f2ebc26b6",
+     "last_seen": 1795488349,
+     "no_chapters": false,
+     "author": ", AimBaiman Masaike Studio"
+    }
+   }
+  },
+  "the-bully-in-charge": {
+   "sources": {
+    "zinmanga": {
+     "slug": "manga/the-bully-in-charge",
+     "last_chapter": "207",
+     "last_chapter_date": "",
+     "chapter_count": 207,
+     "chapter_hash": "cf9253a6005d",
+     "last_seen": 1795488349,
+     "no_chapters": false,
+     "author": ", GRIMZONaver Series"
     }
    }
   }
