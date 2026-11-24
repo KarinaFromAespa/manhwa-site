@@ -148,6 +148,14 @@ main { padding: 24px 0 48px; }
     background: var(--surface-2); color: var(--text); font: inherit; cursor: pointer;
 }
 
+/* --- Chapter frame: source chapter embedded when the server is
+   Cloudflare-blocked. Tall enough to read, full width. --- */
+.chapter-frame {
+    display: block; width: 100%; height: 82vh; min-height: 560px;
+    border: 1px solid var(--border); border-radius: var(--radius);
+    background: var(--surface);
+}
+
 /* --- Chapter list --- */
 .chapters { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--border); }
 .chapters li {
@@ -171,6 +179,9 @@ main { padding: 24px 0 48px; }
     display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
     margin: 16px 0;
 }
+/* The Next action always sits on the right, even when there is no
+   Previous (oldest chapter) and it is the only item in the nav. */
+.reader-nav > :last-child { margin-left: auto; }
 .reader-nav a, .reader-nav-disabled {
     padding: 10px 16px; border: 1px solid var(--border); border-radius: 8px;
     background: var(--surface-2); color: var(--text); font-weight: 600;
