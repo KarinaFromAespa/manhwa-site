@@ -71,9 +71,6 @@ class Catalog
             $list[] = ['name' => $name, 'count' => $count];
         }
         usort($list, static function ($a, $b) {
-            if ($a['count'] !== $b['count']) {
-                return $b['count'] <=> $a['count'];
-            }
             return strcasecmp($a['name'], $b['name']);
         });
         return $list;
