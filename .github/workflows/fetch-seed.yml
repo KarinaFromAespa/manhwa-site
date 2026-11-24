@@ -26,7 +26,6 @@ concurrency:
 jobs:
   fetch-seed:
     runs-on: ubuntu-latest
-    timeout-minutes: 50
     steps:
       - name: Check out
         uses: actions/checkout@v4
