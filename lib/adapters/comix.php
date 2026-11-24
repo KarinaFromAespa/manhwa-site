@@ -77,7 +77,7 @@ class ComixAdapter extends BaseAdapter
         );
     }
 
-    // One quick direct request, for status.php. Never hammered.
+    // One quick direct request, for yubkzrmdwv.php. Never hammered.
     public function testDirect(): array
     {
         return $this->requestDirect('/manga', ['limit' => 1]);
