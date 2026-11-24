@@ -136,11 +136,6 @@ main { padding: 24px 0 48px; }
     border: 1px solid var(--border); border-radius: 8px;
     background: var(--surface-2); color: var(--text); font: inherit; cursor: pointer;
 }
-.scanlator button {
-    padding: 9px 18px; border: 1px solid var(--border); border-radius: 8px;
-    background: var(--surface-3); color: var(--text); cursor: pointer; font: inherit; font-weight: 600;
-}
-.scanlator button:hover { border-color: var(--accent); }
 
 /* --- Chapter list --- */
 .chapters { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--border); }
@@ -194,6 +189,8 @@ main { padding: 24px 0 48px; }
 
 /* --- Wider screens --- */
 @media (min-width: 700px) {
+    .scanlator { width: fit-content; max-width: 100%; }
+    .scanlator select { max-width: 320px; }
     .hero { flex-wrap: nowrap; }
     .hero-cover { width: 240px; }
     h1 { font-size: 1.9rem; }
