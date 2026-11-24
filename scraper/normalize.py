@@ -135,6 +135,34 @@ def normalize_status(raw):
     return mapping.get(value.lower(), value)
 
 
+# Words that carry no identity when comparing titles: bracketed
+# series tags are stripped separately, and these generic words are
+# dropped so "Ongoing" or "English" cannot inflate a match.
+_GENERIC_NAME_WORDS = {
+    "ongoing", "completed", "hiatus", "dropped", "english", "eng",
+    "raw", "official", "webtoon", "manhwa", "manhua", "manga",
+    "novel", "series", "the", "a", "an", "of", "and", "in", "on",
+}
+
+
+def name_tokens(name):
+    """Word tokens for title comparison: bracketed tags like
+    "[Not Enough Milk]" removed, generic words dropped, the rest
+    lowercased and split on non-alphanumerics."""
+    text = re.sub(r"\[[^\]]*\]", " ", name or "")
+    words = re.split(r"[^a-z0-9]+", text.lower())
+    return {w for w in words if w and w not in _GENERIC_NAME_WORDS}
+
+
+def name_similarity(a, b):
+    """Jaccard similarity of the two titles' name tokens. 0 when
+    either side has no tokens left after stripping."""
+    ta, tb = name_tokens(a), name_tokens(b)
+    if not ta or not tb:
+        return 0.0
+    return len(ta & tb) / len(ta | tb)
+
+
 def is_adult(genres, source_adult_flags):
     """Adult when any genre is an adult genre, or when every source
     carrying the title is registry-flagged adult."""

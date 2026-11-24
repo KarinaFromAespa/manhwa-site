@@ -54,6 +54,7 @@ from madara import MadaraSite
 from normalize import (
     canonical_title_slug,
     is_adult,
+    name_similarity,
     normalize_number,
     normalize_status,
     parse_date,
@@ -677,6 +678,9 @@ class Runner:
         status = prev.get("status", "") if prev else ""
         genres = list(prev.get("genres", [])) if prev else []
         alt_titles = list(prev.get("alt_titles", [])) if prev else []
+        author = prev.get("author", "") if prev else ""
+        if data.get("author"):
+            author = data["author"]
         if data.get("title"):
             title = data["title"]
         if data.get("cover"):
@@ -688,14 +692,18 @@ class Runner:
         if data.get("genres"):
             genres = data["genres"][:10]
         if data.get("alt_titles"):
+            merged_alts = list(prev.get("alt_titles", [])) + list(
+                data["alt_titles"]
+            )
             alt_titles = list(dict.fromkeys(
-                [a for a in data["alt_titles"] if a != title]
+                [a for a in merged_alts if a and a != title]
             ))[:10]
         flags = [self.registry_adult.get(sid, False) for sid in sources]
         return {
             "id": cid,
             "title": title,
             "alt_titles": alt_titles,
+            "author": author,
             "cover": cover,
             "synopsis": synopsis,
             "status": status,
@@ -782,6 +790,7 @@ class Runner:
             self.budget.begin_segment(secs / left, reqs // left)
             print(f"[{source_id}] {item['site']} ...")
             self.run_source(source_id, item)
+        self.merge_duplicates()
         self.write_outputs()
         summary = {
             "sources_ok": self.stats["sources_ok"],
@@ -790,6 +799,7 @@ class Runner:
             "titles_new": self.stats["titles_new"],
             "titles_updated": self.stats["titles_updated"],
             "titles_unchanged": self.stats["titles_unchanged"],
+            "titles_merged": self.stats.get("titles_merged", 0),
             "titles_total": len(self.index_entries),
             "chapters_total": sum(
                 len(s.get("chapters", []) or [])
@@ -817,6 +827,220 @@ class Runner:
             for src in data.get("sources", []) or []:
                 total += len(src.get("chapters", []) or [])
         return total
+
+    # --- Duplicate merging (same title, different name) ---
+    # The same work often appears under a different translated title
+    # on another source. The fetcher only merges on an exact
+    # canonical-slug match, so those become duplicate entries. This
+    # pass collapses them: the winner keeps its id, the loser's
+    # sources move in, alt titles union, and an alias is recorded
+    # so the next fetch resolves the loser's name straight to the
+    # winner instead of re-splitting. Runs after all sources, before
+    # write_outputs, so duplicates merge automatically each hour.
+
+    def _alt_text(self, title):
+        """All alternative names for a title, joined and normalized
+        to plain lowercase words, so a name split across the source's
+        separators ("Me" + "the Heavenly Destined Villain") still
+        reads as one phrase."""
+        joined = " ".join(title.get("alt_titles", []) or [])
+        text = re.sub(r"[^a-z0-9]+", " ", joined.lower())
+        return re.sub(r"\s+", " ", text).strip()
+
+    def _norm_name(self, name):
+        text = re.sub(r"[^a-z0-9]+", " ", (name or "").lower())
+        return re.sub(r"\s+", " ", text).strip()
+
+    def _chapter_title_set(self, title):
+        """Normalized chapter titles that carry real text. Bare
+        "Chapter N" titles are skipped — they say nothing about
+        identity, only the number does."""
+        out = set()
+        for src in title.get("sources", []) or []:
+            for ch in src.get("chapters", []) or []:
+                t = (ch.get("title") or "").strip().lower()
+                if not t:
+                    continue
+                if re.fullmatch(r"chapter\s*\d+(?:\.\d+)?", t):
+                    continue
+                out.add(re.sub(r"\s+", " ", t))
+        return out
+
+    def _chapter_count(self, title):
+        return sum(
+            len(s.get("chapters", []) or [])
+            for s in title.get("sources", []) or []
+        )
+
+    def _should_merge(self, a, b):
+        """The merge rule. Returns the reason string, or '' when the
+        pair must stay separate."""
+        # Chapter-title overlap for the rules below.
+        a_titles = self._chapter_title_set(a)
+        b_titles = self._chapter_title_set(b)
+        overlap = 0.0
+        if a_titles and b_titles:
+            overlap = len(a_titles & b_titles) / min(
+                len(a_titles), len(b_titles)
+            )
+        # Rule 1: near-identical chapter titles, both with enough
+        # real chapter titles to judge by. This is the decisive
+        # signal — different translations of one original share
+        # chapter names even when the title itself differs.
+        if overlap >= 0.8 and len(a_titles) >= 10 and len(b_titles) >= 10:
+            return f"chapter-overlap {overlap:.2f}"
+        # Rule 2: same author and similar names.
+        a_author = slugify(a.get("author", ""))
+        b_author = slugify(b.get("author", ""))
+        if a_author and a_author == b_author:
+            sim = name_similarity(
+                a.get("title", ""), b.get("title", "")
+            )
+            if sim >= 0.6:
+                return f"author+name {sim:.2f}"
+        # Rule 3: one title's name appears among the other's
+        # alternative names. Alt titles arrive as messy joined
+        # strings ("Me" + "the Heavenly Destined Villain"), so match
+        # by substring on the normalized joined alt text, not by
+        # exact slug. A MUTUAL cross-match (each name appears in
+        # the other's alts) is decisive on its own; a one-way
+        # cross-match needs an author match or real chapter
+        # overlap. Both titles need at least 2 chapters so
+        # one-chapter bracketed one-shots never merge.
+        a_name = self._norm_name(a.get("title", ""))
+        b_name = self._norm_name(b.get("title", ""))
+        a_in_b = (
+            len(a_name.split()) >= 2
+            and a_name in self._alt_text(b)
+        )
+        b_in_a = (
+            len(b_name.split()) >= 2
+            and b_name in self._alt_text(a)
+        )
+        if (a_in_b or b_in_a) and (
+            self._chapter_count(a) >= 2
+            and self._chapter_count(b) >= 2
+        ):
+            if a_in_b and b_in_a:
+                return "alt-title mutual cross-match"
+            if a_author and a_author == b_author or overlap >= 0.3:
+                return f"alt-title cross-match (overlap {overlap:.2f})"
+        return ""
+
+    def merge_duplicates(self):
+        cids = sorted(self.index_entries)
+        titles = {}
+        for cid in cids:
+            t = self.prev_title(cid)
+            if t:
+                titles[cid] = t
+        merged = []
+        removed = set()
+        for i, cid_a in enumerate(cids):
+            if cid_a in removed:
+                continue
+            a = titles.get(cid_a)
+            if not a:
+                continue
+            for cid_b in cids[i + 1:]:
+                if cid_b in removed:
+                    continue
+                b = titles.get(cid_b)
+                if not b:
+                    continue
+                reason = self._should_merge(a, b)
+                if not reason:
+                    continue
+                # Winner: more chapters, then more sources, then
+                # the lower id (deterministic).
+                a_ch, b_ch = self._chapter_count(a), self._chapter_count(b)
+                a_n, b_n = len(a.get("sources", [])), len(b.get("sources", []))
+                if (b_ch, b_n) > (a_ch, a_n):
+                    winner, loser = b, a
+                    winner_id, loser_id = cid_b, cid_a
+                elif (a_ch, a_n) > (b_ch, b_n):
+                    winner, loser = a, b
+                    winner_id, loser_id = cid_a, cid_b
+                else:
+                    winner, loser = (a, b) if cid_a < cid_b else (b, a)
+                    winner_id, loser_id = (
+                        (cid_a, cid_b) if cid_a < cid_b else (cid_b, cid_a)
+                    )
+                # Move the loser's sources in. When the winner
+                # already has a source, union the chapter lists
+                # (dedup by chapter number) instead of dropping
+                # the loser's copy — the same work on one source
+                # under two names can hold different chapters.
+                have = {
+                    s.get("source"): s
+                    for s in winner.get("sources", []) or []
+                }
+                for src in loser.get("sources", []) or []:
+                    sid = src.get("source")
+                    if sid not in have:
+                        winner.setdefault("sources", []).append(src)
+                        have[sid] = src
+                        continue
+                    existing = have[sid]
+                    seen = {
+                        normalize_number(c.get("number", ""))
+                        for c in existing.get("chapters", []) or []
+                    }
+                    for ch in src.get("chapters", []) or []:
+                        if normalize_number(ch.get("number", "")) not in seen:
+                            existing.setdefault("chapters", []).append(ch)
+                            seen.add(normalize_number(ch.get("number", "")))
+                    existing["chapters"].sort(
+                        key=lambda c: _chapter_sort_key(c.get("number", "")),
+                        reverse=True,
+                    )
+                # Union alt titles, plus the loser's own title.
+                alts = list(winner.get("alt_titles", []) or [])
+                for extra in (loser.get("alt_titles", []) or []) + [
+                    loser.get("title", "")
+                ]:
+                    if extra and extra != winner.get("title") and extra not in alts:
+                        alts.append(extra)
+                winner["alt_titles"] = alts[:10]
+                # Record aliases so the next fetch resolves the
+                # loser's name straight to the winner.
+                loser_slug = canonical_title_slug(loser.get("title", ""))
+                if loser_slug and loser_slug != winner_id:
+                    self.aliases.setdefault(loser_slug, winner_id)
+                if loser_id != loser_slug and loser_id != winner_id:
+                    self.aliases.setdefault(loser_id, winner_id)
+                # Drop the loser.
+                removed.add(loser_id)
+                self.index_entries.pop(loser_id, None)
+                self.title_files.pop(loser_id, None)
+                self.state.get("titles", {}).pop(loser_id, None)
+                for key in [k for k, v in self.state.get("map", {}).items()
+                            if v == loser_id]:
+                    del self.state["map"][key]
+                loser_file = self.root / "data" / "titles" / f"{loser_id}.json"
+                if loser_file.is_file():
+                    loser_file.unlink()
+                self.touched.add(winner_id)
+                self.title_files[winner_id] = winner
+                merged.append(
+                    f"{loser_id} -> {winner_id} ({reason})"
+                )
+                # The winner may have changed; re-read it for the
+                # next pair in this row.
+                if winner_id == cid_a:
+                    a = winner
+                else:
+                    a = titles.get(cid_a)
+        if merged:
+            print(f"merged {len(merged)} duplicate title(s):")
+            for line in merged:
+                print(f"  {line}")
+            self.overrides["aliases"] = self.aliases
+            write_json_if_changed(
+                self.root / "scraper" / "overrides.json", self.overrides
+            )
+        self.stats["titles_merged"] = len(merged)
+        return merged
 
     # --- Output writing ---
 
