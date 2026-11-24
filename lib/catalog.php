@@ -72,9 +72,19 @@ class Catalog
             if ($words === []) {
                 $match = str_contains($hay, $q);
             } else {
+                // Match on whole word stems, so "reincarnated" also
+                // finds "reincarnation" and "reincarnating", but a
+                // query word must match a whole word in the title or
+                // an alternative title — never a substring inside a
+                // longer unrelated word ("realm" must not match
+                // "realmente").
+                $hayWords = array_filter(preg_split('/[^a-z0-9]+/', $hay) ?: []);
+                $haySet = array_flip(array_map([self::class, 'stemWord'], $hayWords));
+                $hayWordSet = array_flip($hayWords);
                 $match = true;
                 foreach ($words as $w) {
-                    if (!str_contains($hay, $w)) {
+                    $stem = self::stemWord($w);
+                    if (!isset($haySet[$stem]) && !isset($hayWordSet[$w])) {
                         $match = false;
                         break;
                     }
@@ -85,6 +95,25 @@ class Catalog
             }
         }
         return $out;
+    }
+
+    private static function stemWord(string $w): string
+    {
+        $w = mb_strtolower($w);
+        // Strip one common inflectional suffix so word forms of the
+        // same root match: "reincarnated", "reincarnating" and
+        // "reincarnation" all reduce to "reincarnat". Longest suffix
+        // first; "ion" must come before "tion"/"ation" or the stem
+        // loses its "t". The length guard keeps short words (e.g.
+        // "king") from being stripped.
+        $suffixes = ['ing', 'ed', 'ion', 'ation', 'tion', 'ies', 'es', 'e', 's', 'ly', 'er', 'est', 'ment', 'ness', 'ity'];
+        foreach ($suffixes as $suf) {
+            $len = mb_strlen($suf);
+            if (mb_strlen($w) > $len + 3 && str_ends_with($w, $suf)) {
+                return mb_substr($w, 0, -$len);
+            }
+        }
+        return $w;
     }
 
     // Full detail: index entry overlaid with data/titles/<id>.json

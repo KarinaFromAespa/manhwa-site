@@ -67,7 +67,12 @@ if ($m['synopsis'] !== '') {
     $syn = preg_replace('/^.+?\bis a (?:Manga|Manhwa|Manhua)(?:\/(?:Manga|Manhwa|Manhua))* in english language,.*?english chapters have been \w*(?:\x{2026}|\.)?\s*/isu', '', $syn);
     $syn = trim($syn ?? '');
     if ($syn !== '') {
-        echo '<p class="synopsis">' . h($syn) . '</p>';
+        if (mb_strlen($syn) > 400) {
+            echo '<div class="synopsis-wrap collapsed"><p class="synopsis">' . h($syn) . '</p>'
+                . '<button type="button" class="synopsis-toggle" onclick="var w=this.parentElement;w.classList.toggle(\'collapsed\');this.textContent=w.classList.contains(\'collapsed\')?\'Show more\':\'Show less\';">Show more</button></div>';
+        } else {
+            echo '<p class="synopsis">' . h($syn) . '</p>';
+        }
     }
 }
 echo '</div></div>';

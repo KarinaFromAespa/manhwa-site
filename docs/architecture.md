@@ -140,7 +140,7 @@ Cache API/KV, and returns JSON. Free: 100k requests/day.
 Combine C (primary) + D (live fallback) + A (last resort) + E
 (optional booster):
 
-1. Scheduled scraper (GitHub Actions, hourly) builds the catalog:
+1. Scheduled fetcher (GitHub Actions, hourly) builds the catalog:
    per-title metadata, chapter lists, and a source index — written
    as JSON into the repo. This is what browse/search/details read.
 2. The Oracle VM service stays as the live fallback for details
@@ -161,7 +161,7 @@ and every layer is free.
 | --- | --- | --- |
 | InfinityFree | 5 GB disk, 50k hits/day, PHP 8.4, no cron, no SSH | Serving the site only |
 | Oracle Always Free VM | 1 GB RAM, 1 vCPU, always on | Post Scheduler backend + optional live fetch service |
-| GitHub Actions | 2,000 min/month, scheduled runs | Hourly catalog scraper |
+| GitHub Actions | 2,000 min/month, scheduled runs | Hourly catalog fetcher |
 | Cloudflare Workers | 100k req/day, 10 ms CPU/req | Optional cache/proxy layer |
 | Cloudflare Tunnel | Free | Exposing the PC bridge safely, if used |
 

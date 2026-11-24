@@ -1,4 +1,4 @@
-# Weekly catalog seed for manhwafreedev.
+# Weekly catalog fetch seed for manhwafreedev.
 #
 # Crawls each source's whole /manga/ directory (paginated,
 # newest-first) from the stored cursor, so the catalog reaches
@@ -9,7 +9,7 @@
 # as the hourly workflow. Runs weekly (Sunday 03:00 UTC) and on
 # demand; the hourly workflow keeps doing latest-updates in
 # between. Site code (index.php, lib/) is NOT deployed here.
-name: Seed catalog
+name: Fetching Data (Seed)
 
 on:
   schedule:
@@ -20,11 +20,11 @@ permissions:
   contents: write
 
 concurrency:
-  group: scrape-catalog
+  group: fetch-catalog
   cancel-in-progress: false
 
 jobs:
-  seed:
+  fetch-seed:
     runs-on: ubuntu-latest
     timeout-minutes: 50
     steps:
@@ -33,16 +33,16 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Run seed pass
+      - name: Run fetcher (seed pass)
         run: python3 scraper/scrape.py --seed --max-seconds 1500 --max-requests 900
 
       - name: Commit catalog outputs
         run: |
-          git config user.name "manhwafreedev-scraper"
-          git config user.email "scraper@manhwafreedev.local"
+          git config user.name "manhwafreedev-fetcher"
+          git config user.email "fetcher@manhwafreedev.local"
           git add data/catalog.json data/image-hosts.json data/image-referers.json data/source-patterns.json scraper/state.json
           git add data/titles 2>/dev/null || true
-          git diff --cached --quiet || git commit -m "Seed catalog $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          git diff --cached --quiet || git commit -m "Fetch catalog (seed) $(date -u +%Y-%m-%dT%H:%M:%SZ)"
           git push
 
       - name: Deploy catalog to live site (FTP)

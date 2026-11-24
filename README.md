@@ -4,7 +4,7 @@ A small PHP website that browses, searches, and reads manhwa from
 many sources. Plain PHP 8, no database, no Composer, no Node, no
 external dependencies. File-based caching only.
 
-How it works: a scheduled scraper builds a catalog
+How it works: a scheduled fetcher builds a catalog
 (`data/catalog.json` + `data/titles/<id>.json`) and the site reads
 it. One title is one page even when many sources carry it; chapters
 are the union across sources, and alternate copies are labelled
@@ -17,7 +17,7 @@ can see. See `docs/architecture.md` for the full design and
 There is currently **no catalog and no working live fetcher**. The
 facts:
 
-- The catalog has not been built yet (the hourly scraper is a
+- The catalog has not been built yet (the hourly fetcher is a
   separate piece of work), so `data/catalog.json` is an empty
   placeholder and pages fall back to live fetching.
 - Live fetching fails: source APIs require signatures only their

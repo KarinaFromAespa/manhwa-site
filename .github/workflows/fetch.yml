@@ -1,6 +1,6 @@
-# Hourly catalog scraper for manhwafreedev.
+# Hourly catalog fetcher for manhwafreedev.
 #
-# Runs the stdlib-only Python scraper and commits ONLY its outputs
+# Runs the stdlib-only Python fetcher and commits ONLY its outputs
 # back to main: data/catalog.json, data/titles/*.json,
 # data/image-hosts.json, data/image-referers.json and
 # scraper/state.json. Never docs/, lib/, or the registry. Then it
@@ -12,7 +12,7 @@
 # the site code from the checkout, the live site tracks main: every
 # push to main is deployed within the hour (and immediately on a
 # manual dispatch), so no separate manual FTP deploy is needed.
-name: Scrape catalog
+name: Fetching Data
 
 on:
   schedule:
@@ -23,11 +23,11 @@ permissions:
   contents: write
 
 concurrency:
-  group: scrape-catalog
+  group: fetch-catalog
   cancel-in-progress: false
 
 jobs:
-  scrape:
+  fetch:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -36,16 +36,16 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Run scraper
+      - name: Run fetcher
         run: python3 scraper/scrape.py
 
       - name: Commit catalog outputs
         run: |
-          git config user.name "manhwafreedev-scraper"
-          git config user.email "scraper@manhwafreedev.local"
+          git config user.name "manhwafreedev-fetcher"
+          git config user.email "fetcher@manhwafreedev.local"
           git add data/catalog.json data/image-hosts.json data/image-referers.json data/source-patterns.json scraper/state.json
           git add data/titles 2>/dev/null || true
-          git diff --cached --quiet || git commit -m "Scrape catalog $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          git diff --cached --quiet || git commit -m "Fetch catalog $(date -u +%Y-%m-%dT%H:%M:%SZ)"
           git push
 
       - name: Deploy site + catalog to live site (FTP)

@@ -123,6 +123,9 @@ main { padding: 24px 0 48px; }
     border-radius: 20px; padding: 3px 11px; font-size: 0.85rem; color: var(--muted);
 }
 .synopsis { color: var(--text); max-width: 70ch; margin: 12px 0 0; }
+.synopsis-wrap .synopsis { max-height: 200em; overflow: hidden; transition: max-height .35s ease; }
+.synopsis-wrap.collapsed .synopsis { max-height: 4.6em; }
+.synopsis-toggle { background: none; border: none; color: var(--accent); cursor: pointer; padding: 4px 0; font: inherit; }
 
 /* --- Scanlator dropdown --- */
 .scanlator {
