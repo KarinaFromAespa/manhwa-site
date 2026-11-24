@@ -178,6 +178,7 @@ class SiteClient
                 fn($i) => $i !== $start
             ))
         );
+        $fetchError = null;
         foreach ($order as $i) {
             $c = $list[$i] ?? null;
             if ($c === null || ($c['source'] ?? '') === '' || ($c['id'] ?? '') === '') {
@@ -198,6 +199,15 @@ class SiteClient
                 $res['data']['live'] = true;
                 return $res;
             }
+            if (!$live['ok'] && isset($live['error'])) {
+                $fetchError = $live['error'];
+            }
+        }
+        // No copy yielded images. When the live fetch itself failed,
+        // report that cause (Cloudflare, 403, timeout) instead of
+        // the generic "no images" message.
+        if ($fetchError !== null) {
+            return ['ok' => false, 'error' => $fetchError];
         }
         return $res;
     }
@@ -225,6 +235,7 @@ class SiteClient
         }
         $images = $row['images'];
         $live = false;
+        $fetchError = null;
         if (empty($images) && $scan !== 'comix' && ($row['id'] ?? '') !== '') {
             $adapter = $this->adapterFor($this->registryEntry($scan));
             if ($adapter instanceof MadaraAdapter) {
@@ -232,8 +243,16 @@ class SiteClient
                 if ($fetched['ok'] && !empty($fetched['data']['images'] ?? [])) {
                     $images = $fetched['data']['images'];
                     $live = true;
+                } elseif (!$fetched['ok'] && isset($fetched['error'])) {
+                    $fetchError = $fetched['error'];
                 }
             }
+        }
+        // The live fetch failed: report its cause (Cloudflare, 403,
+        // timeout) instead of the generic "no images" message, so
+        // the reader shows why this chapter cannot be read.
+        if ($images === [] && $fetchError !== null) {
+            return ['ok' => false, 'error' => $fetchError];
         }
         // Next scanlator carrying this chapter number, for the
         // "try another copy" link; 'all' when no other scanlator
