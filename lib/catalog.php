@@ -58,13 +58,29 @@ class Catalog
         if ($q === '') {
             return self::titles();
         }
+        $stop = ['the', 'a', 'an', 'of', 'and', 'in', 'on', 'to', 'for', 'with', 'by', 'at', 'from', 'is', 'are', 'was', 'were', 'be', 'been', 'it', 'its', 'this', 'that', 'as', 'or', 'but', 'not', 'no', 'my', 'your', 'his', 'her', 'their', 'our'];
+        $words = array_values(array_filter(
+            preg_split('/\s+/', $q) ?: [],
+            static fn($w) => $w !== '' && !in_array($w, $stop, true)
+        ));
         $out = [];
         foreach (self::titles() as $t) {
             $hay = mb_strtolower($t['title']);
             foreach (self::altTitles($t['id']) as $alt) {
                 $hay .= ' ' . mb_strtolower($alt);
             }
-            if (str_contains($hay, $q)) {
+            if ($words === []) {
+                $match = str_contains($hay, $q);
+            } else {
+                $match = true;
+                foreach ($words as $w) {
+                    if (!str_contains($hay, $w)) {
+                        $match = false;
+                        break;
+                    }
+                }
+            }
+            if ($match) {
                 $out[] = $t;
             }
         }
