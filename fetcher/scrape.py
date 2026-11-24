@@ -916,6 +916,28 @@ class Runner:
         text = re.sub(r"[^a-z0-9]+", " ", joined.lower())
         return re.sub(r"\s+", " ", text).strip()
 
+    def _alt_set(self, title):
+        """Individual alternative names, lowercased and
+        whitespace-normalized, keeping non-Latin scripts intact
+        (the Latin-only _norm_name would erase a Korean original
+        title entirely)."""
+        out = set()
+        for alt in title.get("alt_titles", []) or []:
+            n = re.sub(r"\s+", " ", (alt or "").strip().lower())
+            if n:
+                out.add(n)
+        return out
+
+    def _shared_alt(self, a, b):
+        """A substantial alternative name both titles list, or ''.
+        Substantial means >= 2 words, so a single shared word never
+        merges two works."""
+        shared = self._alt_set(a) & self._alt_set(b)
+        for name in sorted(shared):
+            if len(name.split()) >= 2:
+                return name
+        return ""
+
     def _norm_name(self, name):
         text = re.sub(r"[^a-z0-9]+", " ", (name or "").lower())
         return re.sub(r"\s+", " ", text).strip()
@@ -994,6 +1016,23 @@ class Runner:
                 return "alt-title mutual cross-match"
             if a_author and a_author == b_author or overlap >= 0.3:
                 return f"alt-title cross-match (overlap {overlap:.2f})"
+        # Rule 4: the two titles share an alternative name. A shared
+        # alt entry is a mutual signal — each title lists the same
+        # name — so it merges on its own, like a mutual cross-match.
+        # This catches pairs where one side has no author and all
+        # chapters are generically titled ("Chapter N"), so neither
+        # the author nor the chapter-overlap confirmation can fire
+        # (e.g. the two Barbarian titles share the Korean original
+        # '중세에서 온 바바리안'). Both titles need at least 2
+        # chapters so one-chapter bracketed one-shots never merge.
+        shared = ""
+        if (
+            self._chapter_count(a) >= 2
+            and self._chapter_count(b) >= 2
+        ):
+            shared = self._shared_alt(a, b)
+        if shared:
+            return f"shared alt title '{shared}'"
         return ""
 
     def merge_duplicates(self):
