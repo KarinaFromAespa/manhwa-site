@@ -89,6 +89,7 @@ V1_EXCLUDE = {
     "webtoonxyz": "HTTP 403 from datacenter IPs (2026-11-24; VPN exit also 403)",
     "aunt-manhwa": "SSL cert hostname mismatch (2026-11-24; unreachable via VPN too)",
     "manhwamanhua": "Connection reset from datacenter IPs (2026-11-24; unreachable via VPN too)",
+    "linkmanga": "Cloudflare-challenged from datacenter IPs (2026-11-24; branch test run)",
 }
 
 # --- Budgets (private repo: 2,000 Actions min/month, 720 runs) ---
