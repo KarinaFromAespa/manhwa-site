@@ -5586,5 +5586,170 @@
   "access": "login",
   "adult": false,
   "confidence": "likely"
+ },
+ {
+  "name": "BunManga",
+  "lang": "en",
+  "site": "https://bunmanga.com",
+  "theme": "madara",
+  "kind": "mixed",
+  "notes": "keiyoushi; mixed",
+  "access": "free",
+  "adult": false,
+  "confidence": "confirmed"
+ },
+ {
+  "name": "CucumberManga",
+  "lang": "en",
+  "site": "https://cucumbermanga.com",
+  "theme": "madara",
+  "kind": "mixed",
+  "notes": "keiyoushi; mixed; adult",
+  "access": "free",
+  "adult": true,
+  "confidence": "confirmed"
+ },
+ {
+  "name": "GakaMangas",
+  "lang": "en",
+  "site": "https://gakamangas.com",
+  "theme": "madara",
+  "kind": "mixed",
+  "notes": "keiyoushi; mixed",
+  "access": "free",
+  "adult": false,
+  "confidence": "confirmed"
+ },
+ {
+  "name": "LinkManga",
+  "lang": "en",
+  "site": "https://linkmanga.com",
+  "theme": "madara",
+  "kind": "mixed",
+  "notes": "keiyoushi; mixed",
+  "access": "free",
+  "adult": false,
+  "confidence": "confirmed"
+ },
+ {
+  "name": "MangaEclipse",
+  "lang": "en",
+  "site": "https://mangaeclipse.com",
+  "theme": "madara",
+  "kind": "mixed",
+  "notes": "keiyoushi; mixed",
+  "access": "free",
+  "adult": false,
+  "confidence": "confirmed"
+ },
+ {
+  "name": "MangaForFree",
+  "lang": "en",
+  "site": "https://mangaforfree.com",
+  "theme": "madara",
+  "kind": "mixed",
+  "notes": "keiyoushi; mixed; adult",
+  "access": "free",
+  "adult": true,
+  "confidence": "confirmed"
+ },
+ {
+  "name": "MangaFree",
+  "lang": "en",
+  "site": "https://mangafree.info",
+  "theme": "madara",
+  "kind": "mixed",
+  "notes": "keiyoushi; mixed; adult",
+  "access": "free",
+  "adult": true,
+  "confidence": "confirmed"
+ },
+ {
+  "name": "MangaGG",
+  "lang": "en",
+  "site": "https://mangagg.com",
+  "theme": "madara",
+  "kind": "mixed",
+  "notes": "keiyoushi; mixed",
+  "access": "free",
+  "adult": false,
+  "confidence": "confirmed"
+ },
+ {
+  "name": "MangaManiacs",
+  "lang": "en",
+  "site": "https://mangamaniacs.org",
+  "theme": "madara",
+  "kind": "mixed",
+  "notes": "keiyoushi; mixed; adult",
+  "access": "free",
+  "adult": true,
+  "confidence": "confirmed"
+ },
+ {
+  "name": "MangaOwl",
+  "lang": "en",
+  "site": "https://mangaowl.io",
+  "theme": "madara",
+  "kind": "mixed",
+  "notes": "keiyoushi; mixed",
+  "access": "free",
+  "adult": false,
+  "confidence": "confirmed"
+ },
+ {
+  "name": "MangaPark",
+  "lang": "en",
+  "site": "https://mangapark.tv",
+  "theme": "madara",
+  "kind": "mixed",
+  "notes": "keiyoushi; mixed; adult",
+  "access": "free",
+  "adult": true,
+  "confidence": "confirmed"
+ },
+ {
+  "name": "MangaRead",
+  "lang": "en",
+  "site": "https://www.mangaread.org",
+  "theme": "madara",
+  "kind": "mixed",
+  "notes": "keiyoushi; mixed",
+  "access": "free",
+  "adult": false,
+  "confidence": "confirmed"
+ },
+ {
+  "name": "MangaSushi",
+  "lang": "en",
+  "site": "https://mangasushi.org",
+  "theme": "madara",
+  "kind": "mixed",
+  "notes": "keiyoushi; mixed",
+  "access": "free",
+  "adult": false,
+  "confidence": "confirmed"
+ },
+ {
+  "name": "OctopusManga",
+  "lang": "en",
+  "site": "https://octopusmanga.com",
+  "theme": "madara",
+  "kind": "mixed",
+  "notes": "keiyoushi; mixed; adult",
+  "access": "free",
+  "adult": true,
+  "confidence": "confirmed"
+ },
+ {
+  "name": "RubyComics",
+  "lang": "en",
+  "site": "https://rubycomics.net",
+  "theme": "madara",
+  "kind": "mixed",
+  "notes": "keiyoushi; mixed; adult",
+  "access": "free",
+  "adult": true,
+  "confidence": "confirmed"
  }
 ]
