@@ -1,0 +1,56 @@
+# One-off audit: find every title with missing chapters (gap) or no
+# chapters at all (hollow) in the live catalog.
+#
+# The catalog lives ONLY on the live site (FTP), never in git, so this
+# downloads the base catalog from FTP (same as the fetch merge job),
+# runs fetcher/audit_gaps.py over the detail files, and uploads the
+# report as an artifact. It never writes anything back to the site.
+name: Audit Chapter Gaps
+
+on:
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Download base catalog from live site (FTP)
+        env:
+          FTP_USER: ${{ secrets.FTP_USERNAME }}
+          FTP_PASS: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          mkdir -p data/titles fetcher
+          curl -s --max-time 60 -u "$FTP_USER:$FTP_PASS" -o data/catalog.json "ftp://ftpupload.net/htdocs/data/catalog.json" || echo "WARN: no catalog.json on server"
+          python3 - <<'EOF'
+          import json
+          from pathlib import Path
+          try:
+              cat = json.loads(Path("data/catalog.json").read_text())
+          except Exception:
+              print("no catalog.json, aborting")
+              raise SystemExit(1)
+          ids = [t["id"] for t in cat.get("titles", []) if t.get("id")]
+          Path("/tmp/title_ids.txt").write_text("\n".join(f"data/titles/{i}.json" for i in ids))
+          print(f"base catalog has {len(ids)} titles")
+          EOF
+          if [ -s /tmp/title_ids.txt ]; then
+            cat /tmp/title_ids.txt | xargs -P 4 -I{} curl -s --max-time 60 -u "$FTP_USER:$FTP_PASS" -o "{}" "ftp://ftpupload.net/htdocs/{}" || true
+          fi
+          echo "download done: $(ls data/titles/*.json 2>/dev/null | wc -l) title files"
+
+      - name: Run gap audit
+        run: python3 fetcher/audit_gaps.py --root . --out audit-gaps.md
+
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-gaps
+          path: |
+            audit-gaps.md
+            data/audit-gaps.json
+          if-no-files-found: error
