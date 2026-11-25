@@ -179,6 +179,20 @@ def chapter_hash(chapters):
     return hashlib.sha1(blob.encode("utf-8")).hexdigest()[:12]
 
 
+
+def _catalog_chapter_max(chapters):
+    """Highest chapter number in a chapter list (float), or 0."""
+    best = 0.0
+    for ch in chapters or []:
+        try:
+            n = float(ch.get("number", "") or 0)
+        except (TypeError, ValueError):
+            continue
+        if n > best:
+            best = n
+    return best
+
+
 def chapter_list_gap(entry):
     """True when a stored source entry's chapter list is far short
     of its latest chapter number — the fetcher used to keep only
@@ -423,6 +437,79 @@ class Runner:
             self.budget.note_request()
 
     # --- Per-source run ---
+
+    def run_backfill(self, sources):
+        """Re-fetch titles whose stored chapter list is incomplete
+        (gap) or empty (hollow), driven by the CATALOG, not the
+        list window. The hourly fetcher only sees the latest 2
+        archive pages per source, so old titles with gaps never
+        surface there; this mode finds them from the stored detail
+        files and re-fetches each one so complete_chapter_list
+        fills the list (and the chap-N parser fix lets the hollow
+        sources return chapters at all). The slug comes from the
+        state when known, else the canonical id (usually the same
+        slug); a wrong slug just 404s and is skipped. Budget
+        permitting, processes as many pairs as fit in this run;
+        the rest are picked up by the next backfill run."""
+        # Find gap/hollow pairs from the catalog detail files.
+        pairs_by_source = {}
+        for cid in sorted(self.index_entries):
+            detail = self.prev_title(cid)
+            if not detail:
+                continue
+            for src in detail.get("sources", []) or []:
+                source_id = src.get("source", "")
+                if not source_id:
+                    continue
+                chapters = src.get("chapters", []) or []
+                count = len(chapters)
+                mx = _catalog_chapter_max(chapters)
+                if count == 0 or mx - count > 5:
+                    pairs_by_source.setdefault(source_id, []).append(cid)
+        total = sum(len(v) for v in pairs_by_source.values())
+        print(f"backfill: {total} gap/hollow title-source pairs")
+        for source_id, item in sources:
+            cids = pairs_by_source.get(source_id, [])
+            if not cids:
+                continue
+            if not self.budget.global_left():
+                self.budget.stopped = True
+                print(f"[{source_id}] budget exhausted, stopping")
+                break
+            secs, reqs = self.budget.remaining()
+            left_sources = len(
+                [s for s in sources if pairs_by_source.get(s[0])]
+            )
+            self.budget.begin_segment(
+                secs / max(left_sources, 1), reqs // max(left_sources, 1)
+            )
+            pattern = (self.patterns.get("sources", {}) or {}).get(
+                source_id, {}
+            )
+            site = MadaraSite(
+                source_id,
+                item["site"].rstrip("/"),
+                delay=REQUEST_DELAY,
+                list_path=pattern.get("list_path", "manga"),
+            )
+            print(f"[{source_id}] backfilling {len(cids)} titles ...")
+            for cid in cids:
+                if not self.budget.left():
+                    break
+                # Slug: state first (exact), else the canonical id.
+                slug = None
+                entry = (self.state.get("titles", {}).get(cid, {}).get(
+                    "sources", {}
+                ) or {}).get(source_id)
+                if entry and entry.get("slug"):
+                    slug = entry["slug"]
+                else:
+                    slug = cid
+                self.stats["titles_seen"] += 1
+                self.process_title(site, source_id, item, {
+                    "slug": slug, "title": "", "cover": "",
+                    "latest": [],
+                })
 
     def run_source(self, source_id, item):
         pattern = (self.patterns.get("sources", {}) or {}).get(source_id, {})
@@ -891,6 +978,34 @@ class Runner:
             sid: bool(item.get("adult", False)) for sid, item in sources
         }
         print(f"sources: {', '.join(sid for sid, _ in sources) or '(none)'}")
+        if getattr(self.args, "backfill_gaps", False):
+            self.run_backfill(sources)
+            self.merge_duplicates()
+            if self.shard_index is not None:
+                self.write_shard_outputs()
+            else:
+                self.write_outputs()
+            summary = {
+                "sources_ok": self.stats["sources_ok"],
+                "sources_failed": self.stats["sources_failed"],
+                "titles_seen": self.stats["titles_seen"],
+                "titles_new": self.stats["titles_new"],
+                "titles_updated": self.stats["titles_updated"],
+                "titles_unchanged": self.stats["titles_unchanged"],
+                "titles_merged": self.stats.get("titles_merged", 0),
+                "titles_total": len(self.index_entries),
+                "chapters_total": sum(
+                    len(s.get("chapters", []) or [])
+                    for t in self.title_files.values()
+                    for s in t.get("sources", []) or []
+                ) + self._carried_chapter_count(),
+                "title_pages": self.stats["title_pages"],
+                "requests": self.budget.requests,
+                "seconds": round(time.monotonic() - self.budget.started, 1),
+                "stopped_early": self.budget.stopped,
+            }
+            print("SUMMARY " + json.dumps(summary))
+            return 0
         for i, (source_id, item) in enumerate(sources):
             if not self.budget.global_left():
                 self.budget.stopped = True
@@ -1392,6 +1507,13 @@ def main(argv=None):
     parser.add_argument(
         "--list-pages", type=int, default=LIST_PAGES,
         help=f"/manga/ pages per source (default {LIST_PAGES})",
+    )
+    parser.add_argument(
+        "--backfill-gaps", action="store_true",
+        help="backfill mode: re-fetch titles whose stored chapter "
+        "list is incomplete or empty, found from the catalog "
+        "(not the list window), so old gap/hollow titles are "
+        "reached. Writes the updated catalog like a normal run.",
     )
     parser.add_argument(
         "--seed", action="store_true",
