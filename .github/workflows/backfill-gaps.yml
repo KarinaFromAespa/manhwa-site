@@ -98,4 +98,13 @@ jobs:
               printf '%s\n' "$f"
             done
           } | xargs -P 4 -I{} bash -c 'upload_one "$@"' _ {}
+          # Delete detail files for junk titles the fetcher pruned
+          # this run (dropped from the catalog index and removed
+          # locally; the upload above cannot delete them).
+          if [ -s data/pruned-titles.txt ]; then
+            while IFS= read -r pid; do
+              [ -n "$pid" ] || continue
+              curl -s --max-time 30 -u "$FTP_USER:$FTP_PASS" "ftp://ftpupload.net/htdocs/" -Q "-DELE data/titles/$pid.json" && echo "DELETED data/titles/$pid.json" || echo "WARN: could not delete data/titles/$pid.json"
+            done < data/pruned-titles.txt
+          fi
           curl -s --max-time 60 -u "$FTP_USER:$FTP_PASS" --ftp-create-dirs -T fetcher/state.json "ftp://ftpupload.net/htdocs/data/state.json" || echo "WARN: state.json upload failed"

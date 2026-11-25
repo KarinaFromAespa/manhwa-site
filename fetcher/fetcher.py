@@ -223,6 +223,15 @@ def chapter_list_gap(entry):
 _JUNK_TITLES = {
     "404", "403", "401", "400", "500", "502", "503",
     "not found", "page not found", "error", "oops",
+    # List/homepage headings a wrong-page fetch can mistake for a
+    # manga title (zinmanga-net "latest-manga-updates", 2026-11-25:
+    # a list page parsed as a title, filing ~10,000 chapters from
+    # many manga under one bogus title).
+    "latest manga updates", "latest updates", "latest manga",
+    "manga list", "manga updates", "hot manga", "popular manga",
+    "new manga", "recently updated", "trending manga",
+    "top manga", "all manga", "browse manga",
+    "latest manhwa updates", "latest manhwa", "manhwa list",
 }
 
 
@@ -702,10 +711,14 @@ class Runner:
         if not data.get("title") and list_item.get("title"):
             data["title"] = list_item["title"]
         if is_junk_title(data.get("title")):
-            # An empty title with real chapters for a known title
-            # is the API fallback, not a wrong-page fetch — the
-            # chapters came from this title's own API URL.
-            if not (data.get("chapters") and cid is not None):
+            # A non-empty junk heading (a list/homepage title like
+            # "latest manga updates") is a wrong-page fetch, never
+            # a real title — skip it outright, even if it is already
+            # in state. Only an EMPTY title with real chapters for
+            # a known title is the API fallback (the chapters came
+            # from this title's own API URL); keep those.
+            t = (data.get("title") or "").strip()
+            if t or not (data.get("chapters") and cid is not None):
                 print(
                     f"[{source_id}] skipping junk title "
                     f"{data.get('title')!r} (slug {list_item['slug']})"
@@ -1462,6 +1475,25 @@ class Runner:
                     "adult": bool(entry.get("adult", False)),
                 })
         titles.sort(key=lambda t: (-t["updated"], t["title"].lower()))
+        # Prune junk titles (list/homepage headings filed as manga,
+        # e.g. "latest manga updates"): drop them from the catalog
+        # index, delete their detail files so the deploy does not
+        # re-upload them, and record them for the FTP delete step.
+        pruned = [t["id"] for t in titles if is_junk_title(t["title"])]
+        if pruned:
+            pruned_set = set(pruned)
+            titles = [t for t in titles if t["id"] not in pruned_set]
+            self.touched = {c for c in self.touched if c not in pruned_set}
+            for cid in pruned:
+                fp = self.root / "data" / "titles" / f"{cid}.json"
+                try:
+                    fp.unlink()
+                except FileNotFoundError:
+                    pass
+            (self.root / "data" / "pruned-titles.txt").write_text(
+                "\n".join(pruned) + "\n"
+            )
+            print(f"pruned {len(pruned)} junk titles: {', '.join(pruned)}")
         catalog = {
             "version": 1,
             "generated_at": self.now,
