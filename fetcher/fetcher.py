@@ -42,6 +42,7 @@ and the seed cursor per source.
 import argparse
 import hashlib
 import json
+import os
 import re
 import sys
 import time
@@ -50,6 +51,7 @@ from urllib.parse import urlparse
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+import madara
 from madara import MadaraSite
 from normalize import (
     canonical_title_slug,
@@ -1591,6 +1593,15 @@ def main(argv=None):
         "--shard-out", default=None,
         help="directory for shard output (default: data/shard-<index>)",
     )
+    parser.add_argument(
+        "--proxy", default=None,
+        help="proxy URL to route all source fetches through "
+        "(http://IP:PORT or https://IP:PORT). Falls back to the "
+        "HTTPS_PROXY / HTTP_PROXY environment variables. Only "
+        "http(s) proxies are supported (urllib has no SOCKS "
+        "support). Used by the proxy workflow for sources that "
+        "block GitHub Actions datacenter IPs.",
+    )
     args = parser.parse_args(argv)
     args.sources = (
         [s.strip() for s in args.sources.split(",") if s.strip()]
@@ -1600,6 +1611,14 @@ def main(argv=None):
         [s.strip() for s in args.slugs.split(",") if s.strip()]
         if args.slugs else None
     )
+    proxy = (
+        args.proxy
+        or os.environ.get("HTTPS_PROXY")
+        or os.environ.get("HTTP_PROXY")
+    )
+    if proxy:
+        madara.set_proxy(proxy)
+        print(f"proxy: {proxy}")
     try:
         return Runner(args.root, args).run()
     except KeyboardInterrupt:

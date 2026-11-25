@@ -49,6 +49,23 @@ REQUEST_TIMEOUT = 10
 API_MAX_PAGES = 100
 
 
+def set_proxy(proxy_url):
+    """Route all fetcher HTTP through the given proxy URL.
+
+    Installs a global urllib opener with a ProxyHandler; fetch()
+    and fetch_post() use urllib.request.urlopen, which honours the
+    installed opener, so every source request goes through the
+    proxy. Only http:// and https:// proxies are supported
+    (urllib has no SOCKS support in the stdlib). No-op when
+    proxy_url is empty."""
+    if not proxy_url:
+        return
+    handler = urllib.request.ProxyHandler(
+        {"http": proxy_url, "https": proxy_url}
+    )
+    urllib.request.install_opener(urllib.request.build_opener(handler))
+
+
 def fetch(url, timeout=REQUEST_TIMEOUT):
     """One polite GET. Returns (ok, status, body, kind, message).
     kind is "" on success, else one of: cloudflare, http_403,
