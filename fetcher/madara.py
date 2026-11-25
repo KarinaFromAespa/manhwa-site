@@ -396,7 +396,11 @@ class MadaraSite:
 
 
 _CHAPTER_URL_RE = re.compile(
-    r"^(.*chapter-)(\d+(?:\.\d+)?)(.*)$", re.I
+    # Accept the "chap-" abbreviation too (bunmanga, manhuahot),
+    # so gap-filling works for those sources. Deliberately NOT "ch-":
+    # mangamaniacs URLs carry a varying "no-XXXX" prefix per chapter,
+    # so synthesising them would build wrong links.
+    r"^(.*(?:chapter|chap)-)(\d+(?:\.\d+)?)(.*)$", re.I
 )
 
 

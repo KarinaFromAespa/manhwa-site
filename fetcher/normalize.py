@@ -71,8 +71,14 @@ def normalize_number(raw):
 def chapter_number_from(text, href=""):
     """Extract a chapter number from link text, falling back to the
     URL. Returns the normalized number, or "" when nothing matches."""
+    # Some Madara sites abbreviate the chapter marker: "Chap 35"
+    # (bunmanga, manhuahot: chap-N URLs) or "Ch.004"
+    # (mangamaniacs: no-XXXX-ch-YYY-<group> URLs). Accept those too,
+    # or those sources yield no chapter number at all and read as
+    # hollow. The text is tried first, so a "ch" in the title slug
+    # only matters when the link text carries no number.
     for source in (text or "", href or ""):
-        m = re.search(r"chapter[\s\-_]?(\d+(?:\.\d+)?)", source, re.I)
+        m = re.search(r"(?:chapter|chap|ch)[\s\-._]?(\d+(?:\.\d+)?)", source, re.I)
         if m:
             return normalize_number(m.group(1))
     return ""
