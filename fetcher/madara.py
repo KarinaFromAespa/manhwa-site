@@ -43,7 +43,9 @@ USER_AGENT = (
     "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
 )
 REQUEST_TIMEOUT = 10
-API_MAX_PAGES = 10  # chapters API pages per title (10 chapters/page)
+# Chapters API pages per title (10 chapters/page). The API reports
+# last_page, so the loop stops there; this is only a runaway guard.
+API_MAX_PAGES = 100
 
 
 def fetch(url, timeout=REQUEST_TIMEOUT):
@@ -240,6 +242,7 @@ class MadaraSite:
         self.last_chapters_api = ""
         if data.get("chapters"):
             self.last_chapter_mode = "manga-page"
+            data["chapters"] = complete_chapter_list(data["chapters"])
             return True, data, "", ""
         title_slug = slug.strip("/").split("/")[-1]
         # Fallbacks, recorded mode first, then the rest. Each costs
@@ -272,6 +275,17 @@ class MadaraSite:
                 data["chapters"] = chapters
                 self.last_chapter_mode = mode
                 break
+        # Complete the list when the mode only returns a latest-N
+        # window (manga-page, manga-ajax, admin-ajax). The API and
+        # SPA modes supply the full list themselves, so they skip
+        # this.
+        if self.last_chapter_mode in (
+            "manga-page", "manga-ajax", "manga-ajax-paginated",
+            "admin-ajax",
+        ):
+            data["chapters"] = complete_chapter_list(
+                data.get("chapters") or []
+            )
         return True, data, "", ""
 
     def ajax_chapters(self, slug):
@@ -287,9 +301,13 @@ class MadaraSite:
 
     def ajax_chapters_paginated(self, slug):
         """MangaAjaxPaginated: POST {manga}/ajax/chapters/?t={page}
-        until a 404 or an empty page. Returns the chapter list."""
+        until a 404, an empty page, or a page that adds no new
+        chapters (some sources ignore ?t= and return page 1 every
+        time — stop instead of looping the same list 50 times).
+        Returns the chapter list, deduplicated."""
         manga_url = f"{self.base}/{slug.strip('/')}/"
         chapters = []
+        seen = set()
         page = 1
         while page <= 50:
             url = (
@@ -303,7 +321,14 @@ class MadaraSite:
             page_chapters = parse_chapter_list_html(body, self.base)
             if not page_chapters:
                 break
-            chapters.extend(page_chapters)
+            new = [
+                c for c in page_chapters if c.get("id") not in seen
+            ]
+            if not new:
+                break
+            for c in new:
+                seen.add(c.get("id"))
+            chapters.extend(new)
             page += 1
         return chapters
 
@@ -368,6 +393,83 @@ class MadaraSite:
                 "The chapter page did not contain any readable images."
             )
         return True, images, "", ""
+
+
+_CHAPTER_URL_RE = re.compile(
+    r"^(.*chapter-)(\d+(?:\.\d+)?)(.*)$", re.I
+)
+
+
+def complete_chapter_list(chapters):
+    """Fill a 'latest N' chapter window out to the full list.
+
+    Madara title-page AJAX (manga-ajax / admin-ajax) and many
+    server-rendered title pages return only the newest N chapters
+    and ignore every pagination parameter, so the fetcher cannot
+    page to the older ones (verified on manhwanex: ajax ?t=, POST
+    page/t/paged and the manga page ?manga-paged= all return the
+    same latest 16; the 'Show more' button only expands the CSS
+    to reveal those same 16). But the chapter URLs follow the
+    chapter-<number> pattern and the series runs 1..max, so the
+    missing numbers are constructed from the URL pattern of the
+    chapters we did fetch. Fetched chapters keep their real data
+    (title, date); synthesized ones get 'Chapter N' and no date.
+    Returns the union, deduplicated by number, sorted by number.
+    Only integer numbers are synthesized; decimal chapters (12.5)
+    are left to the fetched list. Returns the input unchanged when
+    there is no gap (max <= count) or the URL pattern cannot be
+    derived."""
+    if not chapters:
+        return chapters
+    max_num = 0.0
+    prefix = None
+    suffix = ""
+    have = set()
+    for ch in chapters:
+        num = ch.get("number", "")
+        try:
+            f = float(num)
+        except (TypeError, ValueError):
+            continue
+        if f > max_num:
+            max_num = f
+        have.add(num)
+        if prefix is None:
+            m = _CHAPTER_URL_RE.match(ch.get("id", "") or "")
+            if m:
+                prefix = m.group(1)
+                # Keep any suffix after the number (e.g. "-raw" on
+                # mangaforfree chapter URLs) so synthesized links
+                # match the source's real URL shape.
+                suffix = m.group(3)
+    if prefix is None or max_num <= len(chapters):
+        return chapters
+    import math
+
+    top = int(math.floor(max_num))
+    out = list(chapters)
+    for n in range(1, top + 1):
+        key = str(n)
+        if key in have:
+            continue
+        # prefix already ends in "chapter-", so just append the
+        # number (and the source's suffix, e.g. "-raw"), giving
+        # e.g. manga/<slug>/chapter-1 or .../chapter-1-raw.
+        out.append({
+            "number": key,
+            "title": f"Chapter {n}",
+            "id": f"{prefix}{n}{suffix}",
+            "date": "",
+        })
+
+    def _num(c):
+        try:
+            return float(c.get("number", 0))
+        except (TypeError, ValueError):
+            return 0.0
+
+    out.sort(key=_num)
+    return out
 
 
 def parse_list(html, base):
