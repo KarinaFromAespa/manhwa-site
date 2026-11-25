@@ -294,22 +294,55 @@ class MadaraSite:
             )
         self.last_chapter_mode = ""
         self.last_chapters_api = ""
-        if data.get("chapters"):
+
+        def _list_max(chs):
+            best = 0
+            for c in chs or []:
+                try:
+                    n = float(str(c.get("number", "")).replace(",", ""))
+                    if n > best:
+                        best = n
+                except (TypeError, ValueError):
+                    pass
+            return best
+
+        def _incomplete(chs):
+            # Held count far below the max chapter number: a
+            # latest-N window, not the full list (same >5 threshold
+            # the audit uses). A list that looks complete is
+            # accepted at once; an incomplete one is only a floor
+            # to beat.
+            if not chs:
+                return True
+            return (_list_max(chs) - len(chs)) > 5
+
+        # The server-rendered list is free (already fetched), so it
+        # is the floor — but only the floor when it looks like a
+        # latest-N window. A partial list must not be accepted as
+        # complete: the readmore / API modes below fetch the rest.
+        best = list(data.get("chapters") or [])
+        best_mode = "manga-page" if best else ""
+        if best and not _incomplete(best):
             self.last_chapter_mode = "manga-page"
-            data["chapters"] = complete_chapter_list(data["chapters"])
+            data["chapters"] = complete_chapter_list(best)
             return True, data, "", ""
         title_slug = slug.strip("/").split("/")[-1]
         # Fallbacks, recorded mode first, then the rest. Each costs
         # requests, so the recorded mode (when right) avoids the
-        # wasted attempts.
+        # wasted attempts. The readmore mode runs before manga-ajax:
+        # manga-ajax returns only the latest batch (~16) and would
+        # otherwise be accepted as complete.
         order = []
-        for mode in (chapter_mode, "api", "manga-ajax",
-                     "manga-ajax-paginated", "admin-ajax", "spa"):
+        for mode in (chapter_mode, "admin-ajax-get-chapters", "api",
+                     "manga-ajax", "manga-ajax-paginated", "admin-ajax",
+                     "spa"):
             if mode and mode not in order:
                 order.append(mode)
         for mode in order:
             chapters = []
-            if mode == "api":
+            if mode == "admin-ajax-get-chapters":
+                chapters = self.get_chapters_via_readmore(slug, body)
+            elif mode == "api":
                 api_url = find_chapters_api(body, self.base)
                 if not api_url:
                     # The title page came back without the API link
@@ -330,10 +363,14 @@ class MadaraSite:
                     chapters = self.admin_ajax_chapters(slug, post_id)
             elif mode == "spa":
                 chapters = find_spa_chapters(body, self.base)
-            if chapters:
-                data["chapters"] = chapters
-                self.last_chapter_mode = mode
-                break
+            if chapters and len(chapters) > len(best):
+                best = chapters
+                best_mode = mode
+                if not _incomplete(best):
+                    break
+        if best:
+            data["chapters"] = best
+            self.last_chapter_mode = best_mode
         # Complete the list when the mode only returns a latest-N
         # window (manga-page, manga-ajax, admin-ajax). The API mode
         # also gets it now: zinmanga-net's API paginates 10/page and
@@ -341,9 +378,9 @@ class MadaraSite:
         # fetch_api_chapters stops after the first page when the
         # chapter-URL pattern is derivable and synthesis fills the
         # rest. The SPA mode still supplies its own full list.
-        if self.last_chapter_mode in (
+        if best_mode in (
             "manga-page", "manga-ajax", "manga-ajax-paginated",
-            "admin-ajax", "api",
+            "admin-ajax", "admin-ajax-get-chapters", "api",
         ):
             data["chapters"] = complete_chapter_list(
                 data.get("chapters") or []
@@ -411,6 +448,114 @@ class MadaraSite:
         if not ok:
             return []
         return parse_chapter_list_html(body, self.base)
+
+    def admin_ajax_get_chapters(self, slug, manga_id, total=None):
+        """Chapters via the wp-manga-get-chapters admin-ajax action:
+        POST /wp-admin/admin-ajax.php with action=wp-manga-get-
+        chapters, manga_id=<id>, offset=<n>. Each response is JSON
+        with data.html carrying li.wp-manga-chapter items. Offsets
+        step by the batch size until the total is reached, an empty
+        batch arrives, or a batch is fully duplicate. Dedupes by
+        chapter id."""
+        import json as _json
+        import urllib.parse
+
+        manga_url = f"{self.base}/{slug.strip('/')}/"
+        ajax_url = f"{self.base}/wp-admin/admin-ajax.php"
+        chapters = []
+        seen_ids = set()
+        offset = 0
+        total_int = None
+        if total is not None:
+            try:
+                total_int = int(total)
+            except (TypeError, ValueError):
+                total_int = None
+        while True:
+            data = urllib.parse.urlencode({
+                "action": "wp-manga-get-chapters",
+                "manga_id": manga_id,
+                "offset": offset,
+            }).encode()
+            ok, _, body, _, _ = self.post(
+                ajax_url, data=data, referer=manga_url,
+            )
+            if not ok:
+                break
+            try:
+                payload = _json.loads(body)
+            except ValueError:
+                break
+            html = ""
+            if isinstance(payload, dict):
+                data_obj = payload.get("data", {})
+                if isinstance(data_obj, dict):
+                    html = data_obj.get("html", "") or ""
+                elif isinstance(data_obj, str):
+                    html = data_obj
+            if not html:
+                break
+            batch = parse_chapter_list_html(html, self.base)
+            if not batch:
+                break
+            new_ids = [
+                c["id"] for c in batch
+                if c.get("id") and c["id"] not in seen_ids
+            ]
+            if not new_ids:
+                break
+            for c in batch:
+                if c.get("id") and c["id"] not in seen_ids:
+                    seen_ids.add(c["id"])
+                    chapters.append(c)
+            if total_int is not None and len(chapters) >= total_int:
+                break
+            offset += len(batch)
+            if offset > 10000:
+                break
+        return chapters
+
+    def readmore_ajax_chapters(self, ajax_url):
+        """Chapters via a .c-chapter-readmore[data-ajax-url] GET:
+        the URL returns JSON with data.html or raw chapter HTML."""
+        import json as _json
+
+        ok, _, body, _, _ = self.get(ajax_url)
+        if not ok or not body:
+            return []
+        html = body
+        try:
+            payload = _json.loads(body)
+            if isinstance(payload, dict):
+                data_obj = payload.get("data", {})
+                if isinstance(data_obj, dict) and data_obj.get("html"):
+                    html = data_obj["html"]
+                elif isinstance(data_obj, str):
+                    html = data_obj
+        except ValueError:
+            pass
+        return parse_chapter_list_html(html, self.base)
+
+    def get_chapters_via_readmore(self, slug, body):
+        """Chapters via the readmore mechanism: the
+        .c-chapter-readmore[data-ajax-url] GET variant first, else
+        the wp-manga-get-chapters POST with the manga id from
+        #manga-chapters-holder[data-id] (fallbacks: data-post-id,
+        .chapter-readmore[data-manga-id]). Returns [] when no
+        marker is present, so the mode costs nothing then."""
+        readmore = find_chapter_readmore(body)
+        ajax_url = readmore.get("data-ajax-url", "")
+        if ajax_url:
+            return self.readmore_ajax_chapters(
+                resolve_url(self.base, ajax_url)
+            )
+        manga_id = find_manga_holder_id(body)
+        if not manga_id:
+            manga_id = readmore.get("data-manga-id", "")
+        if not manga_id:
+            return []
+        total = readmore.get("data-total", "")
+        return self.admin_ajax_get_chapters(slug, manga_id, total)
 
     def fetch_api_chapters(self, api_url, title_slug):
         """Pages of a chapters JSON API, newest first. The API
@@ -645,6 +790,50 @@ def find_post_id(html):
     AdminAjax chapter endpoint. None when absent."""
     match = re.search(r'data-post-id=["\'](\d+)["\']', html)
     return match.group(1) if match else None
+
+
+def find_manga_holder_id(html):
+    """Manga id from #manga-chapters-holder[data-id], the canonical
+    source Madara's own JS uses for its chapter AJAX. Falls back to
+    data-post-id. None when neither is present."""
+    match = re.search(
+        r'id=["\']manga-chapters-holder["\'][^>]*data-id=["\'](\d+)["\']',
+        html,
+    )
+    if match:
+        return match.group(1)
+    match = re.search(
+        r'data-id=["\'](\d+)["\'][^>]*id=["\']manga-chapters-holder["\']',
+        html,
+    )
+    if match:
+        return match.group(1)
+    return find_post_id(html)
+
+
+def find_chapter_readmore(html):
+    """The .chapter-readmore / .c-chapter-readmore button, if the
+    title page carries one. Returns whichever of data-total,
+    data-manga-id, data-offset and data-ajax-url are present
+    ({} when there is no such button)."""
+    for cls in ("chapter-readmore", "c-chapter-readmore"):
+        match = re.search(
+            r'<[^>]*class=["\'][^"\']*' + cls + r'[^"\']*["\'][^>]*>',
+            html,
+        )
+        if not match:
+            continue
+        tag = match.group(0)
+        out = {}
+        for key in (
+            "data-total", "data-manga-id", "data-offset", "data-ajax-url",
+        ):
+            m = re.search(key + r'=["\']([^"\']*)["\']', tag)
+            if m:
+                out[key] = m.group(1)
+        if out:
+            return out
+    return {}
 
 
 def find_spa_chapters(html, base):

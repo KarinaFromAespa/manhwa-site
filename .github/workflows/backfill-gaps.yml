@@ -16,6 +16,11 @@ name: Backfill Chapter Gaps
 
 on:
   workflow_dispatch:
+    inputs:
+      slugs:
+        description: "Comma-separated canonical title ids to force-re-fetch (option A). Leave empty for the auto-detected gap/hollow pairs."
+        required: false
+        default: ""
 
 concurrency:
   group: fetch-catalog
@@ -58,7 +63,12 @@ jobs:
           echo "base download done: $(ls data/titles/*.json 2>/dev/null | wc -l) title files"
 
       - name: Run backfill
-        run: python3 fetcher/fetcher.py --backfill-gaps --max-seconds 1500 --max-requests 1200
+        run: |
+          if [ -n "${{ inputs.slugs }}" ]; then
+            python3 fetcher/fetcher.py --backfill-gaps --slugs "${{ inputs.slugs }}" --max-seconds 1500 --max-requests 1200
+          else
+            python3 fetcher/fetcher.py --backfill-gaps --max-seconds 1500 --max-requests 1200
+          fi
 
       - name: Deploy catalog to live site (FTP)
         env:

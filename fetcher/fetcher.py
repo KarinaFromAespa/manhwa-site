@@ -451,23 +451,44 @@ class Runner:
         slug); a wrong slug just 404s and is skipped. Budget
         permitting, processes as many pairs as fit in this run;
         the rest are picked up by the next backfill run."""
-        # Find gap/hollow pairs from the catalog detail files.
-        pairs_by_source = {}
-        for cid in sorted(self.index_entries):
-            detail = self.prev_title(cid)
-            if not detail:
-                continue
-            for src in detail.get("sources", []) or []:
-                source_id = src.get("source", "")
-                if not source_id:
+        slug_list = getattr(self.args, "slugs", None)
+        if slug_list:
+            # Option A: explicit slug list (one-off force). Re-fetch
+            # these titles on every source they have, regardless of
+            # whether the stored list looks complete — the synthetic
+            # empty-latest item below forces the re-fetch, bypassing
+            # the unchanged / gap_backfill_done checks. Overrides
+            # the auto-detected gap/hollow pairs.
+            pairs_by_source = {}
+            for cid in slug_list:
+                detail = self.prev_title(cid)
+                if not detail:
+                    print(f"backfill: slug {cid} not in catalog, skipping")
                     continue
-                chapters = src.get("chapters", []) or []
-                count = len(chapters)
-                mx = _catalog_chapter_max(chapters)
-                if count == 0 or mx - count > 5:
-                    pairs_by_source.setdefault(source_id, []).append(cid)
-        total = sum(len(v) for v in pairs_by_source.values())
-        print(f"backfill: {total} gap/hollow title-source pairs")
+                for src in detail.get("sources", []) or []:
+                    source_id = src.get("source", "")
+                    if source_id:
+                        pairs_by_source.setdefault(source_id, []).append(cid)
+            total = sum(len(v) for v in pairs_by_source.values())
+            print(f"backfill: {total} forced title-source pairs from --slugs")
+        else:
+            # Find gap/hollow pairs from the catalog detail files.
+            pairs_by_source = {}
+            for cid in sorted(self.index_entries):
+                detail = self.prev_title(cid)
+                if not detail:
+                    continue
+                for src in detail.get("sources", []) or []:
+                    source_id = src.get("source", "")
+                    if not source_id:
+                        continue
+                    chapters = src.get("chapters", []) or []
+                    count = len(chapters)
+                    mx = _catalog_chapter_max(chapters)
+                    if count == 0 or mx - count > 5:
+                        pairs_by_source.setdefault(source_id, []).append(cid)
+            total = sum(len(v) for v in pairs_by_source.values())
+            print(f"backfill: {total} gap/hollow title-source pairs")
         # No per-source fair-share segments here: the backfill is a
         # single-purpose run, and an equal share starves sources
         # with many pairs (zinmanga-net had 71 titles but only a
@@ -1537,6 +1558,12 @@ def main(argv=None):
         "reached. Writes the updated catalog like a normal run.",
     )
     parser.add_argument(
+        "--slugs", default=None,
+        help="comma-separated canonical title ids to force-re-fetch "
+        "in backfill mode (option A: one-off slug list). Overrides "
+        "the auto-detected gap/hollow pairs.",
+    )
+    parser.add_argument(
         "--seed", action="store_true",
         help="seed mode: crawl each source's whole /manga/ "
         "directory from the stored cursor instead of only the "
@@ -1564,6 +1591,10 @@ def main(argv=None):
     args.sources = (
         [s.strip() for s in args.sources.split(",") if s.strip()]
         if args.sources else None
+    )
+    args.slugs = (
+        [s.strip() for s in args.slugs.split(",") if s.strip()]
+        if args.slugs else None
     )
     try:
         return Runner(args.root, args).run()
