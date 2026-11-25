@@ -4,3 +4,9 @@
 
 # Optional local config overrides (never commit secrets).
 /lib/config.local.php
+
+# Fetched catalog data lives ONLY on the live site (FTP), never in git.
+# The fetch workflows download it from FTP as the merge base and
+# upload the result back via FTP. Keep it out of the repo and its history.
+/data/
+fetcher/state.json

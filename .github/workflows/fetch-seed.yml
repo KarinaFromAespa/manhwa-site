@@ -5,19 +5,21 @@
 # hundreds of titles instead of only the recently-updated window.
 # A per-source cursor in fetcher/state.json remembers the next
 # page, so a seed run resumes where the last one stopped and a
-# finished pass starts over. Same outputs, commit and FTP deploy
-# as the hourly workflow. Runs weekly (Sunday 03:00 UTC) and on
-# demand; the hourly workflow keeps doing latest-updates in
-# between. Site code (index.php, lib/) is NOT deployed here.
+# finished pass starts over. Same outputs and FTP deploy as the
+# hourly workflow. Runs weekly (Sunday 03:00 UTC) and on demand;
+# the hourly workflow keeps doing latest-updates in between. Site
+# code (index.php, lib/) is NOT deployed here.
+#
+# The catalog lives ONLY on the live site (FTP), never in git. The
+# seed downloads the base catalog from FTP, scrapes on top of it,
+# and FTPs the result back. Nothing catalog-related is ever
+# committed to the repo.
 name: Fetching Data (Seed)
 
 on:
   schedule:
     - cron: "0 3 * * 0"  # weekly, Sunday 03:00 UTC
   workflow_dispatch:
-
-permissions:
-  contents: write
 
 concurrency:
   group: fetch-catalog
@@ -30,19 +32,40 @@ jobs:
       - name: Check out
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
+
+      - name: Download base catalog from live site (FTP)
+        env:
+          FTP_USER: ${{ secrets.FTP_USERNAME }}
+          FTP_PASS: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          # The catalog lives ONLY on the live site (FTP), never in
+          # git. Download it as the scrape base; the scraper writes
+          # the updated catalog back to data/ for the FTP deploy below.
+          mkdir -p data/titles fetcher
+          for f in data/catalog.json data/image-hosts.json data/image-referers.json data/source-patterns.json; do
+            curl -s --max-time 60 -u "$FTP_USER:$FTP_PASS" -o "$f" "ftp://ftpupload.net/htdocs/$f" || echo "WARN: no $f on server"
+          done
+          curl -s --max-time 60 -u "$FTP_USER:$FTP_PASS" -o fetcher/state.json "ftp://ftpupload.net/htdocs/data/state.json" || echo "WARN: no state.json on server"
+          python3 - <<'EOF'
+          import json
+          from pathlib import Path
+          try:
+              cat = json.loads(Path("data/catalog.json").read_text())
+          except Exception:
+              print("no catalog.json, starting from empty")
+              raise SystemExit(0)
+          ids = [t["id"] for t in cat.get("titles", []) if t.get("id")]
+          Path("/tmp/title_ids.txt").write_text("\n".join(f"data/titles/{i}.json" for i in ids))
+          print(f"base catalog has {len(ids)} titles")
+          EOF
+          if [ -s /tmp/title_ids.txt ]; then
+            cat /tmp/title_ids.txt | xargs -P 4 -I{} curl -s --max-time 60 -u "$FTP_USER:$FTP_PASS" -o "{}" "ftp://ftpupload.net/htdocs/{}" || true
+          fi
+          echo "base download done: $(ls data/titles/*.json 2>/dev/null | wc -l) title files"
 
       - name: Run fetcher (seed pass)
         run: python3 fetcher/scrape.py --seed --max-seconds 1500 --max-requests 900
-
-      - name: Commit catalog outputs
-        run: |
-          git config user.name "manhwafreedev-fetcher"
-          git config user.email "fetcher@manhwafreedev.local"
-          git add data/catalog.json data/image-hosts.json data/image-referers.json data/source-patterns.json fetcher/state.json
-          git add data/titles 2>/dev/null || true
-          git diff --cached --quiet || git commit -m "Fetch catalog (seed) $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          git push
 
       - name: Deploy catalog to live site (FTP)
         env:
@@ -62,4 +85,7 @@ jobs:
               fail=1
             fi
           done
+          # Fetcher runtime state (reliability + seed cursor) also
+          # lives on the live site, never in git.
+          curl -s --max-time 60 -u "$FTP_USER:$FTP_PASS" --ftp-create-dirs -T fetcher/state.json "ftp://ftpupload.net/htdocs/data/state.json" || echo "WARN: state.json upload failed"
           exit $fail

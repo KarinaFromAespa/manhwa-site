@@ -5,23 +5,19 @@
 # slice and writes just the titles it touched, plus a manifest, to
 # data/shard-N (never to data/ itself, so shards cannot clobber each
 # other). The merge job then combines the three shards on top of the
-# checked-out base catalog, commits ONLY the merged outputs back to
-# main (data/catalog.json, data/titles/*.json, data/image-hosts.json,
-# data/image-referers.json, data/source-patterns.json and
-# fetcher/state.json — never docs/, lib/, or the registry), and FTPs
-# the site code AND the catalog outputs to the live site
-# (InfinityFree, /htdocs/) using the repo secrets FTP_USERNAME and
-# FTP_PASSWORD. The FTP upload runs 4 files in parallel (xargs -P 4)
-# because the sequential upload was the slow part of the run.
+# base catalog, which lives ONLY on the live site (FTP) — never in
+# git. The merge job downloads the base catalog from FTP, merges,
+# and FTPs the site code AND the catalog outputs back to the live
+# site (InfinityFree, /htdocs/) using the repo secrets FTP_USERNAME
+# and FTP_PASSWORD. The FTP upload runs 4 files in parallel
+# (xargs -P 4) because the sequential upload was the slow part of
+# the run. Nothing catalog-related is ever committed to the repo.
 name: Fetching Data
 
 on:
   schedule:
     - cron: "0 * * * *"  # hourly
   workflow_dispatch:
-
-permissions:
-  contents: write
 
 concurrency:
   group: fetch-catalog
@@ -38,7 +34,7 @@ jobs:
       - name: Check out
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Run fetcher shard
         run: python3 fetcher/scrape.py --shard ${{ matrix.shard }}/3 --shard-out data/shard-${{ matrix.shard }}
@@ -57,7 +53,7 @@ jobs:
       - name: Check out
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Download shard outputs
         uses: actions/download-artifact@v4
@@ -66,24 +62,38 @@ jobs:
           pattern: shard-*
           merge-multiple: false
 
+      - name: Download base catalog from live site (FTP)
+        env:
+          FTP_USER: ${{ secrets.FTP_USERNAME }}
+          FTP_PASS: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          # The catalog lives ONLY on the live site (FTP), never in
+          # git. Download it as the merge base; the merge writes the
+          # updated catalog back to data/ for the FTP deploy below.
+          mkdir -p data/titles fetcher
+          for f in data/catalog.json data/image-hosts.json data/image-referers.json data/source-patterns.json; do
+            curl -s --max-time 60 -u "$FTP_USER:$FTP_PASS" -o "$f" "ftp://ftpupload.net/htdocs/$f" || echo "WARN: no $f on server"
+          done
+          curl -s --max-time 60 -u "$FTP_USER:$FTP_PASS" -o fetcher/state.json "ftp://ftpupload.net/htdocs/data/state.json" || echo "WARN: no state.json on server"
+          python3 - <<'EOF'
+          import json
+          from pathlib import Path
+          try:
+              cat = json.loads(Path("data/catalog.json").read_text())
+          except Exception:
+              print("no catalog.json, starting from empty")
+              raise SystemExit(0)
+          ids = [t["id"] for t in cat.get("titles", []) if t.get("id")]
+          Path("/tmp/title_ids.txt").write_text("\n".join(f"data/titles/{i}.json" for i in ids))
+          print(f"base catalog has {len(ids)} titles")
+          EOF
+          if [ -s /tmp/title_ids.txt ]; then
+            cat /tmp/title_ids.txt | xargs -P 4 -I{} curl -s --max-time 60 -u "$FTP_USER:$FTP_PASS" -o "{}" "ftp://ftpupload.net/htdocs/{}" || true
+          fi
+          echo "base download done: $(ls data/titles/*.json 2>/dev/null | wc -l) title files"
+
       - name: Merge shards into the catalog
         run: python3 fetcher/merge_shards.py --root . data/shard-0 data/shard-1 data/shard-2
-
-      - name: Commit catalog outputs
-        run: |
-          git config user.name "manhwafreedev-fetcher"
-          git config user.email "fetcher@manhwafreedev.local"
-          git add data/catalog.json data/image-hosts.json data/image-referers.json data/source-patterns.json fetcher/state.json
-          git add data/titles 2>/dev/null || true
-          git diff --cached --quiet || git commit -m "Fetch catalog $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          # Main may have moved (code pushes) while the shards were
-          # fetching; rebase the catalog commit onto the latest main
-          # so the push does not fail as non-fast-forward. Code pushes
-          # touch code files and the fetch only touches data/ files,
-          # so the rebase is conflict-free.
-          git fetch origin main
-          git rebase origin/main
-          git push origin HEAD:main
 
       - name: Deploy site + catalog to live site (FTP)
         env:
@@ -114,3 +124,6 @@ jobs:
             done
           } | xargs -P 4 -I{} bash -c 'upload_one "$@"' _ {}
           curl -s --max-time 30 -u "$FTP_USER:$FTP_PASS" "ftp://ftpupload.net/htdocs/" -Q "-DELE status.php" || true
+          # Fetcher runtime state (reliability + seed cursor) also
+          # lives on the live site, never in git.
+          curl -s --max-time 60 -u "$FTP_USER:$FTP_PASS" --ftp-create-dirs -T fetcher/state.json "ftp://ftpupload.net/htdocs/data/state.json" || echo "WARN: state.json upload failed"
