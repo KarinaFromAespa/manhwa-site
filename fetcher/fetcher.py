@@ -206,6 +206,36 @@ def _source_chapter_count(detail, source_id):
     return 0
 
 
+def _slug_from_chapters(detail, source_id):
+    """Site slug for a source, from its stored chapter ids. A
+    chapter id is "<slug>/...chapter...": the slug is the id minus
+    its last segment when that segment names a chapter (Madara ids
+    are "manga/<slug>/chapter-<n>", mangaowl's are
+    "read-1/<hash>/<title>-chapter-<n>"). Returns "" when the
+    source has no stored chapters (hollow titles) or no id looks
+    like a chapter path. The canonical id is NOT the site slug:
+    the site often uses a different title entirely (the work
+    catalogued as "catastrophic-necromancer" lives at
+    "manga/disastrous-necromancer"), so falling back to the
+    canonical id 404s or lands on the homepage."""
+    if not detail:
+        return ""
+    for src in detail.get("sources", []) or []:
+        if src.get("source") != source_id:
+            continue
+        for ch in src.get("chapters", []) or []:
+            path = (ch.get("id") or "").strip().strip("/")
+            if not path or path.startswith("http"):
+                continue
+            if "/" not in path:
+                continue
+            head, _, tail = path.rpartition("/")
+            if "chapter" in tail.lower():
+                return head
+        return ""
+    return ""
+
+
 def chapter_list_gap(entry):
     """True when a stored source entry's chapter list is far short
     of its latest chapter number — the fetcher used to keep only
@@ -513,7 +543,14 @@ class Runner:
             for cid in cids:
                 if not self.budget.left():
                     break
-                # Slug: state first (exact), else the canonical id.
+                # Slug: state first (exact), else derive it from the
+                # source's stored chapter ids, else the canonical
+                # id. The canonical id is NOT the site slug (the
+                # site often uses a different title entirely), so
+                # using it as the slug 404s or lands on the
+                # homepage -- that is why the first VM run
+                # recovered nothing.
+                detail = self.prev_title(cid)
                 slug = None
                 entry = (self.state.get("titles", {}).get(cid, {}).get(
                     "sources", {}
@@ -521,10 +558,25 @@ class Runner:
                 if entry and entry.get("slug"):
                     slug = entry["slug"]
                 else:
-                    slug = cid
-                before_n = _source_chapter_count(
-                    self.prev_title(cid), source_id
-                )
+                    slug = _slug_from_chapters(detail, source_id) or cid
+                    if slug != cid:
+                        # Record the derived slug so the next run
+                        # uses it directly (the state heals itself).
+                        self.state.setdefault("titles", {}).setdefault(
+                            cid, {}
+                        ).setdefault("sources", {}).setdefault(
+                            source_id, {}
+                        )["slug"] = slug
+                    # Link this source+slug to the catalog title, so
+                    # the fetched chapters update THIS title instead
+                    # of resolving to a new canonical id from the
+                    # site's title (the site often calls the work
+                    # something else entirely -- "Love for Sale" vs
+                    # the catalogued "Affair Agency").
+                    self.state.setdefault("map", {})[
+                        f"{source_id}|{slug}"
+                    ] = cid
+                before_n = _source_chapter_count(detail, source_id)
                 self.stats["titles_seen"] += 1
                 result = self.process_title(site, source_id, item, {
                     "slug": slug, "title": "", "cover": "",
