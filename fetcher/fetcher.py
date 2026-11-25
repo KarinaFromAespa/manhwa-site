@@ -553,15 +553,14 @@ class Runner:
                     # is far short of the latest chapter number.
                     # Re-fetch so complete_chapter_list fills it;
                     # after the backfill the count matches the max
-                    # and the title is skipped again. Marked done
-                    # before the fetch so a title whose gap cannot
-                    # be filled (non-chapter URL pattern) is not
-                    # re-fetched every run.
-                    if (
-                        chapter_list_gap(entry)
-                        and not entry.get("gap_backfill_done")
+                    # and the title is skipped again. The flag is
+                    # set in update_title after a successful fetch,
+                    # so a title skipped for budget is retried next
+                    # run.
+                    if chapter_list_gap(entry) and not entry.get(
+                        "gap_backfill_done"
                     ):
-                        entry["gap_backfill_done"] = True
+                        pass  # fall through to re-fetch below
                     else:
                         self.stats["titles_unchanged"] += 1
                         return "unchanged"
@@ -742,9 +741,13 @@ class Runner:
             "last_seen": now,
             "no_chapters": bool(no_chapters),
             "author": data.get("author", ""),
-            # Carried forward so a gap backfill is attempted once.
+            # Carried forward so a gap backfill is attempted once:
+            # set when this update follows a gap (the old entry's
+            # list was far short of its latest chapter), so the
+            # title is not re-fetched for the same gap again.
             "gap_backfill_done": bool(
                 prev_entry.get("gap_backfill_done")
+                or chapter_list_gap(prev_entry)
             ),
         }
         self.state.setdefault("titles", {}).setdefault(cid, {}).setdefault(
