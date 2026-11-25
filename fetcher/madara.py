@@ -34,6 +34,7 @@ import re
 import time
 import urllib.error
 import urllib.request
+import http.client
 from urllib.parse import urljoin, urlparse
 
 from htmltree import find_all, find_first, img_src, parse, text
@@ -64,6 +65,23 @@ def fetch(url, timeout=REQUEST_TIMEOUT):
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             body = resp.read().decode("utf-8", "replace")
             return True, resp.status, body, "", ""
+    except http.client.IncompleteRead as exc:
+        # The server cut the connection mid-body (Cloudflare bot
+        # filtering on zinmanga-net drops Python's connections).
+        # The partial body is often complete — the chapters API's
+        # full JSON arrives, then the connection is cut before
+        # urllib considers the response finished. Accept it only
+        # when it parses as JSON (the API case); a truncated HTML
+        # title page must still fail, so the caller falls back to
+        # the API instead of trusting a chapter-less partial page.
+        body = exc.partial.decode("utf-8", "replace")
+        if body:
+            try:
+                json.loads(body)
+                return True, 200, body, "", ""
+            except ValueError:
+                pass
+        return False, 0, "", "network", f"Could not be reached ({exc})."
     except urllib.error.HTTPError as exc:
         try:
             body = exc.read().decode("utf-8", "replace")
@@ -113,6 +131,23 @@ def fetch_post(url, data=b"", headers=None, timeout=REQUEST_TIMEOUT):
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             body = resp.read().decode("utf-8", "replace")
             return True, resp.status, body, "", ""
+    except http.client.IncompleteRead as exc:
+        # The server cut the connection mid-body (Cloudflare bot
+        # filtering on zinmanga-net drops Python's connections).
+        # The partial body is often complete — the chapters API's
+        # full JSON arrives, then the connection is cut before
+        # urllib considers the response finished. Accept it only
+        # when it parses as JSON (the API case); a truncated HTML
+        # title page must still fail, so the caller falls back to
+        # the API instead of trusting a chapter-less partial page.
+        body = exc.partial.decode("utf-8", "replace")
+        if body:
+            try:
+                json.loads(body)
+                return True, 200, body, "", ""
+            except ValueError:
+                pass
+        return False, 0, "", "network", f"Could not be reached ({exc})."
     except urllib.error.HTTPError as exc:
         try:
             body = exc.read().decode("utf-8", "replace")
@@ -220,7 +255,7 @@ class MadaraSite:
 
     # --- Title page ---
 
-    def detail(self, slug, chapter_mode=""):
+    def detail(self, slug, chapter_mode="", api_url=""):
         """Full title page: metadata + chapter list. Returns
         (ok, data, kind, message). The chapter list is taken from
         the mechanism that works for this source, in the order the
@@ -232,6 +267,24 @@ class MadaraSite:
         url = f"{self.base}/{slug.strip('/')}/"
         ok, status, body, kind, message = self.get(url)
         if not ok:
+            # Title page unreachable (zinmanga-net's HTML pages
+            # drop Python's connections — Cloudflare bot
+            # filtering — while its JSON chapters API answers
+            # fine). When the caller supplied the recorded API
+            # URL, fetch chapters straight from the API; metadata
+            # merges from the stored catalog entry for existing
+            # titles. Only for a dropped connection, not a 404.
+            if api_url and kind in ("network", "timeout"):
+                chapters = self.fetch_api_chapters(
+                    api_url, slug.strip("/").split("/")[-1]
+                )
+                if chapters:
+                    self.last_chapter_mode = "api"
+                    self.last_chapters_api = api_url
+                    return True, {
+                        "title": "",
+                        "chapters": complete_chapter_list(chapters),
+                    }, "", ""
             return False, None, kind, message
         data = parse_detail(body, self.base, slug)
         if data is None:

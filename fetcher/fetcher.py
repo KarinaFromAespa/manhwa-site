@@ -655,17 +655,41 @@ class Runner:
         mode = (self.patterns.get("sources", {}) or {}).get(
             source_id, {}
         ).get("chapters", "")
-        ok, data, kind, message = site.detail(list_item["slug"], mode)
+        # API fallback: when the recorded mode is "api" and the
+        # chapters API template is known, build the API URL from
+        # this title's slug. detail() uses it when the title page
+        # itself is unreachable (zinmanga-net's HTML pages drop
+        # Python's connections, but its JSON API answers fine).
+        api_url = ""
+        if mode == "api":
+            template = (self.patterns.get("sources", {}) or {}).get(
+                source_id, {}
+            ).get("chapters_api", "")
+            if template and "{slug}" in template:
+                title_slug = list_item["slug"].strip("/").split("/")[-1]
+                api_url = template.replace("{slug}", title_slug)
+        ok, data, kind, message = site.detail(
+            list_item["slug"], mode, api_url
+        )
         self._note_site_requests(site, before)
         if not ok:
             return "failed"
         self._record_pattern(site, source_id, source_item, data)
+        # The API fallback returns chapters without a title page
+        # (the page was blocked); use the list item's title when
+        # the fetch has none (new titles from the list carry it).
+        if not data.get("title") and list_item.get("title"):
+            data["title"] = list_item["title"]
         if is_junk_title(data.get("title")):
-            print(
-                f"[{source_id}] skipping junk title "
-                f"{data.get('title')!r} (slug {list_item['slug']})"
-            )
-            return "failed"
+            # An empty title with real chapters for a known title
+            # is the API fallback, not a wrong-page fetch — the
+            # chapters came from this title's own API URL.
+            if not (data.get("chapters") and cid is not None):
+                print(
+                    f"[{source_id}] skipping junk title "
+                    f"{data.get('title')!r} (slug {list_item['slug']})"
+                )
+                return "failed"
         if cid is None:
             cid = self.resolve_id(data["title"], data.get("author", ""))
             self.state.setdefault("map", {})[key] = cid
