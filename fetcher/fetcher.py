@@ -196,6 +196,16 @@ def _catalog_chapter_max(chapters):
     return best
 
 
+def _source_chapter_count(detail, source_id):
+    """Chapters stored for one source in a title detail dict."""
+    if not detail:
+        return 0
+    for src in detail.get("sources", []) or []:
+        if src.get("source") == source_id:
+            return len(src.get("chapters", []) or [])
+    return 0
+
+
 def chapter_list_gap(entry):
     """True when a stored source entry's chapter list is far short
     of its latest chapter number — the fetcher used to keep only
@@ -348,6 +358,9 @@ class Runner:
             "titles_unchanged": 0, "chapters_new": 0,
             "title_pages": 0, "requests": 0,
         }
+        # (kind, message) of the last failed title fetch, for
+        # the backfill per-title log and per-source outcome.
+        self._last_fetch_failure = ("", "")
         self.image_hosts = set()
         self.image_referers = {}  # image host -> [origins to try]
         # Working catalog: index entries carried forward + updated.
@@ -494,6 +507,9 @@ class Runner:
                 list_path=pattern.get("list_path", "manga"),
             )
             print(f"[{source_id}] backfilling {len(cids)} titles ...")
+            ok_n = 0
+            fail_n = 0
+            fail_kinds = set()
             for cid in cids:
                 if not self.budget.left():
                     break
@@ -506,11 +522,46 @@ class Runner:
                     slug = entry["slug"]
                 else:
                     slug = cid
+                before_n = _source_chapter_count(
+                    self.prev_title(cid), source_id
+                )
                 self.stats["titles_seen"] += 1
-                self.process_title(site, source_id, item, {
+                result = self.process_title(site, source_id, item, {
                     "slug": slug, "title": "", "cover": "",
                     "latest": [],
                 })
+                after_n = _source_chapter_count(
+                    self.prev_title(cid), source_id
+                )
+                if result == "failed":
+                    fail_n += 1
+                    fail_kinds.add(
+                        (self._last_fetch_failure or ("", ""))[0]
+                        or "failed"
+                    )
+                else:
+                    ok_n += 1
+                print(
+                    f"[{source_id}] {cid}: {result} "
+                    f"chapters {before_n} -> {after_n}"
+                )
+                if site.rate_limited:
+                    print(
+                        f"[{source_id}] rate-limited "
+                        f"({site.rate_limit_message}), stopping this "
+                        f"source for this run"
+                    )
+                    break
+            if site.rate_limited:
+                self.stats["sources_failed"][source_id] = (
+                    f"rate-limited: {site.rate_limit_message}"
+                )
+            elif ok_n:
+                self.stats["sources_ok"].append(source_id)
+            elif fail_n:
+                self.stats["sources_failed"][source_id] = (
+                    "; ".join(sorted(fail_kinds))
+                )
 
     def run_source(self, source_id, item):
         pattern = (self.patterns.get("sources", {}) or {}).get(source_id, {})
@@ -677,6 +728,12 @@ class Runner:
         )
         self._note_site_requests(site, before)
         if not ok:
+            self._last_fetch_failure = (kind, message)
+            if getattr(self.args, "backfill_gaps", False):
+                print(
+                    f"[{source_id}] {list_item['slug']}: fetch failed "
+                    f"({kind}): {message}"
+                )
             return "failed"
         self._record_pattern(site, source_id, source_item, data)
         # The API fallback returns chapters without a title page

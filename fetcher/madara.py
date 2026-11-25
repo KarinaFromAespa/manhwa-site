@@ -66,10 +66,25 @@ def set_proxy(proxy_url):
     urllib.request.install_opener(urllib.request.build_opener(handler))
 
 
+def _rate_limit_message(exc):
+    """Message for a 429, carrying the server's Retry-After when
+    it sends one. The runner stops the source for this run; the
+    next scheduled run retries it."""
+    retry_after = ""
+    try:
+        retry_after = exc.headers.get("Retry-After", "") or ""
+    except Exception:
+        retry_after = ""
+    message = "HTTP 429 (Too Many Requests)."
+    if retry_after:
+        message += f" Retry after {retry_after}s."
+    return message
+
+
 def fetch(url, timeout=REQUEST_TIMEOUT):
     """One polite GET. Returns (ok, status, body, kind, message).
     kind is "" on success, else one of: cloudflare, http_403,
-    http_<code>, timeout, network."""
+    http_<code>, rate_limited, timeout, network."""
     req = urllib.request.Request(
         url,
         headers={
@@ -115,6 +130,8 @@ def fetch(url, timeout=REQUEST_TIMEOUT):
             )
         if exc.code == 403:
             return False, 403, body, "http_403", "HTTP 403 (Forbidden)."
+        if exc.code == 429:
+            return False, 429, body, "rate_limited", _rate_limit_message(exc)
         return False, exc.code, body, f"http_{exc.code}", f"HTTP {exc.code}."
     except urllib.error.URLError as exc:
         reason = str(getattr(exc, "reason", exc))
@@ -183,6 +200,8 @@ def fetch_post(url, data=b"", headers=None, timeout=REQUEST_TIMEOUT):
             )
         if exc.code == 403:
             return False, 403, body, "http_403", "HTTP 403 (Forbidden)."
+        if exc.code == 429:
+            return False, 429, body, "rate_limited", _rate_limit_message(exc)
         return False, exc.code, body, f"http_{exc.code}", f"HTTP {exc.code}."
     except urllib.error.URLError as exc:
         reason = str(getattr(exc, "reason", exc))
@@ -229,18 +248,32 @@ class MadaraSite:
         # it in data/source-patterns.json so the choice is stable.
         self.last_chapter_mode = ""
         self.last_chapters_api = ""
+        # Set when the site answers 429: get()/post() refuse
+        # further requests, and the runner stops this source
+        # for the run instead of hammering a host that asked
+        # it to slow down.
+        self.rate_limited = False
+        self.rate_limit_message = ""
 
     def get(self, url):
+        if self.rate_limited:
+            return False, 0, "", "rate_limited", self.rate_limit_message
         wait = self.delay - (time.monotonic() - self._last_fetch)
         if wait > 0:
             time.sleep(wait)
         self._last_fetch = time.monotonic()
         self.requests += 1
-        return fetch(url)
+        ok, status, body, kind, message = fetch(url)
+        if kind == "rate_limited":
+            self.rate_limited = True
+            self.rate_limit_message = message
+        return ok, status, body, kind, message
 
     def post(self, url, data=b"", referer=""):
         """Form POST with the XHR headers the Madara AJAX endpoints
         expect. Referer is the manga page the request comes from."""
+        if self.rate_limited:
+            return False, 0, "", "rate_limited", self.rate_limit_message
         wait = self.delay - (time.monotonic() - self._last_fetch)
         if wait > 0:
             time.sleep(wait)
@@ -249,7 +282,13 @@ class MadaraSite:
         headers = {}
         if referer:
             headers["Referer"] = referer
-        return fetch_post(url, data=data, headers=headers)
+        ok, status, body, kind, message = fetch_post(
+            url, data=data, headers=headers
+        )
+        if kind == "rate_limited":
+            self.rate_limited = True
+            self.rate_limit_message = message
+        return ok, status, body, kind, message
 
     # --- Lists ---
 
