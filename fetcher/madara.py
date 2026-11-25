@@ -276,12 +276,15 @@ class MadaraSite:
                 self.last_chapter_mode = mode
                 break
         # Complete the list when the mode only returns a latest-N
-        # window (manga-page, manga-ajax, admin-ajax). The API and
-        # SPA modes supply the full list themselves, so they skip
-        # this.
+        # window (manga-page, manga-ajax, admin-ajax). The API mode
+        # also gets it now: zinmanga-net's API paginates 10/page and
+        # a long title would need 100+ requests to page through, so
+        # fetch_api_chapters stops after the first page when the
+        # chapter-URL pattern is derivable and synthesis fills the
+        # rest. The SPA mode still supplies its own full list.
         if self.last_chapter_mode in (
             "manga-page", "manga-ajax", "manga-ajax-paginated",
-            "admin-ajax",
+            "admin-ajax", "api",
         ):
             data["chapters"] = complete_chapter_list(
                 data.get("chapters") or []
@@ -351,9 +354,14 @@ class MadaraSite:
         return parse_chapter_list_html(body, self.base)
 
     def fetch_api_chapters(self, api_url, title_slug):
-        """All pages of a chapters JSON API, newest first. The API
-        paginates (10/page); capped at 10 pages so one long title
-        cannot eat the run's budget."""
+        """Pages of a chapters JSON API, newest first. The API
+        paginates (10/page). After the first page, if the chapter
+        URLs follow the chapter-<number> pattern, stop: the
+        detail() synthesis fills 1..max from that pattern, so
+        paging through 100+ pages for one long title would only
+        burn requests for data synthesis already provides. When
+        the pattern is not derivable, keep paging (up to
+        API_MAX_PAGES) to get the real list."""
         chapters = []
         page = 1
         while page <= API_MAX_PAGES:
@@ -375,6 +383,12 @@ class MadaraSite:
             _, last_page = api_page_info(payload)
             if page >= last_page:
                 break
+            if page == 1 and chapters:
+                # First page gives the max chapter number and the
+                # URL pattern; synthesis fills the rest. Only keep
+                # paging when the pattern cannot be derived.
+                if _CHAPTER_URL_RE.match(chapters[0].get("id", "") or ""):
+                    break
             page += 1
         return chapters
 
