@@ -23,7 +23,7 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from normalize import normalize_number  # noqa: E402
+from normalize import is_junk_title, normalize_number  # noqa: E402
 
 
 def load_json(path, default):
@@ -221,6 +221,28 @@ def main(argv=None):
                 total_new += 1
             else:
                 total_updated += 1
+
+    # Prune junk titles (list/homepage headings filed as manga,
+    # e.g. "latest manga updates"): drop them from the merged titles
+    # and their detail files, and record them for the FTP delete step
+    # (the upload cannot delete). This is the fetch.yml merge path —
+    # the one that actually writes the final catalog.
+    pruned = [
+        cid for cid, t in titles.items()
+        if is_junk_title(t.get("title", ""))
+    ]
+    if pruned:
+        for cid in pruned:
+            titles.pop(cid, None)
+            fp = root / "data" / "titles" / f"{cid}.json"
+            try:
+                fp.unlink()
+            except FileNotFoundError:
+                pass
+        (root / "data" / "pruned-titles.txt").write_text(
+            "\n".join(pruned) + "\n", encoding="utf-8"
+        )
+        print(f"pruned {len(pruned)} junk titles: {', '.join(pruned)}")
 
     # Rebuild the catalog index from the merged titles.
     index_titles = []

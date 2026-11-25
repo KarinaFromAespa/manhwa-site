@@ -176,3 +176,31 @@ def is_adult(genres, source_adult_flags):
     if lowered & ADULT_GENRES:
         return True
     return bool(source_adult_flags) and all(source_adult_flags)
+
+
+# Titles that are not manga at all: error pages and list/homepage
+# headings a wrong-page fetch can mistake for a manga title.
+# (zinmanga-net "latest-manga-updates", 2026-11-25: a list page
+# parsed as a title, filing ~10,000 chapters from many manga under
+# one bogus title.) Used by fetcher.py (skip on fetch) and
+# merge_shards.py (prune from the catalog).
+_JUNK_TITLES = {
+    "404", "403", "401", "400", "500", "502", "503",
+    "not found", "page not found", "error", "oops",
+    "latest manga updates", "latest updates", "latest manga",
+    "manga list", "manga updates", "hot manga", "popular manga",
+    "new manga", "recently updated", "trending manga",
+    "top manga", "all manga", "browse manga",
+    "latest manhwa updates", "latest manhwa", "manhwa list",
+}
+
+
+def is_junk_title(title):
+    t = (title or "").strip().lower()
+    if not t:
+        return True
+    if t in _JUNK_TITLES:
+        return True
+    if re.fullmatch(r"\d{3}", t):
+        return True
+    return False

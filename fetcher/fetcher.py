@@ -54,6 +54,7 @@ from madara import MadaraSite
 from normalize import (
     canonical_title_slug,
     is_adult,
+    is_junk_title,
     name_similarity,
     normalize_number,
     normalize_status,
@@ -217,35 +218,6 @@ def chapter_list_gap(entry):
 
 
 # Titles that are clearly an error page, not a work. A source
-# that serves its 404 page with a list-like shape used to create a
-# bogus "404" title (mangapark, 2026-11-24). Skip those before they
-# reach the catalog.
-_JUNK_TITLES = {
-    "404", "403", "401", "400", "500", "502", "503",
-    "not found", "page not found", "error", "oops",
-    # List/homepage headings a wrong-page fetch can mistake for a
-    # manga title (zinmanga-net "latest-manga-updates", 2026-11-25:
-    # a list page parsed as a title, filing ~10,000 chapters from
-    # many manga under one bogus title).
-    "latest manga updates", "latest updates", "latest manga",
-    "manga list", "manga updates", "hot manga", "popular manga",
-    "new manga", "recently updated", "trending manga",
-    "top manga", "all manga", "browse manga",
-    "latest manhwa updates", "latest manhwa", "manhwa list",
-}
-
-
-def is_junk_title(title):
-    t = (title or "").strip().lower()
-    if not t:
-        return True
-    if t in _JUNK_TITLES:
-        return True
-    if re.fullmatch(r"\d{3}", t):
-        return True
-    return False
-
-
 # --- State ---
 
 def load_state(path):
