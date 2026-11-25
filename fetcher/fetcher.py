@@ -179,6 +179,29 @@ def chapter_hash(chapters):
     return hashlib.sha1(blob.encode("utf-8")).hexdigest()[:12]
 
 
+def chapter_list_gap(entry):
+    """True when a stored source entry's chapter list is far short
+    of its latest chapter number — the fetcher used to keep only
+    the newest N chapters, so the stored list is incomplete. The
+    gap is the latest chapter number minus the stored chapter
+    count; a gap over 5 means the list is genuinely incomplete
+    (a gap of 1-5 is usually a legitimately skipped number or a
+    decimal chapter). Used to force one re-fetch that backfills
+    the list via complete_chapter_list in madara.py."""
+    if not entry:
+        return False
+    try:
+        max_num = float(entry.get("last_chapter") or 0)
+    except (TypeError, ValueError):
+        return False
+    count = entry.get("chapter_count") or 0
+    try:
+        count = int(count)
+    except (TypeError, ValueError):
+        return False
+    return max_num - count > 5
+
+
 # Titles that are clearly an error page, not a work. A source
 # that serves its 404 page with a list-like shape used to create a
 # bogus "404" title (mangapark, 2026-11-24). Skip those before they
@@ -526,8 +549,22 @@ class Runner:
                     entry.get("last_chapter") == latest_num
                     and entry.get("last_chapter_date") == latest_date
                 ):
-                    self.stats["titles_unchanged"] += 1
-                    return "unchanged"
+                    # Gap backfill (once): the stored chapter list
+                    # is far short of the latest chapter number.
+                    # Re-fetch so complete_chapter_list fills it;
+                    # after the backfill the count matches the max
+                    # and the title is skipped again. Marked done
+                    # before the fetch so a title whose gap cannot
+                    # be filled (non-chapter URL pattern) is not
+                    # re-fetched every run.
+                    if (
+                        chapter_list_gap(entry)
+                        and not entry.get("gap_backfill_done")
+                    ):
+                        entry["gap_backfill_done"] = True
+                    else:
+                        self.stats["titles_unchanged"] += 1
+                        return "unchanged"
         if not self.budget.left():
             return "failed"
         self.stats["title_pages"] += 1
@@ -690,6 +727,10 @@ class Runner:
         }
         # State: last-seen chapter info.
         latest = data.get("chapters") or []
+        prev_entry = (
+            self.state.get("titles", {}).get(cid, {}).get("sources", {})
+            .get(source_id) or {}
+        )
         entry_state = {
             "slug": list_item["slug"],
             "last_chapter": latest[0].get("number", "") if latest else "",
@@ -701,6 +742,10 @@ class Runner:
             "last_seen": now,
             "no_chapters": bool(no_chapters),
             "author": data.get("author", ""),
+            # Carried forward so a gap backfill is attempted once.
+            "gap_backfill_done": bool(
+                prev_entry.get("gap_backfill_done")
+            ),
         }
         self.state.setdefault("titles", {}).setdefault(cid, {}).setdefault(
             "sources", {}
