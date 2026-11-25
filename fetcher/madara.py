@@ -256,6 +256,7 @@ class MadaraSite:
     # --- Title page ---
 
     def detail(self, slug, chapter_mode="", api_url=""):
+        self._detail_api_url = api_url or ""
         """Full title page: metadata + chapter list. Returns
         (ok, data, kind, message). The chapter list is taken from
         the mechanism that works for this source, in the order the
@@ -310,6 +311,11 @@ class MadaraSite:
             chapters = []
             if mode == "api":
                 api_url = find_chapters_api(body, self.base)
+                if not api_url:
+                    # The title page came back without the API link
+                    # (challenge/partial page). Use the recorded API
+                    # URL the caller supplied instead of giving up.
+                    api_url = self._detail_api_url
                 if api_url:
                     chapters = self.fetch_api_chapters(api_url, title_slug)
                     if chapters:
