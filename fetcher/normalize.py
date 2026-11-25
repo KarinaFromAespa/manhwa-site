@@ -1,8 +1,8 @@
-"""Normalization helpers for the catalog scraper.
+"""Normalization helpers for the catalog fetcher.
 
 Canonical ids, chapter numbers, dates and statuses. The number
 normalization mirrors lib/catalog.php::normalizeNumber exactly so
-the scraper and the site agree on what "Chapter 12" means.
+the fetcher and the site agree on what "Chapter 12" means.
 """
 import re
 import unicodedata

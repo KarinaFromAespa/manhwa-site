@@ -1,6 +1,6 @@
 # Catalog schema
 
-The catalog is built by the scheduled scraper (see
+The catalog is built by the scheduled fetcher (see
 `docs/architecture.md`, section 3C) and read by `lib/catalog.php`.
 The site never fetches on the request path when a catalog exists.
 
@@ -30,7 +30,7 @@ source.
 
 - `id`: canonical slug (lowercase letters, digits, hyphens). The
   same title on several sources shares one id.
-- `updated`: unix timestamp of the freshest copy the scraper saw.
+- `updated`: unix timestamp of the freshest copy the fetcher saw.
   Rendered as "updated X ago".
 - `copies`: how many sources carry this title. Rendered only as a
   count — source names are never shown.
@@ -41,7 +41,7 @@ source.
 
 Full detail for one title: metadata plus the per-source chapter
 lists the merge reads from. The site merges chapters at read time;
-the scraper must not merge.
+the fetcher must not merge.
 
 ```json
 {
@@ -58,7 +58,7 @@ the scraper must not merge.
     {
       "source": "asura-scans",
       "lang": "en",
-      "scraped_at": 1763980800,
+      "fetched_at": 1763980800,
       "reliability": 0.95,
       "quality": "high",
       "chapters": [
@@ -68,7 +68,7 @@ the scraper must not merge.
           "id": "ch-12",
           "date": "2026-11-23",
           "images": ["https://.../1.jpg", "https://.../2.jpg"],
-          "scraped_at": 1763980800
+          "fetched_at": 1763980800
         }
       ]
     }
@@ -77,7 +77,7 @@ the scraper must not merge.
 ```
 
 - `source`: registry id from `lib/sources.php` (never rendered).
-- `reliability`: 0–1 measured scrape success rate over 30 days, or
+- `reliability`: 0–1 measured fetch success rate over 30 days, or
   null when unknown. `quality`: `high`, `standard`, `low`, or null.
   Both feed the per-chapter ranking; the registry values are the
   fallback when a source entry omits them.
@@ -92,7 +92,7 @@ the scraper must not merge.
 - Chapters group by normalized number across all sources; the
   union is shown, deduplicated by number.
 - Within a number, copies rank by: has images, then freshest
-  `scraped_at`, then reliability, then quality, then language
+  `fetched_at`, then reliability, then quality, then language
   (English first). Copies are labelled "Copy 1", "Copy 2" — never
   with source names.
 - Same number, different chapter title means different content:
@@ -102,8 +102,8 @@ the scraper must not merge.
 ## data/source-patterns.json
 
 Per-source fetch patterns, seeded from the keiyoushi
-extensions-source repo and updated by the scraper as runs verify
-them. Both the scraper (chapter lists) and the reader (live
+extensions-source repo and updated by the fetcher as runs verify
+them. Both the fetcher (chapter lists) and the reader (live
 chapter images) read it: the recorded mechanism is tried first,
 then the others, so a stale record never breaks a fetch. Deployed
 to the live site with the catalog.
@@ -145,7 +145,7 @@ to the live site with the catalog.
 ## data/image-hosts.json
 
 Allowlist for the image proxy (`img.php`), in addition to every
-registered source's own site host. The scraper extends it with the
+registered source's own site host. The fetcher extends it with the
 image CDNs it sees (a source's static host, for example). Seeded
 with the first adapter's known image host.
 
@@ -159,7 +159,7 @@ Referer map for the image proxy. Some image CDNs hotlink-protect:
 they answer 403 unless the request carries a Referer from a site
 that uses them (verified: `cdn.zinmanga1.com` answers 403 with no
 Referer or with `https://mangazin.org/`, and 200 with
-`https://www.zinmanga.net/`). The scraper records, per image host,
+`https://www.zinmanga.net/`). The fetcher records, per image host,
 the origins of the sources whose pages link images on it; `img.php`
 tries them in order, then no Referer, until one returns a real
 image. Existing entries keep their order; new origins append.

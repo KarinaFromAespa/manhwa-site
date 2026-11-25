@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Hourly catalog fetcher for manhwafreedev (stdlib only).
 
-Links-only model: the scraper collects title metadata (title, cover
+Links-only model: the fetcher collects title metadata (title, cover
 link, synopsis, status, genres) and the chapter list (number, title,
 link, id, date) — it never fetches chapter pages and never stores
 image data, only links. Chapter images are resolved live by the
@@ -12,13 +12,13 @@ first. The same applies to covers: the site proxies them through
 img.php (which sends a mapped Referer when a CDN needs one) and the
 browser falls back to loading them directly.
 
-Reads the source set from docs/manhwa-sources.json, scrapes the
+Reads the source set from docs/manhwa-sources.json, fetchs the
 Madara latest list of each source, fetches title pages for titles
 that are new or changed since the last run, and writes the catalog
 the site reads: data/catalog.json (index) + data/titles/<id>.json
 (per-title detail) exactly per data/catalog-schema.md. Per-source
-chapter lists are written as scraped; the site merges chapters
-across sources at read time (lib/catalog.php) — this scraper never
+chapter lists are written as fetched; the site merges chapters
+across sources at read time (lib/catalog.php) — this fetcher never
 merges.
 
 Seed mode (--seed): crawls each source's whole /manga/ directory
@@ -350,7 +350,7 @@ class Runner:
             cid = entry["id"]
             title_file = self.root / "data" / "titles" / f"{cid}.json"
             if not title_file.is_file():
-                # Detail file lost: drop the title so it re-scrapes.
+                # Detail file lost: drop the title so it re-fetchs.
                 self._drop_title(cid)
                 continue
             self.index_entries[cid] = entry
@@ -582,12 +582,12 @@ class Runner:
                 "id": str(ch.get("id", "")),
                 "date": parse_date(str(ch.get("date", ""))),
                 "images": [],
-                "scraped_at": now,
+                "fetched_at": now,
             }
             if record["id"] in old_by_id:
                 old = old_by_id[record["id"]]
                 record["images"] = list(old.get("images", []) or [])
-                record["scraped_at"] = int(old.get("scraped_at", now))
+                record["fetched_at"] = int(old.get("fetched_at", old.get("scraped_at", now)))
             else:
                 new_numbers.append(num)
             chapters.append(record)
@@ -613,12 +613,12 @@ class Runner:
                     "id": str(ch.get("id", "")),
                     "date": parse_date(str(ch.get("date", ""))),
                     "images": [],
-                    "scraped_at": now,
+                    "fetched_at": now,
                 }
                 if record["id"] in old_by_id:
                     old = old_by_id[record["id"]]
                     record["images"] = list(old.get("images", []) or [])
-                    record["scraped_at"] = int(old.get("scraped_at", now))
+                    record["fetched_at"] = int(old.get("fetched_at", old.get("scraped_at", now)))
                 else:
                     new_numbers.append(num)
                 chapters.append(record)
@@ -642,7 +642,7 @@ class Runner:
                         "id": str(old.get("id", "")),
                         "date": str(old.get("date", "")),
                         "images": list(old.get("images", []) or []),
-                        "scraped_at": int(old.get("scraped_at", now)),
+                        "fetched_at": int(old.get("fetched_at", old.get("scraped_at", now))),
                     }
         chapters = sorted(
             by_id.values(), key=lambda c: _chapter_sort_key(c["number"]),
@@ -651,7 +651,7 @@ class Runner:
         source_entry = {
             "source": source_id,
             "lang": source_item.get("lang", "en"),
-            "scraped_at": now,
+            "fetched_at": now,
             "reliability": reliability(self.state, source_id),
             "quality": None,
             "chapters": chapters,
@@ -682,7 +682,7 @@ class Runner:
             "status": title.get("status", ""),
             "genres": list(title.get("genres", [])),
             "updated": max(
-                (int(s.get("scraped_at", 0)) for s in title["sources"]),
+                (int(s.get("fetched_at", s.get("scraped_at", 0))) for s in title["sources"]),
                 default=0,
             ),
             "copies": len(title["sources"]),
@@ -1178,7 +1178,7 @@ class Runner:
             if write_json_if_changed(titles_dir / f"{cid}.json", title):
                 written += 1
             updated = max(
-                (int(s.get("scraped_at", 0)) for s in title["sources"]),
+                (int(s.get("fetched_at", s.get("scraped_at", 0))) for s in title["sources"]),
                 default=0,
             )
             entries.append({
@@ -1232,7 +1232,7 @@ class Runner:
             if cid in self.touched:
                 title = self.title_files[cid]
                 updated = max(
-                    (int(s.get("scraped_at", 0)) for s in title["sources"]),
+                    (int(s.get("fetched_at", s.get("scraped_at", 0))) for s in title["sources"]),
                     default=0,
                 )
                 titles.append({
@@ -1331,7 +1331,7 @@ def main(argv=None):
     )
     parser.add_argument(
         "--sources", default=None,
-        help="comma-separated source ids to scrape (default: v1 set)",
+        help="comma-separated source ids to fetch (default: v1 set)",
     )
     parser.add_argument(
         "--max-seconds", type=int, default=MAX_SECONDS,
@@ -1357,7 +1357,7 @@ def main(argv=None):
     )
     parser.add_argument(
         "--dry-run", action="store_true",
-        help="scrape but do not write any output files",
+        help="fetch but do not write any output files",
     )
     parser.add_argument(
         "--shard", default=None,

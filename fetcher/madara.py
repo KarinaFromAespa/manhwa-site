@@ -1,4 +1,4 @@
-"""Madara-theme scraping (stdlib only: urllib + htmltree).
+"""Madara-theme fetching (stdlib only: urllib + htmltree).
 
 Selectors mirror lib/adapters/madara.php, which were verified live
 against mangazin.org on 2026-11-23:

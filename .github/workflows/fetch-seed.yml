@@ -11,7 +11,7 @@
 # code (index.php, lib/) is NOT deployed here.
 #
 # The catalog lives ONLY on the live site (FTP), never in git. The
-# seed downloads the base catalog from FTP, scrapes on top of it,
+# seed downloads the base catalog from FTP, fetchs on top of it,
 # and FTPs the result back. Nothing catalog-related is ever
 # committed to the repo.
 name: Fetching Data (Seed)
@@ -40,7 +40,7 @@ jobs:
           FTP_PASS: ${{ secrets.FTP_PASSWORD }}
         run: |
           # The catalog lives ONLY on the live site (FTP), never in
-          # git. Download it as the scrape base; the scraper writes
+          # git. Download it as the fetch base; the fetcher writes
           # the updated catalog back to data/ for the FTP deploy below.
           mkdir -p data/titles fetcher
           for f in data/catalog.json data/image-hosts.json data/image-referers.json data/source-patterns.json; do
@@ -65,7 +65,7 @@ jobs:
           echo "base download done: $(ls data/titles/*.json 2>/dev/null | wc -l) title files"
 
       - name: Run fetcher (seed pass)
-        run: python3 fetcher/scrape.py --seed --max-seconds 1500 --max-requests 900
+        run: python3 fetcher/fetcher.py --seed --max-seconds 1500 --max-requests 900
 
       - name: Deploy catalog to live site (FTP)
         env:

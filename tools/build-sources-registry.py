@@ -7,7 +7,7 @@ Run from the repo root:  python3 tools/build-sources-registry.py
 The registry is server-side only: it is never rendered to visitors.
 Each entry keeps id, name, lang, site, host, theme, kind, access, adult,
 confidence, plus reliability and quality (null until measured — the
-scraper fills those in; see docs/architecture.md section 6).
+fetcher fills those in; see docs/architecture.md section 6).
 """
 import json
 import re

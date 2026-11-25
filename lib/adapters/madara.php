@@ -113,7 +113,7 @@ class MadaraAdapter extends BaseAdapter
 
     // Per-source fetch pattern (data/source-patterns.json), seeded
     // from the keiyoushi extension for the source and updated by
-    // the scraper as runs verify it. Empty when unrecorded.
+    // the fetcher as runs verify it. Empty when unrecorded.
     private function sourcePattern(): array
     {
         static $patterns = null;

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Merge shard outputs into the final catalog.
 
-Each shard (fetcher/scrape.py --shard i/N) writes only the titles it
+Each shard (fetcher/fetcher.py --shard i/N) writes only the titles it
 touched, plus a manifest, into its shard-out dir. This script combines
 them on top of the base catalog (data/ as checked out) and writes the
 final catalog back to data/.
@@ -10,7 +10,7 @@ Titles that appear in more than one shard (the same work on sources
 split across shards) get their sources unioned: a source entry is
 kept once per source id, and its chapters are unioned by chapter id
 (then by number), newest first. Metadata comes from the freshest
-scrape; the base copy is kept when a shard has nothing newer.
+fetch; the base copy is kept when a shard has nothing newer.
 
 Usage:
     python3 fetcher/merge_shards.py --root . data/shard-0 data/shard-1 data/shard-2
@@ -70,16 +70,16 @@ def union_sources(base_sources, shard_sources):
             by_id[sid] = {
                 "source": sid,
                 "lang": entry.get("lang", "en"),
-                "scraped_at": int(entry.get("scraped_at", 0) or 0),
+                "fetched_at": int(entry.get("fetched_at", entry.get("scraped_at", 0)) or 0),
                 "reliability": entry.get("reliability"),
                 "quality": entry.get("quality"),
                 "chapters": [],
             }
             order.append(sid)
         cur = by_id[sid]
-        # Freshest scrape wins for the entry metadata.
-        if int(entry.get("scraped_at", 0) or 0) >= cur["scraped_at"]:
-            cur["scraped_at"] = int(entry.get("scraped_at", 0) or 0)
+        # Freshest fetch wins for the entry metadata.
+        if int(entry.get("fetched_at", entry.get("scraped_at", 0)) or 0) >= cur["fetched_at"]:
+            cur["fetched_at"] = int(entry.get("fetched_at", entry.get("scraped_at", 0)) or 0)
             if entry.get("reliability") is not None:
                 cur["reliability"] = entry.get("reliability")
             if entry.get("quality") is not None:
@@ -226,7 +226,7 @@ def main(argv=None):
     index_titles = []
     for cid, title in titles.items():
         updated = max(
-            (int(s.get("scraped_at", 0)) for s in title.get("sources", []) or []),
+            (int(s.get("fetched_at", s.get("scraped_at", 0))) for s in title.get("sources", []) or []),
             default=0,
         )
         index_titles.append({

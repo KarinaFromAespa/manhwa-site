@@ -68,9 +68,9 @@ far more often, and the server does almost no work.
   but visible).
 - Verdict: elegant, killed by CORS. Not viable without a proxy.
 
-### C. Scheduled scraper + static data (batch)
+### C. Scheduled fetcher + static data (batch)
 
-A scheduled job scrapes the sources and writes the results as static
+A scheduled job fetchs the sources and writes the results as static
 JSON into the repo (or an object store). The website only ever reads
 local files — it never touches a source at request time.
 
@@ -78,14 +78,14 @@ local files — it never touches a source at request time.
   scheduled runs) or the Oracle Always Free VM (already running the
   Post Scheduler backend; cron is free there).
 - Pros: fetching and serving are decoupled, so the site cannot be
-  blocked or slowed by a source; the scraper can use a real browser
+  blocked or slowed by a source; the fetcher can use a real browser
   (Playwright/Camoufox) and can hold sessions/cookies; the site is
   fast (local JSON reads); no egress from InfinityFree at all;
-  data is versioned in git; one scrape serves all users.
+  data is versioned in git; one fetch serves all users.
 - Cons: data is stale between runs (hourly/daily); new chapters lag;
-  scraping still faces Cloudflare (but you control the environment
+  fetching still faces Cloudflare (but you control the environment
   and can retry/rotate); catalogs are large (store metadata and
-  chapter lists only, never images); scrapers break when a site
+  chapter lists only, never images); fetchers break when a site
   redesigns and need per-site maintenance.
 - Verdict: the most robust free backbone for browse/search/details.
   Recommended as the primary architecture.
@@ -97,7 +97,7 @@ The user's existing Oracle Always Free VM runs a small service
 already supports this (`CX_SERVICE_URL`).
 
 - Pros: live data, no staleness; the site needs zero changes; the
-  VM is free and always on; one central place to fix scrapers.
+  VM is free and always on; one central place to fix fetchers.
 - Cons: 1 GB RAM shared with the Post Scheduler backend; a
   headless browser is heavy; the VM's datacenter IP faces the same
   Cloudflare wall (the Oct 2026 evidence says automated browsers
@@ -110,7 +110,7 @@ already supports this (`CX_SERVICE_URL`).
 A small service on the user's Windows PC (residential IP, real
 browser — the itbrowser test) fetches sources and pushes the data
 to the site, e.g. through a Cloudflare Tunnel (free) or by
-committing the scraped JSON to the repo.
+committing the fetched JSON to the repo.
 
 - Pros: residential IP passes Cloudflare far more often than any
   datacenter option; a real browser.
@@ -152,7 +152,7 @@ Combine C (primary) + D (live fallback) + A (last resort) + E
 
 Why this wins: the site never depends on any single fetch path; the
 common path (reading local JSON) cannot be blocked; the expensive
-paths (browser scraping) happen once per hour, not once per visitor;
+paths (browser fetching) happen once per hour, not once per visitor;
 and every layer is free.
 
 ## 4. Free-tier limits that shape the design
@@ -175,7 +175,7 @@ catalog small (metadata only); respect rate limits per source.
 - `titles/<canonical-id>.json`: metadata + chapter list (merged,
   see section 6) + per-chapter image source references.
 - `sources.json`: the source registry (id, language, access:
-  free/login, theme, reliability score, last successful scrape).
+  free/login, theme, reliability score, last successful fetch).
   This file is internal; its contents are never rendered.
 - Images are never stored. Chapter images are resolved at read
   time (section 7).
@@ -213,9 +213,9 @@ order:
    (with retrievable images). A source that lacks it cannot supply
    it, however good it is otherwise.
 2. Freshness — prefer the source whose copy of that chapter was
-   scraped most recently (stale copies rot: images get deleted,
+   fetched most recently (stale copies rot: images get deleted,
    chapters get re-uploaded).
-3. Reliability — the source's measured track record: scrape success
+3. Reliability — the source's measured track record: fetch success
    rate and latency over the last 30 days. A source that is down
    half the time ranks below a slower but steady one.
 4. Translation quality — proxy by source reputation tier (known
@@ -262,7 +262,7 @@ Chapter images are the hardest part and are never stored:
   (403 unless the Referer is a site that uses them); the proxy
   sends a mapped Referer per image host from
   `data/image-referers.json` (host → origins to try, recorded by
-  the scraper), falling back to no Referer.
+  the fetcher), falling back to no Referer.
 - Chapter images are links only: the catalog stores no chapter
   images. The reader resolves them live from the chapter link
   via the source adapter when the catalog copy has none, and
@@ -277,7 +277,7 @@ Chapter images are the hardest part and are never stored:
 
 ## 8. Caching and freshness
 
-- Catalog JSON: rebuilt hourly by the scraper; the site reads it
+- Catalog JSON: rebuilt hourly by the fetcher; the site reads it
   from disk with a 15-minute in-memory/file TTL as a guard.
 - Title/chapter data: same as the catalog (hourly).
 - Images: cached on disk for 7 days, evicted oldest-first when the
@@ -288,7 +288,7 @@ Chapter images are the hardest part and are never stored:
 ## 9. Failure modes
 
 - One source down: it degrades silently (its chapters stay from
-  the last good scrape until they go stale, then drop out of the
+  the last good fetch until they go stale, then drop out of the
   ranking). The title survives on the other sources.
 - All sources for a title down: the title page shows its last
   known chapter list with a "last updated X ago" note, and the
@@ -307,8 +307,8 @@ Chapter images are the hardest part and are never stored:
   "manhwafreedev"; errors become generic).
 - New files: `lib/sources.php` (registry + ranking),
   `lib/catalog.php` (catalog reads), `data/` (catalog JSON, not
-  committed by hand — written by the scraper).
-- The scraper itself lives in the repo under `fetcher/` (or in a
+  committed by hand — written by the fetcher).
+- The fetcher itself lives in the repo under `fetcher/` (or in a
   separate workflow repo) and is a separate piece of work from the
   site rework.
 
@@ -319,7 +319,7 @@ Chapter images are the hardest part and are never stored:
   small.
 - Login-required sources: include them in the catalog later, once
   the no-login set works. They need stored sessions, which is a
-  separate design (credentials in the scraper's secrets, never in
+  separate design (credentials in the fetcher's secrets, never in
   the site).
 - The PC bridge: only if the itbrowser test passes. If it fails,
   protected sources stay out of the catalog until another fetcher

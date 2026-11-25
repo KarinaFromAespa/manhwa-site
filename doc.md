@@ -10,7 +10,7 @@ it. One title is one page even when many sources carry it; chapters
 are the union across sources, and alternate copies are labelled
 "Copy 1", "Copy 2" — source names never appear anywhere a visitor
 can see. See `docs/architecture.md` for the full design and
-`data/catalog-schema.md` for the catalog format.
+`docs/catalog-schema.md` for the catalog format.
 
 ## Honest status (2026-11-23)
 
@@ -145,3 +145,21 @@ session). This site does not care how — it only needs the JSON.
 - Liveness of the 200 registry sites was not verified; domains
   rotate and some entries may be down or moved. The catalog
   builder is expected to drop dead sources from its output.
+
+## Changes
+
+- 2026-11-25: the catalog data (`data/catalog.json`,
+  `data/titles/*.json`, `data/image-hosts.json`,
+  `data/image-referers.json`, `data/source-patterns.json`) no
+  longer lives in this repo. It lives only on the live site
+  (FTP), and the git history was rewritten so it was never there.
+  The fetch workflows download the base catalog from FTP, merge,
+  and upload the result back via FTP. The fetcher runtime state
+  (`fetcher/state.json`) is also FTP-only now, stored as
+  `data/state.json` on the live site.
+- 2026-11-25: `fetcher/scrape.py` renamed to `fetcher/fetcher.py`,
+  and all "scrape" terminology replaced with "fetch" throughout
+  the code, workflows, and docs. The catalog timestamp field was
+  renamed `scraped_at` -> `fetched_at`; readers fall back to the
+  old name until every title has been re-fetched, so the live
+  catalog keeps working during the changeover.

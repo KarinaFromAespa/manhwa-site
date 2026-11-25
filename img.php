@@ -3,12 +3,12 @@
 // be abused as an open proxy. Allowed hosts: every registered source's
 // site host (including its subdomains, where image CDNs usually live),
 // plus the image hosts in data/image-hosts.json (image CDNs on
-// unrelated domains, which the scraper records). Proxied images are
+// unrelated domains, which the fetcher records). Proxied images are
 // cached on disk for 7 days.
 //
 // Some image CDNs hotlink-protect: they return 403 unless the request
 // carries a Referer from a site that uses them. data/image-referers.json
-// maps such a host to the origins to try (recorded by the scraper from
+// maps such a host to the origins to try (recorded by the fetcher from
 // the pages that link the images). The proxy tries each mapped origin
 // in order, then no Referer, until one returns a real image.
 require_once __DIR__ . '/lib/config.php';

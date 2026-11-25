@@ -1,7 +1,7 @@
 <?php
 // SiteClient: the one client the pages use. Read order:
 //  1. Catalog mode (data/catalog.json exists): everything comes from
-//     the catalog the scraper builds — merged titles and chapters,
+//     the catalog the fetcher builds — merged titles and chapters,
 //     no network, no source names in any output.
 //  2. Live fallback: the first source's adapter (direct or service
 //     mode). Only ever one source at a time, never a fan-out.

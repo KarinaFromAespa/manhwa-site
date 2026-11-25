@@ -21,7 +21,7 @@ loading them directly.
 
 1. Reads the source set from `docs/manhwa-sources.json` and filters
    it to the v1 set: confirmed, free, no-login, English,
-   Madara-theme sources (see `V1_FILTER` in `scrape.py`). comix is
+   Madara-theme sources (see `V1_FILTER` in `fetcher.py`). comix is
    excluded (its API needs a signature no server can compute);
    login-required sources are deferred (they need stored sessions).
 2. For each source, fetches `/manga/` pages — Madara orders that
@@ -38,7 +38,7 @@ loading them directly.
    state) are retried every run, up to 10 per source.
 5. Writes `data/catalog.json` (index) + `data/titles/<id>.json`
    (per-title detail) exactly per `data/catalog-schema.md`.
-   **Per-source chapter lists are written as scraped; the site
+   **Per-source chapter lists are written as fetched; the site
    merges chapters across sources at read time** (`lib/catalog.php`).
 6. Extends `data/image-hosts.json` with image CDNs seen (hosts that
    are not the source's own host or a subdomain of it — those are
@@ -49,11 +49,11 @@ loading them directly.
 ## Run it
 
 ```sh
-python3 fetcher/scrape.py                    # hourly run
-python3 fetcher/scrape.py --sources zinmanga # one source only
-python3 fetcher/scrape.py --dry-run          # scrape, write nothing
-python3 fetcher/scrape.py --seed --max-seconds 900 --max-requests 600  # seed pass
-python3 fetcher/scrape.py --max-seconds 300 --max-requests 400
+python3 fetcher/fetcher.py                    # hourly run
+python3 fetcher/fetcher.py --sources zinmanga # one source only
+python3 fetcher/fetcher.py --dry-run          # fetch, write nothing
+python3 fetcher/fetcher.py --seed --max-seconds 900 --max-requests 600  # seed pass
+python3 fetcher/fetcher.py --max-seconds 300 --max-requests 400
 ```
 
 ## Budgets (private repo: 2,000 Actions min/month, 720 runs)
@@ -157,7 +157,7 @@ Non-Madara themes need an adapter + parser before they can join.
 ## Limitations (v1)
 
 - Only Madara-theme sources. MangaThemesia, KeyoApp and the rest
-  are not scraped yet.
+  are not fetched yet.
 - The hourly run only sees titles on a source's `/manga/` pages
   1–2 (the recently-updated window). The seed pass covers the whole
   directory over successive runs.

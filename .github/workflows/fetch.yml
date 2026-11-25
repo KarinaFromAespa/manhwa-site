@@ -37,7 +37,7 @@ jobs:
           fetch-depth: 1
 
       - name: Run fetcher shard
-        run: python3 fetcher/scrape.py --shard ${{ matrix.shard }}/3 --shard-out data/shard-${{ matrix.shard }}
+        run: python3 fetcher/fetcher.py --shard ${{ matrix.shard }}/3 --shard-out data/shard-${{ matrix.shard }}
 
       - name: Upload shard output
         uses: actions/upload-artifact@v4

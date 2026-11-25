@@ -10,3 +10,7 @@
 # upload the result back via FTP. Keep it out of the repo and its history.
 /data/
 fetcher/state.json
+
+# Python bytecode caches.
+__pycache__/
+*.pyc

@@ -1,5 +1,5 @@
 <?php
-// Catalog mode: reads the catalog the scheduled scraper builds
+// Catalog mode: reads the catalog the scheduled fetcher builds
 // (data/catalog.json + data/titles/<id>.json). No network, no source
 // names in any output — chapter copies are labelled "Copy 1", "Copy 2".
 // When no catalog exists, the site falls back to live adapters.
@@ -174,7 +174,7 @@ class Catalog
     }
 
     // Full detail: index entry overlaid with data/titles/<id>.json
-    // when the scraper has written it.
+    // when the fetcher has written it.
     public static function title(string $id): ?array
     {
         if (isset(self::$titles[$id])) {
@@ -236,7 +236,7 @@ class Catalog
                 'source' => $sid,
                 'name' => (string) ($reg['name'] ?? $sid),
                 'chapters' => count($chapters),
-                'scraped_at' => (int) ($src['scraped_at'] ?? 0),
+                'fetched_at' => (int) (($src['fetched_at'] ?? $src['scraped_at'] ?? 0)),
                 'reliability' => isset($src['reliability']) ? (float) $src['reliability'] : (isset($reg['reliability']) ? (float) $reg['reliability'] : null),
                 'quality' => (string) ($src['quality'] ?? $reg['quality'] ?? ''),
                 'lang' => (string) ($src['lang'] ?? $reg['lang'] ?? ''),
@@ -250,8 +250,8 @@ class Catalog
             if ($ha !== $hb) {
                 return $hb <=> $ha;
             }
-            if ($a['scraped_at'] !== $b['scraped_at']) {
-                return $b['scraped_at'] <=> $a['scraped_at'];
+            if ($a['fetched_at'] !== $b['fetched_at']) {
+                return $b['fetched_at'] <=> $a['fetched_at'];
             }
             $ra = $a['reliability'] ?? 0.5;
             $rb = $b['reliability'] ?? 0.5;
@@ -372,7 +372,7 @@ class Catalog
                 continue;
             }
             $reg = $registry[(string) ($src['source'] ?? '')] ?? [];
-            $sourceScraped = (int) ($src['scraped_at'] ?? 0);
+            $sourceFetched = (int) (($src['fetched_at'] ?? $src['scraped_at'] ?? 0));
             foreach ($src['chapters'] as $ch) {
                 if (!is_array($ch)) {
                     continue;
@@ -393,7 +393,7 @@ class Catalog
                     'date' => (string) ($ch['date'] ?? ''),
                     'images' => $images,
                     'source' => (string) ($src['source'] ?? ''),
-                    'scraped_at' => (int) ($ch['scraped_at'] ?? $sourceScraped),
+                    'fetched_at' => (int) (($ch['fetched_at'] ?? $ch['scraped_at'] ?? $sourceFetched)),
                     'reliability' => isset($src['reliability']) ? (float) $src['reliability'] : (isset($reg['reliability']) ? (float) $reg['reliability'] : null),
                     'quality' => (string) ($src['quality'] ?? $reg['quality'] ?? ''),
                     'lang' => (string) ($src['lang'] ?? $reg['lang'] ?? ''),
@@ -427,7 +427,7 @@ class Catalog
                         fn($c, $i) => [
                             'label' => 'Copy ' . ($i + 1),
                             'images' => $c['images'],
-                            'updated' => $c['scraped_at'],
+                            'updated' => $c['fetched_at'],
                             'source' => $c['source'],
                             'id' => $c['id'],
                         ],
@@ -497,8 +497,8 @@ class Catalog
             if ($ha !== $hb) {
                 return $hb <=> $ha;
             }
-            if ($a['scraped_at'] !== $b['scraped_at']) {
-                return $b['scraped_at'] <=> $a['scraped_at'];
+            if ($a['fetched_at'] !== $b['fetched_at']) {
+                return $b['fetched_at'] <=> $a['fetched_at'];
             }
             $ra = $a['reliability'] ?? 0.5;
             $rb = $b['reliability'] ?? 0.5;
