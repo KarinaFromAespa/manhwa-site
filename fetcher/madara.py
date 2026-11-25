@@ -815,27 +815,27 @@ def find_chapter_readmore(html):
     """The .chapter-readmore / .c-chapter-readmore button, if the
     title page carries one. Returns whichever of data-total,
     data-manga-id, data-offset and data-ajax-url are present
-    ({} when there is no such button)."""
+    ({} when there is no such button). The button sits inside a
+    container div whose class (c-chapter-readmore) contains the
+    button's class name as a substring, so the first matching tag
+    is often the container - which carries no data attributes.
+    Scan every matching tag and return the first one that does."""
     for cls in ("chapter-readmore", "c-chapter-readmore"):
-        match = re.search(
+        for match in re.finditer(
             r'<[^>]*class=["\'][^"\']*' + cls + r'[^"\']*["\'][^>]*>',
             html,
-        )
-        if not match:
-            continue
-        tag = match.group(0)
-        out = {}
-        for key in (
-            "data-total", "data-manga-id", "data-offset", "data-ajax-url",
         ):
-            m = re.search(key + r'=["\']([^"\']*)["\']', tag)
-            if m:
-                out[key] = m.group(1)
-        if out:
-            return out
+            tag = match.group(0)
+            out = {}
+            for key in (
+                "data-total", "data-manga-id", "data-offset", "data-ajax-url",
+            ):
+                m = re.search(key + r'=["\']([^"\']*)["\']', tag)
+                if m:
+                    out[key] = m.group(1)
+            if out:
+                return out
     return {}
-
-
 def find_spa_chapters(html, base):
     """Chapter list from a single-page app's embedded state:
     __NEXT_DATA__ JSON, or <script type="application/json"> blocks.
