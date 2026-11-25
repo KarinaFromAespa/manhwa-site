@@ -468,6 +468,10 @@ class Runner:
                     pairs_by_source.setdefault(source_id, []).append(cid)
         total = sum(len(v) for v in pairs_by_source.values())
         print(f"backfill: {total} gap/hollow title-source pairs")
+        # No per-source fair-share segments here: the backfill is a
+        # single-purpose run, and an equal share starves sources
+        # with many pairs (zinmanga-net had 71 titles but only a
+        # ~70-request segment). The global budget is the only cap.
         for source_id, item in sources:
             cids = pairs_by_source.get(source_id, [])
             if not cids:
@@ -476,13 +480,6 @@ class Runner:
                 self.budget.stopped = True
                 print(f"[{source_id}] budget exhausted, stopping")
                 break
-            secs, reqs = self.budget.remaining()
-            left_sources = len(
-                [s for s in sources if pairs_by_source.get(s[0])]
-            )
-            self.budget.begin_segment(
-                secs / max(left_sources, 1), reqs // max(left_sources, 1)
-            )
             pattern = (self.patterns.get("sources", {}) or {}).get(
                 source_id, {}
             )
