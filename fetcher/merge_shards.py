@@ -132,7 +132,7 @@ def merge_title(base, shard_title):
     if shard_title.get("title") and shard_title["title"] != out.get("title"):
         if shard_title["title"] not in alts:
             alts.append(shard_title["title"])
-    out["alt_titles"] = alts[:10]
+    out["alt_titles"] = alts[:20]
     out["sources"] = union_sources(
         base.get("sources", []), shard_title.get("sources", [])
     )

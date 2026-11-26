@@ -1006,7 +1006,7 @@ class Runner:
             )
             alt_titles = list(dict.fromkeys(
                 [a for a in merged_alts if a and a != title]
-            ))[:10]
+            ))[:20]
         flags = [self.registry_adult.get(sid, False) for sid in sources]
         return {
             "id": cid,
@@ -1410,7 +1410,7 @@ class Runner:
                 ]:
                     if extra and extra != winner.get("title") and extra not in alts:
                         alts.append(extra)
-                winner["alt_titles"] = alts[:10]
+                winner["alt_titles"] = alts[:20]
                 # Record aliases so the next fetch resolves the
                 # loser's name straight to the winner.
                 loser_slug = canonical_title_slug(loser.get("title", ""))
