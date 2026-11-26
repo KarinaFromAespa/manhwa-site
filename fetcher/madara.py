@@ -1001,6 +1001,273 @@ def clean_synopsis(raw, title=""):
     if not text_clean:
         return ""
     lower = text_clean.lower()
+    # --- Site boilerplate that wraps the real plot (2026-11-26) ---
+    # Several sources prepend/append promo lines to the plot, and
+    # some templates put the plot between a header and a promo
+    # footer. Strip/extract those first so the plot is isolated;
+    # the alt titles already live in the alt_titles field.
+    # Leading promo prefixes (applied until none matches).
+    leading_patterns = [
+        # Mature-audiences warning banner (a full leading paragraph).
+        r"^the following content is intended for mature audiences"
+        r".*?discretion is advised\.\s*",
+        # "Read Manga X Online For Free At/On <Site>" / "Read Manhwa X
+        # Online" (title embedded; bound so a real sentence that
+        # happens to start with "Read" is never eaten). The site
+        # name may be two words ("MANGA ZIN").
+        r"^read\s+(?:manga|manhwa|manhua)\s+.{1,150}?\s+online\b"
+        r"(?:\s+(?:for\s+)?free\s+(?:at|on)\s+\S+(?:\s+(?-i:[A-Z]{2,}))?)?\s*",
+        # "Read <Title> <medium> online for free at <Site>".
+        r"^read\s+.{1,150}?\s+(?:manhwa|manga|manhua)\s+online\s+"
+        r"(?:for\s+)?free\s+(?:at|on)\s+\S+\s*",
+        # "Read 'X Novel' - 'X Manhwa' Online Free At/On <Site>".
+        r"^read\s+.{1,200}?\s+online\s+free\s+(?:at|on)\s+\S+"
+        r"(?:\s+(?-i:[A-Z]{2,}))?\s*",
+        # "Read '<Title>' online at Best manga website".
+        r"^read\s+.{1,200}?\s+online\s+at\s+best\s+manga\s+website\s*",
+        # NewManhua: "Read Manhua X English complete and new in
+        # <Site>. We provide ... you can read online for free.
+        # Summary <plot>".
+        r"^read\s+(?:manhua|manga|manhwa)\s+.{1,150}?"
+        r"we provide\s+.{1,150}?summary\s+",
+        # "You are reading the comic <Title> Online Free At the
+        # website <Site>".
+        r"^you are reading the comic\s+.{1,150}?\s+online\s+free\s+"
+        r"at\s+the\s+website\s+\S+\s*",
+        # "The Content X: " / "The summary of the comics 'X': " /
+        # "Description about 'X': " / "Description of the comic".
+        r"^the content\s+.{1,150}?:\s*",
+        r"^(?:the\s+)?summary\s+of\s+the\s+comics?\s+.{0,150}?:\s*",
+        r"^description about\s+.{1,150}?:\s*",
+        r"^description of the comic\s+",
+        # "Description of X Manhwa/Manga" header line.
+        r"^description of\s+.{1,150}?\s+(?:manhwa|manga|manhua)\s*",
+        # "<title/alt list> at manhwa website" /
+        # "<alt list> at Manhua to <site> website".
+        r"^.{1,500}?\s+at\s+(?:manhwa|manga|manhua)\s+"
+        r"(?:to\s+\S+\s+)?website\s*",
+        # "<Title> Read Online Now" header.
+        r"^.{1,150}?\s+read online now\s*",
+    ]
+    for _ in range(3):
+        stripped = False
+        for pat in leading_patterns:
+            m = re.match(pat, text_clean, re.IGNORECASE)
+            if m:
+                text_clean = text_clean[m.end():].strip()
+                lower = text_clean.lower()
+                stripped = True
+                break
+        if not stripped:
+            break
+    # Title-aware leading headers (the title is known here). Runs
+    # after the generic prefixes so a template the generic patterns
+    # match whole (e.g. the NewManhua "Read Manhua ... Summary"
+    # prefix) is not half-eaten by the title strip first.
+    if title:
+        t = re.escape(title.strip())
+        # "Description of <Title>" header.
+        m = re.match(
+            r"^description of\s+" + t + r"\b\s*",
+            text_clean, re.IGNORECASE,
+        )
+        if m:
+            text_clean = text_clean[m.end():].strip()
+            lower = text_clean.lower()
+        # "<Title> Summary" header (the space after "Summary" is
+        # often missing in the source, so no word boundary).
+        m = re.match(
+            r"^" + t + r"\s+summary\s*(?=(?-i:[A-Z]))",
+            text_clean, re.IGNORECASE,
+        )
+        if m:
+            text_clean = text_clean[m.end():].strip()
+            lower = text_clean.lower()
+        # "Summary of <Title>" header.
+        m = re.match(
+            r"^summary of\s+" + t + r"\b\s*",
+            text_clean, re.IGNORECASE,
+        )
+        if m:
+            text_clean = text_clean[m.end():].strip()
+            lower = text_clean.lower()
+        # A bare leading title (the site repeats it before the plot).
+        # Not when it is followed by "Summary": "<Title> Summary is
+        # ..." is a sentence whose subject is the title, not a header.
+        m = re.match(
+            r"^" + t + r"\b(?!\s+summary\b)\s*",
+            text_clean, re.IGNORECASE,
+        )
+        if m:
+            text_clean = text_clean[m.end():].strip()
+            lower = text_clean.lower()
+        # "Read <medium> <Title>" header, optionally followed by
+        # " / <alt>" (the alt list is already stored) and by an
+        # "Online For Free At/On <Site>" tail.
+        m = re.match(
+            r"^read\s+(?:manhwa|manga|manhua)\s+" + t + r"\b\s*",
+            text_clean, re.IGNORECASE,
+        )
+        if m:
+            text_clean = text_clean[m.end():].strip()
+            lower = text_clean.lower()
+            if text_clean.startswith("/"):
+                m2 = re.search(r"[A-Z][a-z]", text_clean[1:])
+                if m2:
+                    text_clean = text_clean[1 + m2.start():].strip()
+                    lower = text_clean.lower()
+            m3 = re.match(
+                r"^online\b(?:\s+(?:for\s+)?free\s+(?:at|on)\s+\S+"
+                r"(?:\s+(?-i:[A-Z]{2,}))?)?\s*",
+                text_clean, re.IGNORECASE,
+            )
+            if m3:
+                text_clean = text_clean[m3.end():].strip()
+                lower = text_clean.lower()
+    # "The content of the comic <Title>: <plot> ... belongs to the
+    # Genre:" template (Hari Manga / ZinManga): the plot is the
+    # stretch between the content marker and the promo footer. The
+    # title may sit between "Content" and the colon.
+    m = re.search(
+        r"the content(?: of the comic)?\b.{0,120}?:\s*",
+        text_clean,
+        re.IGNORECASE,
+    )
+    if m:
+        plot = text_clean[m.end():]
+        plot_lower = plot.lower()
+        cut = len(plot)
+        for marker in (
+            "belongs to the genre",
+            "associated names",
+            "new and hot comics",
+            "is a website that aggregates",
+            "is a comprehensive website",
+            "please always follow",
+            "follow get to read",
+            "can recommendation",
+            "where to read",
+            "you can follow",
+        ):
+            pos = plot_lower.find(marker)
+            if 0 <= pos < cut:
+                cut = pos
+        plot = plot[:cut].strip()
+        if len(plot) >= 30:
+            return _trim_synopsis(plot)
+    # Cut at "also known as" / "Associated Names:" / "is an
+    # ongoing" / "also known by" when what follows is the site's
+    # marketing template (the plot is everything before it).
+    # Without a template marker after it, the phrase is part of the
+    # real plot and is left alone.
+    template_markers = (
+        "originally released in",
+        "beautifully illustrated",
+        "essential pick for fans",
+        "this on-going webtoon was released",
+        "ongoing webtoon was released",
+        "this series was written by",
+        "webtoon is about",
+        "read the latest",
+        "you can follow",
+        "is a website",
+        "belongs to the genre",
+        "are the most searched keywords",
+        "authored by",
+        "is a provocative",
+        "the place to read",
+    )
+    for marker_word in (
+        "also known as",
+        "associated names",
+        "is an ongoing",
+        "also known by",
+    ):
+        start = 0
+        while True:
+            pos = lower.find(marker_word, start)
+            if pos < 0:
+                break
+            after = lower[pos + len(marker_word):pos + len(marker_word) + 800]
+            if any(mk in after for mk in template_markers):
+                text_clean = text_clean[:pos].rstrip(" ,").strip()
+                lower = text_clean.lower()
+                break
+            start = pos + len(marker_word)
+    # Trailing promo/recommendation blocks: cut at the first marker
+    # (the plot is everything before it).
+    trailing_markers = [
+        "recommend for you",
+        "maybe you like",
+        "best manhwa to read",
+        "best manhua to read",
+        "best manga to read",
+        "top manhwa to read",
+        "top 10 manhua online",
+        "top 10 manga online",
+        "top 10 manhwa online",
+        "good manhwa to read",
+        "where to read",
+        "read newtoday",
+        "manga read online",
+        "manhua read online",
+        "manhwa read online",
+        "is alternatively named",
+        "is also known as",
+        "belongs to the genre",
+        "are the most searched keywords",
+        "details about",
+        "read pornhwa",
+        "pornhwaz",
+        "can recommendation",
+        "the place to read",
+        "read the latest",
+        "you can follow",
+        "alternative name",
+        "is the most searched",
+    ]
+    cut = len(text_clean)
+    for marker in trailing_markers:
+        pos = lower.find(marker)
+        if 0 <= pos < cut:
+            cut = pos
+    if cut < len(text_clean):
+        text_clean = text_clean[:cut].strip()
+        lower = text_clean.lower()
+    # Trailing site promo ("Read the Latest Manhwa Chapters Online
+    # of in English at ...", the "Online" is sometimes missing).
+    m = re.search(
+        r"\s*read the latest\s+(?:manhwa|manga|manhua)\s+chapters\b.*$",
+        text_clean,
+        re.IGNORECASE,
+    )
+    if m:
+        text_clean = text_clean[: m.start()].strip()
+        lower = text_clean.lower()
+    # Trailing share-buttons block ("Share on X (Opens in new
+    # window)X Share on Reddit ... Telegram ... Mastodon ...").
+    m = re.search(
+        r"\s*share on\s+(?:reddit|telegram|mastodon|facebook|x|"
+        r"twitter|whatsapp)\b.*$",
+        text_clean,
+        re.IGNORECASE,
+    )
+    if m:
+        text_clean = text_clean[: m.start()].strip()
+        lower = text_clean.lower()
+    # "not found" fragments: a source placeholder left in the text
+    # ("... not found...", sometimes the whole synopsis). Only the
+    # ellipsis/dots form is stripped, so a bare "not found" inside
+    # a real sentence is left alone. If nothing is left, the
+    # synopsis is genuinely missing (return "" so it can be
+    # re-fetched, instead of keeping the junk via the <30 fallback).
+    text_clean = re.sub(
+        r"\s*not found[\u2026.]+", "", text_clean, flags=re.IGNORECASE
+    )
+    text_clean = text_clean.strip()
+    lower = text_clean.lower()
+    if not text_clean or lower.strip(" .!") == "not found":
+        return ""
     # Section headings that start SEO/marketing content. The plot
     # is everything before the first of these.
     section_markers = [
