@@ -64,7 +64,14 @@ if ($m['genres'] !== []) {
 }
 $englishAlts = Catalog::englishAltTitles($m['alt_titles'] ?? []);
 if ($englishAlts !== []) {
-    echo '<p class="muted alt-titles">Also known as: ' . h(implode(', ', $englishAlts)) . '</p>';
+    // Alt titles collapse after 3 lines, like the synopsis. The
+    // overflow is visual (a line measure, not a character count),
+    // so the button is shown only when the text really overflows:
+    // the inline check below adds .overflows when the clamped
+    // paragraph's content is taller than its 3-line box.
+    echo '<div class="alt-titles-wrap collapsed"><p class="muted alt-titles">Also known as: ' . h(implode(', ', $englishAlts)) . '</p>'
+        . '<button type="button" class="alt-titles-toggle" onclick="var w=this.parentElement;w.classList.toggle(\'collapsed\');this.textContent=w.classList.contains(\'collapsed\')?\'Show all\':\'Show less\';">Show all</button></div>'
+        . '<script>(function(){var w=document.currentScript.previousElementSibling;var p=w.querySelector(\'.alt-titles\');var b=w.querySelector(\'.alt-titles-toggle\');function check(){var open=!w.classList.contains(\'collapsed\');var hadButton=w.classList.contains(\'overflows\');w.classList.add(\'collapsed\');var over=p.scrollHeight>p.clientHeight+2;if(over){w.classList.add(\'overflows\');if(open&&hadButton){w.classList.remove(\'collapsed\');}else{b.textContent=\'Show all\';}}else{w.classList.remove(\'overflows\');w.classList.remove(\'collapsed\');b.textContent=\'Show all\';}}check();window.addEventListener(\'resize\',check);})();</script>';
 }
 if ($m['synopsis'] !== '') {
     $syn = trim($m['synopsis']);

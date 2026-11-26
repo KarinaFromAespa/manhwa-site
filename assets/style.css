@@ -144,7 +144,14 @@ main { padding: 24px 0 48px; }
 .synopsis { color: var(--text); max-width: 70ch; margin: 12px 0 0; }
 .synopsis-wrap .synopsis { max-height: 200em; overflow: hidden; transition: max-height .35s ease; }
 .synopsis-wrap.collapsed .synopsis { max-height: 4.6em; }
-.synopsis-toggle { background: none; border: none; color: var(--accent); cursor: pointer; padding: 4px 0; font: inherit; }
+.synopsis-toggle, .alt-titles-toggle { background: none; border: none; color: var(--accent); cursor: pointer; padding: 4px 0; font: inherit; }
+/* Alt titles collapse after 3 lines (3 x 1.55 line-height = 4.65em),
+   like the synopsis. The toggle stays hidden until the inline check
+   finds the text really overflows, then .overflows reveals it. */
+.alt-titles-wrap .alt-titles { max-height: 200em; overflow: hidden; transition: max-height .35s ease; }
+.alt-titles-wrap.collapsed .alt-titles { max-height: 4.65em; }
+.alt-titles-toggle { display: none; }
+.alt-titles-wrap.overflows .alt-titles-toggle { display: inline-block; }
 
 /* --- Scanlator dropdown --- */
 .scanlator {
