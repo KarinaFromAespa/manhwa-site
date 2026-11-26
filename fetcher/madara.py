@@ -44,6 +44,11 @@ USER_AGENT = (
     "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
 )
 REQUEST_TIMEOUT = 10
+# Per-source request timeouts (seconds). mangaowl's title pages
+# are slow (~8s from the VM), so the 10s default times out
+# intermittently; 30s makes the retry robust without slowing
+# any other source's failure detection.
+SLOW_SOURCE_TIMEOUTS = {"mangaowl": 30}
 # Chapters API pages per title (10 chapters/page). The API reports
 # last_page, so the loop stops there; this is only a runaway guard.
 API_MAX_PAGES = 100
@@ -239,6 +244,7 @@ class MadaraSite:
         self.source_id = source_id
         self.base = base_url.rstrip("/")
         self.delay = delay
+        self.timeout = SLOW_SOURCE_TIMEOUTS.get(source_id, REQUEST_TIMEOUT)
         self.list_path = list_path.strip("/") or "manga"
         self.requests = 0
         self._last_fetch = 0.0
@@ -263,7 +269,7 @@ class MadaraSite:
             time.sleep(wait)
         self._last_fetch = time.monotonic()
         self.requests += 1
-        ok, status, body, kind, message = fetch(url)
+        ok, status, body, kind, message = fetch(url, timeout=self.timeout)
         if kind == "rate_limited":
             self.rate_limited = True
             self.rate_limit_message = message
@@ -283,7 +289,7 @@ class MadaraSite:
         if referer:
             headers["Referer"] = referer
         ok, status, body, kind, message = fetch_post(
-            url, data=data, headers=headers
+            url, data=data, headers=headers, timeout=self.timeout
         )
         if kind == "rate_limited":
             self.rate_limited = True
@@ -814,26 +820,42 @@ def parse_list(html, base):
 
 
 def parse_chapter_list_html(html, base):
-    """Chapter list from any HTML carrying li.wp-manga-chapter
+    """Chapter list from any HTML carrying wp-manga-chapter
     items (a title page, or an AJAX chapter-list response). The
-    same extraction parse_detail uses, standalone."""
+    same extraction parse_detail uses, standalone. The container
+    is usually an <li> (standard Madara), but some themes render
+    it as a <div> with the link nested a level deeper
+    (topmanhua.fan), so the container is found by walking up from
+    the link instead of requiring a <li> parent. A link only
+    counts as a chapter when its text or href yields a chapter
+    number, so a stray link inside a chapter container is never
+    mistaken for a chapter."""
     from normalize import chapter_number_from  # local import: no cycle
 
     root = parse(html)
     chapters = []
     for link in find_all(root, tag="a"):
-        li = link.parent
-        if li is None or li.tag != "li":
-            continue
-        if "wp-manga-chapter" not in li.cls():
-            continue
         href = link.get("href", "")
         if not href:
             continue
         link_text = text(link)
-        date_node = find_first(li, tag="span", cls="chapter-release-date")
+        number = chapter_number_from(link_text, href)
+        if not number:
+            continue
+        container = None
+        node = link.parent
+        while node is not None:
+            if "wp-manga-chapter" in node.cls():
+                container = node
+                break
+            node = node.parent
+        if container is None:
+            continue
+        date_node = find_first(
+            container, tag="span", cls="chapter-release-date"
+        )
         chapters.append({
-            "number": chapter_number_from(link_text, href),
+            "number": number,
             "title": link_text,
             "id": url_path(resolve_url(base, href)),
             "date": text(date_node),
