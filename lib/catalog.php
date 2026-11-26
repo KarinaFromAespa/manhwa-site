@@ -52,15 +52,22 @@ class Catalog
         return $out;
     }
 
+    /** Genre names that denote adult/mature content. Adult titles
+     *  have their own 18+ section now, so these are never offered
+     *  as filter options. Matched case-insensitively. */
+    private const ADULT_GENRES = ['adult', 'mature', 'smut', 'uncensored', 'hentai'];
+
     /** Genres present in the catalog, with title counts, most
-     *  used first. Used for the genre filter on the browse page. */
+     *  used first. Used for the genre filter on the browse page.
+     *  Adult-coded genres are excluded: adult titles live in the
+     *  18+ section, not in the genre filter. */
     public static function genres(): array
     {
         $counts = [];
         foreach (self::titles() as $t) {
             foreach ($t['genres'] ?? [] as $g) {
                 $g = trim((string) $g);
-                if ($g === '') {
+                if ($g === '' || in_array(mb_strtolower($g), self::ADULT_GENRES, true)) {
                     continue;
                 }
                 $counts[$g] = ($counts[$g] ?? 0) + 1;
