@@ -1,7 +1,7 @@
 <?php
 // Shared page chrome. No logic here, just markup. Nothing rendered
 // here names a source site.
-function pageHead(string $title, array $genres = [], string $genre = ''): void
+function pageHead(string $title, array $genres = [], string $genre = '', bool $adultOnly = false): void
 {
     global $SITE_NAME;
     $full = $title !== '' ? $title . ' — ' . $SITE_NAME : $SITE_NAME;
@@ -17,6 +17,9 @@ function pageHead(string $title, array $genres = [], string $genre = ''): void
         if ($q !== '') {
             $genreSelect .= '<input type="hidden" name="q" value="' . h($q) . '">';
         }
+        if ($adultOnly) {
+            $genreSelect .= '<input type="hidden" name="adult" value="1">';
+        }
         $genreSelect .= '<select name="genre" onchange="this.form.submit()">';
         $genreSelect .= '<option value="">All genres</option>';
         foreach ($genres as $g) {
@@ -24,8 +27,33 @@ function pageHead(string $title, array $genres = [], string $genre = ''): void
             $genreSelect .= '<option value="' . h($g['name']) . '"' . $selected . '>' . h($g['name']) . ' (' . $g['count'] . ')</option>';
         }
         $genreSelect .= '</select>';
+        // 18+ toggle beside the genre dropdown: shows only adult
+        // titles while on, and hides them again when pressed a
+        // second time. A plain link (not a form submit), so it
+        // never submits the genre form; it keeps the search and
+        // genre, and drops the page, so the toggle always lands
+        // on page 1 of the other set.
+        $toggleParams = [];
+        if ($q !== '') {
+            $toggleParams[] = 'q=' . rawurlencode($q);
+        }
         if ($genre !== '') {
-            $clear = 'index.php' . ($q !== '' ? '?q=' . rawurlencode($q) : '');
+            $toggleParams[] = 'genre=' . rawurlencode($genre);
+        }
+        if (!$adultOnly) {
+            $toggleParams[] = 'adult=1';
+        }
+        $toggleHref = 'index.php' . ($toggleParams !== [] ? '?' . implode('&', $toggleParams) : '');
+        $genreSelect .= '<a class="adult-toggle' . ($adultOnly ? ' active' : '') . '" href="' . h($toggleHref) . '" aria-pressed="' . ($adultOnly ? 'true' : 'false') . '" title="' . ($adultOnly ? 'Show all titles (hide adult)' : 'Show only adult (18+) titles') . '">18+</a>';
+        if ($genre !== '') {
+            $clearParams = [];
+            if ($q !== '') {
+                $clearParams[] = 'q=' . rawurlencode($q);
+            }
+            if ($adultOnly) {
+                $clearParams[] = 'adult=1';
+            }
+            $clear = 'index.php' . ($clearParams !== [] ? '?' . implode('&', $clearParams) : '');
             $genreSelect .= '<a href="' . h($clear) . '">Clear</a>';
         }
         $genreSelect .= '</form>';
@@ -39,6 +67,7 @@ function pageHead(string $title, array $genres = [], string $genre = ''): void
         . '<form class="search" action="index.php" method="get">'
         . '<input type="search" name="q" placeholder="Search titles…" value="' . h($_GET['q'] ?? '') . '">'
         . ($genre !== '' ? '<input type="hidden" name="genre" value="' . h($genre) . '">' : '')
+        . ($adultOnly ? '<input type="hidden" name="adult" value="1">' : '')
         . '<button type="submit">Search</button></form>'
         . $genreSelect
         . '</div></header><main class="wrap">';

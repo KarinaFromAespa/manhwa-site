@@ -8,13 +8,16 @@ $page = max(1, (int) ($_GET['page'] ?? 1));
 // Genre filter: validated against the catalog, so a mistyped or
 // stale genre in the URL is ignored instead of emptying the list.
 $genre = Catalog::canonicalGenre($_GET['genre'] ?? '');
+// Adult toggle: only the exact value '1' turns 18+ on, so a
+// mistyped or empty adult param just shows the normal browse.
+$adultOnly = ($_GET['adult'] ?? '') === '1';
 
-$res = $client->listTitles(24, $page, $q, $genre);
+$res = $client->listTitles(24, $page, $q, $genre, $adultOnly);
 
 // The heading never names the genre: the selected genre is already
 // shown in the header's genre select, so the page stays "Browse".
 $genres = Catalog::genres();
-pageHead($q !== '' ? 'Search: ' . $q : 'Browse', $genres, $genre);
+pageHead($q !== '' ? 'Search: ' . $q : 'Browse', $genres, $genre, $adultOnly);
 if ($q !== '') {
     echo '<h1>Search results for &ldquo;' . h($q) . '&rdquo;</h1>';
 } else {
@@ -51,6 +54,9 @@ if (!$res['ok']) {
         }
         if ($genre !== '') {
             $extra .= '&amp;genre=' . rawurlencode($genre);
+        }
+        if ($adultOnly) {
+            $extra .= '&amp;adult=1';
         }
         echo '<div class="pager">';
         if ($page > 1) {

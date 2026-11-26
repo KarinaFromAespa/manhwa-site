@@ -59,13 +59,21 @@ h2 { font-size: 1.2rem; margin: 28px 0 12px; letter-spacing: -0.01em; }
 }
 .search button:hover { border-color: var(--accent); }
 /* Genre select in the header, beside the search box (browse page only). */
-.genre-select { display: flex; gap: 8px; align-items: center; }
+.genre-select { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .genre-select select {
     padding: 9px 10px; border: 1px solid var(--border); border-radius: 8px;
     background: var(--surface-2); color: var(--text); font: inherit; cursor: pointer;
     max-width: 200px;
 }
 .genre-select a { font-weight: 600; white-space: nowrap; }
+/* 18+ toggle beside the genre select. The active state is the
+   accent border + soft background, same as the current pager page. */
+.genre-select .adult-toggle {
+    padding: 9px 14px; border: 1px solid var(--border); border-radius: 8px;
+    background: var(--surface-3); color: var(--text); font-weight: 700;
+}
+.genre-select .adult-toggle:hover { border-color: var(--accent); text-decoration: none; }
+.genre-select .adult-toggle.active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
 
 main { padding: 24px 0 48px; }
 

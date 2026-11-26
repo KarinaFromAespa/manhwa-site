@@ -59,12 +59,21 @@ class SiteClient
 
     // --- Reads (catalog first, live fallback) ---
 
-    public function listTitles(int $limit = 24, int $page = 1, string $search = '', string $genre = ''): array
+    public function listTitles(int $limit = 24, int $page = 1, string $search = '', string $genre = '', bool $adultOnly = false): array
     {
         if ($this->catalogMode()) {
             $items = ($search !== '' || $genre !== '')
                 ? Catalog::search($search, $genre)
                 : Catalog::titles();
+            // Adult toggle: while 18+ is on the grid shows only
+            // adult titles; otherwise adult titles are hidden.
+            // Filtered before counting, so the pager totals match
+            // the grid. (The live fallback has no adult flag, so
+            // it is unfiltered.)
+            $items = array_values(array_filter(
+                $items,
+                static fn($m) => $adultOnly ? !empty($m['adult']) : empty($m['adult'])
+            ));
             $total = count($items);
             $page = max(1, $page);
             $slice = array_slice($items, ($page - 1) * $limit, $limit);
