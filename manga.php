@@ -125,10 +125,15 @@ if (!$chapters['ok']) {
             if ($num !== '') {
                 $label = 'Chapter ' . $num;
                 if ($title !== '') {
-                    if (preg_match('/^chapter\s*(\d+(?:\.\d+)?)(?:\s*[:\-–—]?\s*(.*))?$/i', $title, $m) && (float) $m[1] === (float) $num) {
+                    if (preg_match('/^ch(?:apter|ap)?\.?\s*(\d+(?:\.\d+)?)(?:\s*[:\-–—]?\s*(.*))?$/i', $title, $m) && (float) $m[1] === (float) $num) {
                         $extra = $m[2] ?? '';
                     } else {
                         $extra = $title;
+                    }
+                    // A bare "Start Reading" label (with an optional play
+                    // icon) is a read button, not a chapter title.
+                    if (preg_match('/^[^a-z0-9]*start reading[^a-z0-9]*$/i', $extra)) {
+                        $extra = '';
                     }
                 }
             } else {
