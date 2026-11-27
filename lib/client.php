@@ -332,12 +332,13 @@ class SiteClient
     }
 
     // Canonical ids and adapter slugs: path segments of letters,
-    // digits, hyphens, underscores and slashes. Never "..".
+    // digits, hyphens, underscores, slashes and dots (dots for
+    // decimal chapter numbers, e.g. ch 64.1). Never "..".
     public static function validSlug(string $s): bool
     {
         if ($s === '' || str_contains($s, '..') || str_contains($s, '//')) {
             return false;
         }
-        return (bool) preg_match('/^[a-zA-Z0-9][a-zA-Z0-9\-_\/]*$/', $s);
+        return (bool) preg_match('/^[a-zA-Z0-9][a-zA-Z0-9\-_\/\.]*$/', $s);
     }
 }
