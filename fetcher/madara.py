@@ -458,7 +458,7 @@ class MadaraSite:
         ok, _, body, _, _ = self.post(url, data=b"", referer=manga_url)
         if not ok:
             return []
-        return parse_chapter_list_html(body, self.base)
+        return parse_chapter_list_html(body, self.base, self.source_id)
 
     def ajax_chapters_paginated(self, slug):
         """MangaAjaxPaginated: POST {manga}/ajax/chapters/?t={page}
@@ -479,7 +479,7 @@ class MadaraSite:
             )
             if not ok:
                 break
-            page_chapters = parse_chapter_list_html(body, self.base)
+            page_chapters = parse_chapter_list_html(body, self.base, self.source_id)
             if not page_chapters:
                 break
             new = [
@@ -509,7 +509,7 @@ class MadaraSite:
         )
         if not ok:
             return []
-        return parse_chapter_list_html(body, self.base)
+        return parse_chapter_list_html(body, self.base, self.source_id)
 
     def admin_ajax_get_chapters(self, slug, manga_id, total=None):
         """Chapters via the wp-manga-get-chapters admin-ajax action:
@@ -557,7 +557,7 @@ class MadaraSite:
                     html = data_obj
             if not html:
                 break
-            batch = parse_chapter_list_html(html, self.base)
+            batch = parse_chapter_list_html(html, self.base, self.source_id)
             if not batch:
                 break
             new_ids = [
@@ -596,7 +596,7 @@ class MadaraSite:
                     html = data_obj
         except ValueError:
             pass
-        return parse_chapter_list_html(html, self.base)
+        return parse_chapter_list_html(html, self.base, self.source_id)
 
     def get_chapters_via_readmore(self, slug, body):
         """Chapters via the readmore mechanism: the
@@ -718,14 +718,37 @@ def complete_chapter_list(chapters):
         if f > max_num:
             max_num = f
         have.add(num)
-        if prefix is None:
+    # Derive the URL pattern from a chapter with an INTEGER number
+    # when one exists: a decimal chapter's id may carry a page-count
+    # suffix (MangaPark "chapter-641-72" is ch 64.1, 72 pages), and
+    # carrying that suffix into synthesized links would build wrong
+    # URLs ("chapter-1-72"). Integer chapters give the source's real
+    # URL shape ("" for mangapark, "-raw" for mangaforfree). A purely
+    # numeric suffix is a page count, not a URL shape, so drop it.
+    for ch in chapters:
+        num = ch.get("number", "")
+        try:
+            float(num)
+        except (TypeError, ValueError):
+            continue
+        if "." in str(num):
+            continue
+        m = _CHAPTER_URL_RE.match(ch.get("id", "") or "")
+        if m:
+            prefix = m.group(1)
+            suffix = m.group(3)
+            if re.match(r"^-\d+$", suffix):
+                suffix = ""
+            break
+    if prefix is None:
+        for ch in chapters:
             m = _CHAPTER_URL_RE.match(ch.get("id", "") or "")
             if m:
                 prefix = m.group(1)
-                # Keep any suffix after the number (e.g. "-raw" on
-                # mangaforfree chapter URLs) so synthesized links
-                # match the source's real URL shape.
                 suffix = m.group(3)
+                if re.match(r"^-\d+$", suffix):
+                    suffix = ""
+                break
     if prefix is None or max_num <= len(chapters):
         return chapters
     import math
@@ -819,7 +842,7 @@ def parse_list(html, base):
     return items
 
 
-def parse_chapter_list_html(html, base):
+def parse_chapter_list_html(html, base, source_id=None):
     """Chapter list from any HTML carrying wp-manga-chapter
     items (a title page, or an AJAX chapter-list response). The
     same extraction parse_detail uses, standalone. The container
@@ -829,7 +852,9 @@ def parse_chapter_list_html(html, base):
     the link instead of requiring a <li> parent. A link only
     counts as a chapter when its text or href yields a chapter
     number, so a stray link inside a chapter container is never
-    mistaken for a chapter."""
+    mistaken for a chapter. source_id is passed through to
+    chapter_number_from for source-specific number rules
+    (e.g. MangaPark decimal chapters)."""
     from normalize import chapter_number_from  # local import: no cycle
 
     root = parse(html)
@@ -839,7 +864,7 @@ def parse_chapter_list_html(html, base):
         if not href:
             continue
         link_text = text(link)
-        number = chapter_number_from(link_text, href)
+        number = chapter_number_from(link_text, href, source_id)
         if not number:
             continue
         container = None

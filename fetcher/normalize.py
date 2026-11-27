@@ -68,7 +68,7 @@ def normalize_number(raw):
     return n
 
 
-def chapter_number_from(text, href=""):
+def chapter_number_from(text, href="", source_id=None):
     """Extract a chapter number from link text, falling back to the
     URL. Returns the normalized number, or "" when nothing matches."""
     # Some Madara sites abbreviate the chapter marker: "Chap 35"
@@ -80,7 +80,19 @@ def chapter_number_from(text, href=""):
     for source in (text or "", href or ""):
         m = re.search(r"(?:chapter|chap|ch)[\s\-._]?(\d+(?:\.\d+)?)", source, re.I)
         if m:
-            return normalize_number(m.group(1))
+            num = m.group(1)
+            # MangaPark decimal chapters: "chapter-641-72" / "Chapter 641 / 72"
+            # is ch 64.1 with 72 pages (the decimal digit is concatenated
+            # onto the integer part, then a page-count suffix follows).
+            # Integer chapters on MangaPark carry no page suffix, so a
+            # trailing "-<pages>" / " / <pages>" reliably marks a decimal.
+            # Scoped to mangapark only: other sources may use a numeric
+            # suffix for parts (e.g. chapter 123 part 2).
+            if source_id == "mangapark" and "." not in num and len(num) >= 2:
+                rest = source[m.end():]
+                if re.match(r"\s*[-/]\s*\d+\b", rest):
+                    num = num[:-1] + "." + num[-1]
+            return normalize_number(num)
     return ""
 
 
