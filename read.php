@@ -42,6 +42,9 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && ($_POST['action'] ?? '') ==
     $err = $again['error'] ?? [];
     if (($err['kind'] ?? '') === 'locked' && isset($err['lock']['url'], $err['source'])) {
         $unlocked = $client->unlockChapter((string) $err['source'], (string) $err['lock']['url'], $password);
+        // TEMP DEBUG (2026-11-28): log the unlock outcome so the
+        // silent failure can be diagnosed. Remove after fixing.
+        @file_put_contents(__DIR__ . '/cache/unlock_debug.log', date('c') . ' slug=' . $slug . ' ch=' . $chapterId . ' scan=' . ($scan ?? '') . ' pw_len=' . strlen($password) . ' unlock_ok=' . var_export($unlocked['ok'] ?? null, true) . ' kind=' . ($unlocked['error']['kind'] ?? '') . ' msg=' . ($unlocked['error']['message'] ?? '') . ' has_cookie=' . (isset($unlocked['data']['cookies']['mhcl_unlocked']) ? 'yes' : 'no') . ' session=' . session_status() . ' headers_sent=' . (headers_sent() ? 'yes' : 'no') . ' cookie_set=' . (isset($_COOKIE[BaseAdapter::unlockCookieName((string) $err['lock']['url'])]) ? 'yes' : 'no') . "\n", FILE_APPEND);
         if ($unlocked['ok']) {
             header('Location: read.php?slug=' . rawurlencode($slug) . '&chapter=' . rawurlencode($chapterId) . ($scanlatorMode ? '&scan=' . rawurlencode($scanParam) : '') . ($copy > 0 ? '&copy=' . $copy : ''));
             exit;
@@ -76,6 +79,7 @@ if (!$chapter['ok']) {
             . 'Answer it and the chapter will open.</p>'
             . ($question !== '' ? '<p class="unlock-question">Password is ? [ ' . h($question) . ' ]</p>' : '')
             . ($wrong ? '<p class="unlock-error">Wrong password. Try again.</p>' : '')
+            . ($unlockError !== null && !$wrong ? '<p class="unlock-error">' . h((string) ($unlockError['message'] ?? 'The unlock did not work. Try again.')) . '</p>' : '')
             . '<form method="post" action="read.php?slug=' . rawurlencode($slug)
             . '&amp;chapter=' . rawurlencode($chapterId)
             . ($scanlatorMode ? '&amp;scan=' . rawurlencode($scanParam) : '')
