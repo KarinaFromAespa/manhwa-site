@@ -92,12 +92,21 @@ def chapter_number_from(text, href="", source_id=None):
                 rest = source[m.end():]
                 if re.match(r"\s*[-/]\s*\d+\b", rest):
                     num = num[:-1] + "." + num[-1]
-            # BunManga / ManhuaHot / MangaManiacs decimal chapters:
-            # the URL writes a decimal as "chap-1-5" (link text
-            # "Chap 1.5"). When the number had to come from the URL
-            # (empty link text), the "-5" is the decimal digit, not
-            # a part number. Scoped to this family only.
-            if source_id in ("bunmanga", "manhuahot", "mangamaniacs") and "." not in num:
+            # Dash decimals: Madara sites write a decimal chapter
+            # as "Chapter 25-6" (URL "chapter-25-6") as well as
+            # "Chapter 25.6" — the "-6" is the decimal digit, not
+            # a part number. Previously scoped to the BunManga
+            # family only, but the stored catalog proves it is
+            # theme-wide: zinmanga alone had 287 rows stored as
+            # "Chapter 149-1/2/3" under number 149, mangaread 68.
+            # Collapsing distinct decimals onto one integer also
+            # inflates the site's merged "All versions" count —
+            # a-regressor-s-tale-of-cultivation showed 42 rows
+            # for 41 real chapters. Single digit only, and the
+            # word boundary keeps two-digit suffixes ("Chapter
+            # 25-26", a range) untouched; a "Part 2" written out
+            # in words never matches, the rest must start with "-".
+            if "." not in num:
                 rest = source[m.end():]
                 dm = re.match(r"-\s*(\d)\b", rest)
                 if dm:

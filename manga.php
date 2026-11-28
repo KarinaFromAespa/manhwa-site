@@ -134,7 +134,11 @@ if (!$chapters['ok']) {
             if ($num !== '') {
                 $label = 'Chapter ' . $num;
                 if ($title !== '') {
-                    if (preg_match('/^ch(?:apter|ap)?\.?\s*(\d+(?:\.\d+)?)(?:\s*[:\-–—]?\s*(.*))?$/i', $title, $m) && (float) $m[1] === (float) $num) {
+                    // The captured number also accepts a dash decimal
+                    // ("Chapter 25-6" is ch 25.6); normalize the dash
+                    // before comparing, so the remainder is empty
+                    // instead of the stray "6" being shown as a title.
+                    if (preg_match('/^ch(?:apter|ap)?\.?\s*(\d+(?:\.\d+|-\d(?!\d))?)(?:\s*[:\-–—]?\s*(.*))?$/i', $title, $m) && (float) str_replace('-', '.', $m[1]) === (float) $num) {
                         $extra = $m[2] ?? '';
                     } else {
                         $extra = $title;

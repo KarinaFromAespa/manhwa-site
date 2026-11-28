@@ -551,7 +551,13 @@ class Catalog
     private static function normalizeTitle(string $t): string
     {
         $t = mb_strtolower(trim($t));
-        $t = (string) preg_replace('/^(chapter|ch\.?)\s*\d+(\.\d+)?\s*[-–—:.]?\s*/i', '', $t);
+        // Strip the "Chapter N" prefix, including a dash decimal
+        // ("Chapter 25-6" is ch 25.6, same as "Chapter 25.6"), so
+        // the two spellings group as one chapter instead of two
+        // "(alt)" rows. Single digit only, so a range ("Chapter
+        // 25-26") keeps its suffix and still groups separately.
+        // "Chap" is a prefix too (BunManga writes "Chap 1-5").
+        $t = (string) preg_replace('/^(chapter|chap|ch\.?)\s*\d+(\.\d+|-\d(?!\d))?\s*[-–—:.]?\s*/i', '', $t);
         return (string) preg_replace('/[^a-z0-9]+/', ' ', $t);
     }
 
