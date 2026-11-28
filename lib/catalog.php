@@ -108,9 +108,15 @@ class Catalog
             return self::titles();
         }
         $stop = ['the', 'a', 'an', 'of', 'and', 'in', 'on', 'to', 'for', 'with', 'by', 'at', 'from', 'is', 'are', 'was', 'were', 'be', 'been', 'it', 'its', 'this', 'that', 'as', 'or', 'but', 'not', 'no', 'my', 'your', 'his', 'her', 'their', 'our'];
+        // Split the query the same way the title is split below
+        // (on any non-alphanumeric), so punctuation in the query
+        // cannot break a match: "Demon's" — curly or straight
+        // apostrophe — becomes "demon" + "s", and "Arts:" becomes
+        // "arts". The lone "s" left by a possessive is noise and
+        // is dropped; other single letters (e.g. "I") still count.
         $words = array_values(array_filter(
-            preg_split('/\s+/', $q) ?: [],
-            static fn($w) => $w !== '' && !in_array($w, $stop, true)
+            preg_split('/[^a-z0-9]+/', $q) ?: [],
+            static fn($w) => $w !== '' && $w !== 's' && !in_array($w, $stop, true)
         ));
         $out = [];
         foreach (self::titles() as $t) {

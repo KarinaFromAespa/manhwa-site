@@ -69,11 +69,14 @@ class SiteClient
             // adult titles; otherwise adult titles are hidden.
             // Filtered before counting, so the pager totals match
             // the grid. (The live fallback has no adult flag, so
-            // it is unfiltered.)
-            $items = array_values(array_filter(
-                $items,
-                static fn($m) => $adultOnly ? !empty($m['adult']) : empty($m['adult'])
-            ));
+            // it is unfiltered.) A search ignores the toggle and
+            // spans the whole catalog, adult and not.
+            if ($search === '') {
+                $items = array_values(array_filter(
+                    $items,
+                    static fn($m) => $adultOnly ? !empty($m['adult']) : empty($m['adult'])
+                ));
+            }
             $total = count($items);
             $page = max(1, $page);
             $slice = array_slice($items, ($page - 1) * $limit, $limit);
