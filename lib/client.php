@@ -188,6 +188,7 @@ class SiteClient
             ))
         );
         $fetchError = null;
+        $lockError = null;
         foreach ($order as $i) {
             $c = $list[$i] ?? null;
             if ($c === null || ($c['source'] ?? '') === '' || ($c['id'] ?? '') === '') {
@@ -210,11 +211,21 @@ class SiteClient
             }
             if (!$live['ok'] && isset($live['error'])) {
                 $fetchError = $live['error'];
+                // A locked chapter: remember the best-ranked copy's
+                // lock, so the unlock popup opens that copy (not
+                // the last one tried).
+                if ($lockError === null && ($live['error']['kind'] ?? '') === 'locked') {
+                    $lockError = $live['error'];
+                }
             }
         }
-        // No copy yielded images. When the live fetch itself failed,
-        // report that cause (Cloudflare, 403, timeout) instead of
-        // the generic "no images" message.
+        // No copy yielded images. A locked chapter reports its lock
+        // (so the reader can show the unlock popup); any other live
+        // fetch failure reports that cause (Cloudflare, 403,
+        // timeout) instead of the generic "no images" message.
+        if ($lockError !== null) {
+            return ['ok' => false, 'error' => $lockError];
+        }
         if ($fetchError !== null) {
             return ['ok' => false, 'error' => $fetchError];
         }
@@ -293,6 +304,31 @@ class SiteClient
             'next_chapter' => $nextChapter,
             'live' => $live,
         ]];
+    }
+
+    // Unlock a password-locked chapter with the password the
+    // visitor entered. $source is the scanlator id and $url the
+    // chapter URL from the lock error. On success the unlock
+    // cookies are kept in the visitor's session, keyed by the
+    // chapter URL, so later fetches of this chapter send them
+    // and the chapter opens. Returns the adapter's unlock result.
+    public function unlockChapter(string $source, string $url, string $password): array
+    {
+        $adapter = $this->adapterFor($this->registryEntry($source));
+        if (!($adapter instanceof MadaraAdapter)) {
+            return ['ok' => false, 'error' => ['kind' => 'bad_request', 'message' => 'This chapter cannot be unlocked here.']];
+        }
+        $res = $adapter->unlockChapterUrl($url, $password);
+        if (!$res['ok']) {
+            return $res;
+        }
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            if (!isset($_SESSION['mhcl_unlocked']) || !is_array($_SESSION['mhcl_unlocked'])) {
+                $_SESSION['mhcl_unlocked'] = [];
+            }
+            $_SESSION['mhcl_unlocked'][$url] = $res['data']['cookies'] ?? [];
+        }
+        return $res;
     }
 
     // One quick direct request, for yubkzrmdwv.php. Never hammered.

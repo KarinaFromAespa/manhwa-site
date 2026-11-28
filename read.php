@@ -1,4 +1,10 @@
 <?php
+// Unlock cookies (mhcl_unlocked) live in the visitor's session,
+// keyed by chapter URL, so a chapter they unlocked stays open
+// while they read. Start the session before any output.
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
 require_once __DIR__ . '/lib/client.php';
 require_once __DIR__ . '/lib/layout.php';
 
@@ -19,12 +25,69 @@ $scanlatorMode = $scanParam !== '' && $scanParam !== 'all';
 $scan = $scanlatorMode ? $scanParam : null;
 
 $client = new SiteClient();
+
+// Unlock submission: the visitor solved the source's password
+// question for a locked chapter. Re-derive the lock (fresh
+// question + token), post their answer, and on success go back
+// to the chapter, which now opens with the unlock cookie.
+$unlockError = null;
+$unlockLock = null;
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && ($_POST['action'] ?? '') === 'unlock') {
+    $password = (string) ($_POST['password'] ?? '');
+    $again = $client->getChapter($slug, $chapterId, $copy, $scan);
+    if ($again['ok']) {
+        header('Location: read.php?slug=' . rawurlencode($slug) . '&chapter=' . rawurlencode($chapterId) . ($scanlatorMode ? '&scan=' . rawurlencode($scanParam) : '') . ($copy > 0 ? '&copy=' . $copy : ''));
+        exit;
+    }
+    $err = $again['error'] ?? [];
+    if (($err['kind'] ?? '') === 'locked' && isset($err['lock']['url'], $err['source'])) {
+        $unlocked = $client->unlockChapter((string) $err['source'], (string) $err['lock']['url'], $password);
+        if ($unlocked['ok']) {
+            header('Location: read.php?slug=' . rawurlencode($slug) . '&chapter=' . rawurlencode($chapterId) . ($scanlatorMode ? '&scan=' . rawurlencode($scanParam) : '') . ($copy > 0 ? '&copy=' . $copy : ''));
+            exit;
+        }
+        $unlockError = $unlocked['error'] ?? null;
+        $unlockLock = $unlockError['lock'] ?? ($err['lock'] ?? null);
+    } else {
+        $unlockError = $err;
+    }
+}
+
 $chapter = $client->getChapter($slug, $chapterId, $copy, $scan);
 
 pageHead('Chapter ' . $chapterId);
 echo '<p><a href="manga.php?slug=' . rawurlencode($slug) . '">&larr; Back to title</a></p>';
 
 if (!$chapter['ok']) {
+    $err = $chapter['error'] ?? [];
+    if (($err['kind'] ?? '') === 'locked' && isset($err['lock'])) {
+        // Locked chapter: show the unlock popup with the source's
+        // question instead of a bare error. The visitor solves it;
+        // the site only posts their answer.
+        $lock = $err['lock'];
+        $question = (string) ($lock['question'] ?? '');
+        $wrong = $unlockError !== null && ($unlockError['kind'] ?? '') === 'wrong_password';
+        if ($wrong && $unlockLock !== null) {
+            $lock = $unlockLock;
+            $question = (string) ($lock['question'] ?? '');
+        }
+        echo '<div class="error-box unlock-box"><strong>This chapter is locked.</strong>'
+            . '<p>The source asks a question before it will show this chapter. '
+            . 'Answer it and the chapter will open.</p>'
+            . ($question !== '' ? '<p class="unlock-question">Password is ? [ ' . h($question) . ' ]</p>' : '')
+            . ($wrong ? '<p class="unlock-error">Wrong password. Try again.</p>' : '')
+            . '<form method="post" action="read.php?slug=' . rawurlencode($slug)
+            . '&amp;chapter=' . rawurlencode($chapterId)
+            . ($scanlatorMode ? '&amp;scan=' . rawurlencode($scanParam) : '')
+            . ($copy > 0 ? '&amp;copy=' . $copy : '') . '">'
+            . '<input type="hidden" name="action" value="unlock">'
+            . '<label for="unlock-password">Password</label>'
+            . '<input type="text" id="unlock-password" name="password" required autocomplete="off" inputmode="numeric" placeholder="Enter password">'
+            . '<button type="submit">Unlock</button>'
+            . '</form></div>';
+        pageFoot();
+        exit;
+    }
     errorBox($chapter['error']);
     pageFoot();
     exit;

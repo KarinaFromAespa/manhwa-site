@@ -230,6 +230,24 @@ main { padding: 24px 0 48px; }
 .error-box p { margin: 8px 0 0; }
 .error-kind { color: var(--muted); font-size: 0.9rem; }
 
+/* Locked-chapter unlock popup: the source asks a question before
+   it shows the chapter; the visitor answers it here. */
+.unlock-question { font-size: 1.15rem; font-weight: 600; }
+.unlock-error { color: #ff8a80; font-weight: 600; }
+.unlock-box form { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.unlock-box label { font-weight: 600; }
+.unlock-box input[type="text"] {
+    flex: 1 1 160px; max-width: 220px; padding: 9px 10px;
+    background: var(--surface-2); color: var(--text);
+    border: 1px solid var(--border); border-radius: 8px; font-size: 1rem;
+}
+.unlock-box input[type="text"]:focus { outline: 2px solid var(--accent); outline-offset: 0; border-color: var(--accent); }
+.unlock-box button {
+    padding: 9px 16px; background: var(--accent); color: #fff;
+    border: 1px solid var(--accent); border-radius: 8px; font-size: 1rem; cursor: pointer;
+}
+.unlock-box button:hover { filter: brightness(1.1); }
+
 .status-table { border-collapse: collapse; width: 100%; max-width: 760px; }
 .status-table th, .status-table td {
     text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border);
