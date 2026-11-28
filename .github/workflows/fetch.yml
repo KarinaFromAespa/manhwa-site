@@ -9,9 +9,11 @@
 # git. The merge job downloads the base catalog from FTP, merges,
 # and FTPs the site code AND the catalog outputs back to the live
 # site (InfinityFree, /htdocs/) using the repo secrets FTP_USERNAME
-# and FTP_PASSWORD. The FTP upload runs 4 files in parallel
-# (xargs -P 4) because the sequential upload was the slow part of
-# the run. Nothing catalog-related is ever committed to the repo.
+# and FTP_PASSWORD. The FTP transfer runs 3 files in parallel
+# (xargs -P 3): the server allows only 7 simultaneous connections
+# per account, so 3 leaves headroom when two runs overlap (3+3=6).
+# The sequential transfer was the slow part of the run.
+# Nothing catalog-related is ever committed to the repo.
 name: Fetching Data
 
 on:
@@ -88,7 +90,7 @@ jobs:
           print(f"base catalog has {len(ids)} titles")
           EOF
           if [ -s /tmp/title_ids.txt ]; then
-            cat /tmp/title_ids.txt | xargs -P 4 -I{} curl -s --max-time 60 -u "$FTP_USER:$FTP_PASS" -o "{}" "ftp://ftpupload.net/htdocs/{}" || true
+            cat /tmp/title_ids.txt | xargs -P 3 -I{} curl -s --max-time 60 -u "$FTP_USER:$FTP_PASS" -o "{}" "ftp://ftpupload.net/htdocs/{}" || true
           fi
           echo "base download done: $(ls data/titles/*.json 2>/dev/null | wc -l) title files"
 
@@ -104,7 +106,7 @@ jobs:
             echo "FTP_PASSWORD secret not set, skipping deploy"
             exit 0
           fi
-          # Parallel upload (4 at a time): the sequential loop was
+          # Parallel upload (3 at a time): the sequential loop was
           # the slow part of the run. xargs exits 123 if any upload
           # fails, which fails this step.
           upload_one() {
@@ -122,7 +124,7 @@ jobs:
             for f in .htaccess index.php manga.php read.php img.php api.php yubkzrmdwv.php lib/*.php lib/adapters/*.php assets/style.css data/catalog.json data/image-hosts.json data/image-referers.json data/source-patterns.json data/titles/*.json; do
               printf '%s\n' "$f"
             done
-          } | xargs -P 4 -I{} bash -c 'upload_one "$@"' _ {}
+          } | xargs -P 3 -I{} bash -c 'upload_one "$@"' _ {}
           curl -s --max-time 30 -u "$FTP_USER:$FTP_PASS" "ftp://ftpupload.net/htdocs/" -Q "-DELE status.php" || true
           # Fetcher runtime state (reliability + seed cursor) also
           # lives on the live site, never in git.
