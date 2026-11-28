@@ -43,7 +43,7 @@ abstract class BaseAdapter implements SourceAdapter
     // for POST. $cookies are sent as a Cookie header. Set-Cookie
     // values from every response (including redirects) are merged,
     // later ones winning, so the caller can keep a session.
-    protected function request(string $url, ?array $post = null, array $cookies = [], ?string $referer = null, int $timeout = 15, bool $follow = true): array
+    protected function httpRequest(string $url, ?array $post = null, array $cookies = [], ?string $referer = null, int $timeout = 15, bool $follow = true): array
     {
         $ch = curl_init($url);
         $headers = ['Accept: text/html,application/json;q=0.9,*/*;q=0.8'];
@@ -159,7 +159,7 @@ abstract class BaseAdapter implements SourceAdapter
         if ($password === '') {
             return self::err('bad_request', 'Enter the password.');
         }
-        $get = $this->request($url, null, $this->storedUnlockCookies($url), null, 15);
+        $get = $this->httpRequest($url, null, $this->storedUnlockCookies($url), null, 15);
         if (($get['errno'] ?? 0) !== 0) {
             return self::err('network', 'The source could not be reached.');
         }
@@ -168,7 +168,7 @@ abstract class BaseAdapter implements SourceAdapter
             return self::ok(['cookies' => [], 'already' => true]);
         }
         $path = (string) (parse_url($url, PHP_URL_PATH) ?: '/');
-        $post = $this->request($url, [
+        $post = $this->httpRequest($url, [
             'mhcl_unlock_nonce' => $lock['nonce'],
             '_wp_http_referer' => $path,
             'mhcl_password' => $password,
@@ -197,7 +197,7 @@ abstract class BaseAdapter implements SourceAdapter
 
     protected function fetch(string $url, int $timeout = 15): array
     {
-        $res = $this->request($url, null, $this->storedUnlockCookies($url), null, $timeout);
+        $res = $this->httpRequest($url, null, $this->storedUnlockCookies($url), null, $timeout);
         if (($res['errno'] ?? 0) !== 0) {
             if (($res['errno'] ?? 0) === CURLE_OPERATION_TIMEOUTED) {
                 return self::err('timeout', 'The request timed out.');
