@@ -246,7 +246,7 @@ abstract class BaseAdapter implements SourceAdapter
                     'kind' => 'locked',
                     'message' => 'This chapter is locked on the source. Enter the password to unlock it.',
                     'lock' => $lock,
-                    'source' => $this->id(),
+                    'source' => (string) ($this->source['id'] ?? ''),
                 ],
             ];
         }
