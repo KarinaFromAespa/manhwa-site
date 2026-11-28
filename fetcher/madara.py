@@ -852,9 +852,13 @@ def parse_chapter_list_html(html, base, source_id=None):
     the link instead of requiring a <li> parent. A link only
     counts as a chapter when its text or href yields a chapter
     number, so a stray link inside a chapter container is never
-    mistaken for a chapter. source_id is passed through to
-    chapter_number_from for source-specific number rules
-    (e.g. MangaPark decimal chapters)."""
+    mistaken for a chapter — except the release-date link, which
+    points at the same chapter URL with no text: it is skipped
+    explicitly (it lives inside a chapter-release-date span), or
+    every chapter would be counted twice, once with an empty
+    title and a number read off the URL. source_id is passed
+    through to chapter_number_from for source-specific number
+    rules (e.g. MangaPark decimal chapters)."""
     from normalize import chapter_number_from  # local import: no cycle
 
     root = parse(html)
@@ -869,12 +873,21 @@ def parse_chapter_list_html(html, base, source_id=None):
             continue
         container = None
         node = link.parent
+        in_date = False
         while node is not None:
+            if "chapter-release-date" in node.cls():
+                # The release-date link: same chapter URL, no text.
+                # It is not a chapter — counting it doubles every
+                # chapter (once with its real title, once with an
+                # empty title and a number read off the URL, which
+                # can even be wrong: "chap-1-5" reads as 1, not 1.5).
+                in_date = True
+                break
             if "wp-manga-chapter" in node.cls():
                 container = node
                 break
             node = node.parent
-        if container is None:
+        if in_date or container is None:
             continue
         date_node = find_first(
             container, tag="span", cls="chapter-release-date"

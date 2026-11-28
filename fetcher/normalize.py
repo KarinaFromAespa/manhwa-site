@@ -92,6 +92,16 @@ def chapter_number_from(text, href="", source_id=None):
                 rest = source[m.end():]
                 if re.match(r"\s*[-/]\s*\d+\b", rest):
                     num = num[:-1] + "." + num[-1]
+            # BunManga / ManhuaHot / MangaManiacs decimal chapters:
+            # the URL writes a decimal as "chap-1-5" (link text
+            # "Chap 1.5"). When the number had to come from the URL
+            # (empty link text), the "-5" is the decimal digit, not
+            # a part number. Scoped to this family only.
+            if source_id in ("bunmanga", "manhuahot", "mangamaniacs") and "." not in num:
+                rest = source[m.end():]
+                dm = re.match(r"-\s*(\d)\b", rest)
+                if dm:
+                    num = num + "." + dm.group(1)
             return normalize_number(num)
     return ""
 

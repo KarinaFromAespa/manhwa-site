@@ -237,12 +237,17 @@ class Catalog
                 continue;
             }
             $sid = (string) $src['source'];
-            $chapters = is_array($src['chapters'] ?? null) ? $src['chapters'] : [];
             $reg = $registry[$sid] ?? [];
+            // Count the rows the title page actually renders for
+            // this source, not the raw stored entries. A source can
+            // store two entries for one chapter (a release-date
+            // link, a duplicate), and the dropdown must agree with
+            // the list it labels, or the count lies.
+            $chapters = count(self::sourceChapters($id, $sid));
             $out[] = [
                 'source' => $sid,
                 'name' => (string) ($reg['name'] ?? $sid),
-                'chapters' => count($chapters),
+                'chapters' => $chapters,
                 'fetched_at' => (int) (($src['fetched_at'] ?? $src['scraped_at'] ?? 0)),
                 'reliability' => isset($src['reliability']) ? (float) $src['reliability'] : (isset($reg['reliability']) ? (float) $reg['reliability'] : null),
                 'quality' => (string) ($src['quality'] ?? $reg['quality'] ?? ''),
