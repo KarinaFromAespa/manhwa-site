@@ -117,6 +117,15 @@ if (!$chapters['ok']) {
         echo '<p class="muted">No chapters listed.</p>';
     } else {
         $scanQs = ($scan !== 'all') ? '&amp;scan=' . rawurlencode($scan) : '';
+        // Normalized series names (title + alt titles) so a chapter
+        // title that just repeats one of them can be dropped below.
+        $seriesNames = [];
+        foreach (array_merge([$m['title']], $m['alt_titles'] ?? []) as $n) {
+            $nn = preg_replace('/[^a-z0-9]+/', '', strtolower((string) $n));
+            if ($nn !== '') {
+                $seriesNames[] = $nn;
+            }
+        }
         echo '<ul class="chapters">';
         foreach ($list as $c) {
             $num = $c['number'];
@@ -134,6 +143,15 @@ if (!$chapters['ok']) {
                     // icon) is a read button, not a chapter title.
                     if (preg_match('/^[^a-z0-9]*start reading[^a-z0-9]*$/i', $extra)) {
                         $extra = '';
+                    }
+                    // A chapter title that just repeats the series title
+                    // (or one of its alt titles) adds nothing — the page
+                    // already says which title this is.
+                    if ($extra !== '') {
+                        $en = preg_replace('/[^a-z0-9]+/', '', strtolower($extra));
+                        if ($en !== '' && in_array($en, $seriesNames, true)) {
+                            $extra = '';
+                        }
                     }
                 }
             } else {
