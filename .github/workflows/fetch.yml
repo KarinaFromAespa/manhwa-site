@@ -92,10 +92,41 @@ jobs:
           if [ -s /tmp/title_ids.txt ]; then
             cat /tmp/title_ids.txt | xargs -P 3 -I{} curl -s --max-time 60 -u "$FTP_USER:$FTP_PASS" -o "{}" "ftp://ftpupload.net/htdocs/{}" || true
           fi
-          echo "base download done: $(ls data/titles/*.json 2>/dev/null | wc -l) title files"
+          # A partial base download silently drops titles from the
+          # merged catalog (run 46105566606: 1056 of 1795 files, and
+          # the merge published a 1092-title catalog). Retry whatever
+          # is still missing or empty, then refuse to continue rather
+          # than publish a shrunken catalog.
+          expected=$(wc -l < /tmp/title_ids.txt 2>/dev/null || echo 0)
+          for pass in 1 2; do
+            find data/titles -maxdepth 1 -name '*.json' -size 0c -delete 2>/dev/null || true
+            got=$(find data/titles -maxdepth 1 -name '*.json' -size +0c 2>/dev/null | wc -l)
+            [ "$got" -ge "$expected" ] && break
+            comm -23 <(sort /tmp/title_ids.txt) <(find data/titles -maxdepth 1 -name '*.json' -size +0c 2>/dev/null | sort) | xargs -r -P 3 -I{} curl -s --max-time 60 -u "$FTP_USER:$FTP_PASS" -o "{}" "ftp://ftpupload.net/htdocs/{}" || true
+          done
+          got=$(find data/titles -maxdepth 1 -name '*.json' -size +0c 2>/dev/null | wc -l)
+          echo "base download done: $got of $expected title files"
+          if [ "$got" -lt "$expected" ]; then
+            echo "ERROR: base download incomplete ($got of $expected title files after retry); refusing to merge a partial base"
+            exit 1
+          fi
 
       - name: Merge shards into the catalog
         run: python3 fetcher/merge_shards.py --root . data/shard-0 data/shard-1 data/shard-2
+
+      - name: Sanity-check catalog size before deploy
+        run: |
+          python3 - <<'EOF'
+          import json
+          from pathlib import Path
+          base = sum(1 for _ in Path("/tmp/title_ids.txt").read_text().splitlines()) if Path("/tmp/title_ids.txt").exists() else 0
+          pruned = sum(1 for _ in Path("data/pruned-titles.txt").read_text().splitlines()) if Path("data/pruned-titles.txt").is_file() else 0
+          merged = len(json.loads(Path("data/catalog.json").read_text()).get("titles", []))
+          print(f"catalog size check: merged {merged} titles (base {base}, pruned {pruned})")
+          if merged < base - pruned:
+              print(f"ERROR: merged catalog ({merged}) is smaller than base minus pruned ({base - pruned}); refusing to deploy a shrunken catalog")
+              raise SystemExit(1)
+          EOF
 
       - name: Deploy site + catalog to live site (FTP)
         env:
