@@ -322,11 +322,19 @@ class SiteClient
         if (!$res['ok']) {
             return $res;
         }
+        $cookies = $res['data']['cookies'] ?? [];
         if (session_status() === PHP_SESSION_ACTIVE) {
             if (!isset($_SESSION['mhcl_unlocked']) || !is_array($_SESSION['mhcl_unlocked'])) {
                 $_SESSION['mhcl_unlocked'] = [];
             }
-            $_SESSION['mhcl_unlocked'][$url] = $res['data']['cookies'] ?? [];
+            $_SESSION['mhcl_unlocked'][$url] = $cookies;
+        }
+        // The unlock cookie is also kept in the visitor's browser
+        // (30 days, this chapter only), so the unlock survives even
+        // when the server-side session does not persist. Only the
+        // mhcl_unlocked value is needed to open the chapter.
+        if (isset($cookies['mhcl_unlocked']) && !headers_sent()) {
+            setcookie(BaseAdapter::unlockCookieName($url), (string) $cookies['mhcl_unlocked'], time() + 30 * 86400, '/');
         }
         return $res;
     }

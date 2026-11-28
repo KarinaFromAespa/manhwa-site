@@ -111,17 +111,32 @@ abstract class BaseAdapter implements SourceAdapter
 
     // Unlock cookies this visitor has stored (in their session) for
     // a chapter URL. Empty when there is no session or no unlock.
+    // Unlock cookies already stored for a chapter URL (from the
+    // visitor's session, or from the browser cookie set when the
+    // chapter was unlocked). A GET with only mhcl_unlocked opens
+    // the chapter, so only that value is kept.
     protected function storedUnlockCookies(string $url): array
     {
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            return [];
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            $all = $_SESSION['mhcl_unlocked'] ?? [];
+            if (is_array($all)) {
+                $entry = $all[$url] ?? null;
+                if (is_array($entry)) {
+                    return $entry;
+                }
+            }
         }
-        $all = $_SESSION['mhcl_unlocked'] ?? [];
-        if (!is_array($all)) {
-            return [];
+        $name = self::unlockCookieName($url);
+        if (isset($_COOKIE[$name]) && $_COOKIE[$name] !== '') {
+            return ['mhcl_unlocked' => (string) $_COOKIE[$name]];
         }
-        $entry = $all[$url] ?? null;
-        return is_array($entry) ? $entry : [];
+        return [];
+    }
+
+    // Browser-cookie name holding one chapter's unlock value.
+    public static function unlockCookieName(string $url): string
+    {
+        return 'unlock_' . md5($url);
     }
 
     // A password-locked chapter page (the mhcl lock form), or null.
