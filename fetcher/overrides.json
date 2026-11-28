@@ -2,12 +2,13 @@
   "aliases": {
     "a-situation-full-of-erections": "a-situation-full-of-erections-manhwa",
     "affair-agency": "affair-agency-manhwa",
+    "all-my-summons-have-sss-rank-talents": "all-my-summons-have-sss-level-talents",
+    "barbarian-from-the-middle-ages": "a-barbarian-from-the-medieval-era",
     "heavenly-grand-archive-s-young-master-128kim-hyeon-yeongmidnight-studio": "heavenly-grand-archive-s-young-master",
     "hypnotist-security-guard": "hypnotist-security-guard-manhwa",
     "i-banged-all-my-classmates-after-graduation": "i-banged-all-my-classmates-after-graduation-manhwa",
-    "teacher-s-efforts": "teacher-s-efforts-manhwa",
-    "barbarian-from-the-middle-ages": "a-barbarian-from-the-medieval-era",
-    "all-my-summons-have-sss-rank-talents": "all-my-summons-have-sss-level-talents"
+    "lord-of-summoning-when-anomalies-descend-upon-the-human-world": "lord-of-summons-sudden-mutation",
+    "teacher-s-efforts": "teacher-s-efforts-manhwa"
   },
   "note": "Manual canonical-id corrections. Map a normalized title slug (or 'slug|author-slug') to the canonical id it should use, e.g. {\"my-title\": \"my-title-2\"}. Used when the automatic merge puts two different titles under one id, or splits one title into two. The runner consults aliases before assigning a new id."
 }
